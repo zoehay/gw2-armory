@@ -106,23 +106,12 @@ func (repository *BagItemRepository) GetDetailBagItemByAccountID(accountID strin
 
 }
 
-// func nameIncludes(queryString string) func(db *gorm.DB) *gorm.DB {
-// 	return func(db *gorm.DB) *gorm.DB {
-// 		return db.Where("name IN (?)", queryString)
-// 	}
-// }
-// func descriptionIncludes(queryString string) func(db *gorm.DB) *gorm.DB {
-// 	return func(db *gorm.DB) *gorm.DB {
-// 		return db.Where("description IN (?)", queryString)
-// 	}
-// }
-
 func (repository *BagItemRepository) GetDetailBagItemsWithSearch(accountID string, searchTerm string) (detailBagItems []dbmodels.DBDetailBagItem, err error) {
 	err = repository.DB.Table("db_bag_items").
 		Select("db_bag_items.*, db_items.icon, db_items.name, db_items.description, db_items.rarity").
 		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
 		Where("db_bag_items.account_id = ?", accountID).
-		Where("name ILIKE ? OR description ILIKE ?", searchTerm, searchTerm).
+		Where("name ILIKE ? OR description ILIKE ? OR rarity ILIKE ?", searchTerm, searchTerm, searchTerm).
 		Scan(&detailBagItems).Error
 
 	if err != nil {

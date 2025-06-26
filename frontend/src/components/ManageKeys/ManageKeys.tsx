@@ -119,5 +119,3 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
 //     </div>
 //   );
 // }
-
-export default ManageKeys;

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import navbar from "./navbar.module.css";
 
-const DesktopNav = () => {
+export const DesktopNav = () => {
   return (
     <div className={navbar.desktopContent}>
       <p>Logo</p>
@@ -16,5 +16,3 @@ const DesktopNav = () => {
     </div>
   );
 };
-
-export default DesktopNav;

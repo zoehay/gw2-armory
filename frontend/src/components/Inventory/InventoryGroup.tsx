@@ -9,7 +9,7 @@ interface InventoryGroupProps {
   equipment?: BagItem[];
 }
 
-const InventoryGroup: React.FC<InventoryGroupProps> = ({
+export const InventoryGroup: React.FC<InventoryGroupProps> = ({
   characterName,
   equipment,
   characterInventory,
@@ -36,5 +36,3 @@ const InventoryGroup: React.FC<InventoryGroupProps> = ({
     </div>
   );
 };
-
-export default InventoryGroup;

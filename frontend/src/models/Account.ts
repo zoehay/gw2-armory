@@ -33,5 +33,3 @@ interface Session {
   sessionID: string;
   expires: Date;
 }
-
-export default Account;

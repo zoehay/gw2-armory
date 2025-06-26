@@ -2,7 +2,7 @@ import navbar from "./navbar.module.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-const MobileNav = () => {
+export const MobileNav = () => {
   let [showMenu, setShowMenu] = useState(false);
   let position;
 
@@ -39,5 +39,3 @@ const MobileNav = () => {
     </>
   );
 };
-
-export default MobileNav;
