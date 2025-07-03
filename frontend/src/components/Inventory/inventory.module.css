@@ -1,67 +1,78 @@
-
-
 .inventoryGroups {
-    transform: rotate(0deg);    
+  transform: rotate(0deg);
 }
 
 .group {
-    display: block;
+  display: block;
 }
 
 .group > .name {
-    font-weight: bold;
-    color: var(--link)
+  font-weight: bold;
+  color: var(--link);
 }
 
 .group > .contents {
-    display: flex;
-    box-sizing: border-box;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: start;
-    @media (min-width: 46rem) {
-        margin: 3rem;
-        max-width: 75rem;
-      }
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: start;
+  @media (min-width: 46rem) {
+    margin: 1rem;
+    max-width: 75rem;
+  }
 }
 
 .tile {
-    width: 3rem;
-    height: 3rem;
-    text-align: right;
+  width: 3rem;
+  height: 3rem;
+  text-align: right;
+  margin: 0.05rem;
+  box-sizing: border-box;
+  border: solid 0.1rem;
+  --outline-Junk: grey;
+  --outline-Basic: black;
+  --outline-Fine: blue;
+  --outline-Masterwork: green;
+  --outline-Rare: rgb(255, 238, 0);
+  --outline-Exotic: rgb(255, 167, 4);
+  --outline-Ascended: rgb(250, 67, 174);
+  --outline-Legendary: rgb(58, 0, 71);
 }
 
 .tile > .count {
-    position: absolute;
-    z-index:1;
-    color: white;
-    margin-top: 0;
+  position: absolute;
+  z-index: 1;
+  color: white;
+  margin-top: 0;
+  margin-left: 0.2rem;
 }
 
 .tile > .icon {
-    transform: rotate(0deg);
-    width: 3rem;
-    height: 3rem;
-    object-fit: contain;
+  transform: rotate(0deg);
+  width: 2.8rem;
+  height: 2.8rem;
+  object-fit: contain;
+  box-sizing: border-box;
 }
 
 .tooltip {
-    width: 7rem;
-    min-height: 5rem;
-    position: fixed;
-    z-index: 2;
-    background-color: black;
-    text-align: left;
+  width: 7rem;
+  min-height: 5rem;
+  position: fixed;
+  z-index: 2;
+  background-color: black;
+  text-align: left;
 }
 
 .tooltip > .name {
-    font-size: 1rem;
-    padding: 0.25rem;
-    margin: 0rem;
+  font-size: 1rem;
+  padding: 0.25rem;
+  margin: 0rem;
 }
 
 .tooltip > .description {
-    font-size: 0.75rem;
-    padding: 0rem 0.75rem;
-    margin: 0rem;
+  font-size: 0.75rem;
+  padding: 0rem 0.75rem;
+  margin: 0rem;
 }

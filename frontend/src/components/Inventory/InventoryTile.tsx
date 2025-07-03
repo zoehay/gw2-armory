@@ -8,6 +8,9 @@ export interface InventoryTileProps {
 
 export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
   let [displayDetails, setDisplayDetails] = useState(false);
+  let style = {
+    borderColor: `var(--outline-${bagItem.rarity})`,
+  } as React.CSSProperties;
 
   const handleMouseEnter = () => {
     setDisplayDetails(true);
@@ -27,6 +30,7 @@ export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
       onMouseEnter={handleMouseEnter}
       onClick={handleTapToggle}
       onMouseLeave={handleMouseLeave}
+      style={style}
     >
       {bagItem.count > 1 && (
         <div className={inventory.count}>{bagItem.count}</div>
