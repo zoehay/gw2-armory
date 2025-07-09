@@ -14,6 +14,7 @@ export interface BagItem {
   binding?: string;
   boundTo?: string;
   rarity?: string;
+  details?: { [key: string]: unknown };
 }
 
 export interface APIBagItem {
@@ -32,6 +33,7 @@ export interface APIBagItem {
   binding?: string;
   bound_to?: string;
   rarity?: string;
+  details?: { [key: string]: unknown };
 }
 
 export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
@@ -51,5 +53,6 @@ export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
     binding: apiBagItem.binding,
     boundTo: apiBagItem.bound_to,
     rarity: apiBagItem.rarity as string,
+    details: apiBagItem.details,
   };
 }

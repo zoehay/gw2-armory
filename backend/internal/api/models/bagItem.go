@@ -25,6 +25,7 @@ type BagItem struct {
 	Rarity        *string                 `json:"rarity"`
 	Slot          *string                 `json:"slot"`
 	Location      *string                 `json:"location"`
+	Details       *map[string]interface{} `json:"details,omitempty" gorm:"type:json"`
 }
 
 func (item BagItem) IsEquipment() bool {

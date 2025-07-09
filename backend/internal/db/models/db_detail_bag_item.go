@@ -24,6 +24,7 @@ type DBDetailBagItem struct {
 	Rarity        *string            `json:"rarity"`
 	Slot          *string            `json:"slot"`
 	Location      *string            `json:"location"`
+	Details       *models.DetailsMap `json:"details" gorm:"type:json"`
 }
 
 func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
@@ -45,6 +46,7 @@ func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
 		Rarity:        dbDetailBagItem.Rarity,
 		Slot:          dbDetailBagItem.Slot,
 		Location:      dbDetailBagItem.Location,
+		Details:       (*map[string]interface{})(dbDetailBagItem.Details),
 	}
 }
 
