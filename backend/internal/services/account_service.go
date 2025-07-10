@@ -11,12 +11,14 @@ import (
 	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
 	gw2models "github.com/zoehay/gw2armoury/backend/internal/gw2_client/models"
 	"github.com/zoehay/gw2armoury/backend/internal/gw2_client/providers"
+
 	"gorm.io/gorm"
 )
 
 type AccountServiceInterface interface {
 	GetAccount(apiKey string) (*gw2models.GW2Account, error)
-	GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2Account gw2models.GW2Account) (*dbmodels.DBAccount, *dbmodels.DBSession, error)
+	GetTokenInfo(apiKey string) (*gw2models.GW2TokenInfo, error)
+	GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2AccountID string) (*dbmodels.DBAccount, *dbmodels.DBSession, error)
 	RenewOrGenerateSession(account *dbmodels.DBAccount) (*dbmodels.DBAccount, *dbmodels.DBSession, error)
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
@@ -45,16 +47,29 @@ func (service *AccountService) GetAccount(apiKey string) (*gw2models.GW2Account,
 	if account.ID == nil {
 		return nil, fmt.Errorf("service error no account id: %s", err)
 	}
+	if account.Name == nil {
+		return nil, fmt.Errorf("service error no account id: %s", err)
+	}
 
 	return account, nil
 }
 
-func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2Account gw2models.GW2Account) (*dbmodels.DBAccount, *dbmodels.DBSession, error) {
+func (service *AccountService) GetTokenInfo(apiKey string) (*gw2models.GW2TokenInfo, error) {
+	token, err := service.AccountProvider.GetTokenInfo(apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("service error using provider could not get account id: %s", err)
+	}
+	if token.ID == nil || token.Name == nil {
+		return nil, fmt.Errorf("service error no token id or name: %s", err)
+	}
 
-	gw2AccountID := gw2Account.ID
+	return token, nil
+}
+
+func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2AccountID string) (*dbmodels.DBAccount, *dbmodels.DBSession, error) {
 	var account *dbmodels.DBAccount
 
-	existingAccount, err := service.AccountRepository.GetByID(*gw2AccountID)
+	existingAccount, err := service.AccountRepository.GetByID(gw2AccountID)
 	if err != nil {
 		// new user
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -63,6 +78,7 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.
 				return nil, nil, fmt.Errorf("account repository create error: %s", err)
 			}
 		} else {
+			// db error
 			if err != nil {
 				return nil, nil, fmt.Errorf("error accessing account db: %s", err)
 			}
@@ -72,8 +88,9 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.
 		// TODO replace password with user
 		if existingAccount.Password != nil {
 			// existing full account
-			return nil, nil, fmt.Errorf("error existing account for account id: %s", *gw2AccountID)
+			return nil, nil, fmt.Errorf("error existing account for account id: %s", gw2AccountID)
 		} else {
+			// returning user has not previously set a password
 			if requestAccount.Password != nil {
 				// existing guest account, accountRequest has password so upgrade to full account
 				account, err = service.AccountRepository.Update(existingAccount, requestAccount)

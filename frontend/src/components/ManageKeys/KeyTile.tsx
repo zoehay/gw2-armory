@@ -26,9 +26,9 @@ export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
 
   return (
     <div className={managekeys.keytile}>
+      <div className={managekeys.field}>{account.gw2TokenName}</div>
       <div className={managekeys.field}>{account.gw2AccountName}</div>
       <div className={managekeys.field}>{account.accountID}</div>
-      <div className={managekeys.field}>{account.apiKey}</div>
       <input type="button" onClick={handleClick} value="Delete Account"></input>
     </div>
   );

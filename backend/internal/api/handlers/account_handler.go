@@ -40,7 +40,7 @@ func (handler AccountHandler) GetAccount(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, account.DBAccountToAccount())
 }
 
-func (handler AccountHandler) HandlePostAccountRequest(c *gin.Context) {
+func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 
 	var accountRequest AccountRequest
 
@@ -49,23 +49,35 @@ func (handler AccountHandler) HandlePostAccountRequest(c *gin.Context) {
 		return
 	}
 
-	// verify GW2 account
+	gw2TokenInfo, err := handler.AccountService.GetTokenInfo(accountRequest.APIKey)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get token info from gw2 api": err.Error()})
+		return
+	}
+
 	gw2Account, err := handler.AccountService.GetAccount(accountRequest.APIKey)
-	if err != nil || gw2Account == nil || gw2Account.ID == nil || gw2Account.Name == nil {
+	if err != nil {
 		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get account id from gw2 api": err.Error()})
 		return
+	}
+
+	// token name is set by user, truncate if very long
+	gw2TokenName := string(*gw2TokenInfo.Name)
+	if len(*gw2TokenInfo.Name) > 25 {
+		gw2TokenName = gw2TokenName[:25]
 	}
 
 	var requestAccount = &dbmodels.DBAccount{
 		AccountID:      *gw2Account.ID,
 		AccountName:    accountRequest.AccountName,
 		GW2AccountName: gw2Account.Name,
+		GW2TokenName:   &gw2TokenName,
 		APIKey:         &accountRequest.APIKey,
 		Password:       accountRequest.Password,
 	}
 
 	// determine new or returning user, return new or updated account
-	account, session, err := handler.AccountService.GenerateOrUpdateAccount(requestAccount, *gw2Account)
+	account, session, err := handler.AccountService.GenerateOrUpdateAccount(requestAccount, *gw2Account.ID)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error generating or updating account": err.Error()})
 		return

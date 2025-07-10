@@ -11,6 +11,7 @@ type DBAccount struct {
 	LastCrawl      *time.Time
 	AccountName    *string
 	GW2AccountName *string
+	GW2TokenName   *string
 	APIKey         *string
 	Password       *string
 	SessionID      *string    `gorm:"index"`
@@ -23,6 +24,7 @@ func (dbAccount DBAccount) DBAccountToAccount() models.Account {
 		LastCrawl:      dbAccount.LastCrawl,
 		AccountName:    dbAccount.AccountName,
 		GW2AccountName: dbAccount.GW2AccountName,
+		GW2TokenName:   dbAccount.GW2TokenName,
 		APIKey:         dbAccount.APIKey,
 		Password:       dbAccount.Password,
 		SessionID:      dbAccount.SessionID,

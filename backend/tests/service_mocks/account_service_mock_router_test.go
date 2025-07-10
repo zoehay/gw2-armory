@@ -49,3 +49,11 @@ func (s *AccountRouterServiceTestSuite) TestGetAccount() {
 	testutils.PrintObject(account)
 	assert.NoError(s.T(), err, "Failed to get account")
 }
+
+func (s *AccountRouterServiceTestSuite) TestGetTokenInfo() {
+	token, err := s.Service.AccountService.GetTokenInfo("apiKey")
+	testutils.PrintObject(token)
+	assert.NoError(s.T(), err, "Failed to get account")
+	assert.Equal(s.T(), "armourytest", *token.Name, "Token info returns correct name")
+
+}
