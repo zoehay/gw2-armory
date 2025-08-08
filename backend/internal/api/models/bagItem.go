@@ -9,10 +9,7 @@ import (
 
 type BagItem struct {
 	CharacterName string                  `json:"character_name"`
-	Name          *string                 `json:"name"`
-	Description   *string                 `json:"description"`
 	BagItemID     uint                    `json:"id"`
-	Icon          string                  `json:"icon"`
 	Count         uint                    `json:"count"`
 	Charges       *uint                   `json:"charges,omitempty"`
 	Infusions     *[]int64                `json:"infusions,omitempty"`
@@ -22,10 +19,17 @@ type BagItem struct {
 	Dyes          *[]int64                `json:"dyes,omitempty" gorm:"type:integer[]"`
 	Binding       *string                 `json:"binding,omitempty"`
 	BoundTo       *string                 `json:"bound_to,omitempty"`
-	Rarity        *string                 `json:"rarity"`
 	Slot          *string                 `json:"slot"`
 	Location      *string                 `json:"location"`
-	Details       *map[string]interface{} `json:"details,omitempty" gorm:"type:json"`
+
+	// fields from full item details optional in case not in db
+	Name        *string `json:"name"`
+	Icon        *string `json:"icon"`
+	Description *string `json:"description"`
+	Type        *string `json:"type"`
+	Rarity      *string `json:"rarity"`
+	VendorValue *uint
+	Details     *map[string]interface{} `json:"details,omitempty" gorm:"type:json"`
 }
 
 func (item BagItem) IsEquipment() bool {

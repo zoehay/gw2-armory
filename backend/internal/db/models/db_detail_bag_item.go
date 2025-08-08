@@ -8,10 +8,7 @@ import (
 type DBDetailBagItem struct {
 	AccountID     string             `json:"account_id"`
 	CharacterName string             `json:"character_name"`
-	Name          *string            `json:"name"`
-	Description   *string            `json:"description"`
 	BagItemID     uint               `json:"id"`
-	Icon          string             `json:"icon"`
 	Count         uint               `json:"count"`
 	Charges       *uint              `json:"charges,omitempty"`
 	Infusions     *pq.Int64Array     `json:"infusions,omitempty" gorm:"type:integer[]"`
@@ -21,19 +18,23 @@ type DBDetailBagItem struct {
 	Dyes          *pq.Int64Array     `json:"dyes,omitempty" gorm:"type:integer[]"`
 	Binding       *string            `json:"binding,omitempty"`
 	BoundTo       *string            `json:"bound_to,omitempty"`
-	Rarity        *string            `json:"rarity"`
 	Slot          *string            `json:"slot"`
 	Location      *string            `json:"location"`
-	Details       *models.DetailsMap `json:"details" gorm:"type:json"`
+
+	// fields from full item details optional in case not in db
+	Name        *string            `json:"name"`
+	Icon        *string            `json:"icon"`
+	Description *string            `json:"description"`
+	Type        *string            `json:"type"`
+	Rarity      *string            `json:"rarity"`
+	VendorValue *uint              `json:"vendor_value"`
+	Details     *models.DetailsMap `json:"details" gorm:"type:json"`
 }
 
 func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
 	return models.BagItem{
 		CharacterName: dbDetailBagItem.CharacterName,
-		Name:          dbDetailBagItem.Name,
-		Description:   dbDetailBagItem.Description,
 		BagItemID:     dbDetailBagItem.BagItemID,
-		Icon:          dbDetailBagItem.Icon,
 		Count:         dbDetailBagItem.Count,
 		Charges:       dbDetailBagItem.Charges,
 		Infusions:     (*[]int64)(dbDetailBagItem.Infusions),
@@ -43,10 +44,16 @@ func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
 		Dyes:          (*[]int64)(dbDetailBagItem.Dyes),
 		Binding:       dbDetailBagItem.Binding,
 		BoundTo:       dbDetailBagItem.BoundTo,
-		Rarity:        dbDetailBagItem.Rarity,
 		Slot:          dbDetailBagItem.Slot,
 		Location:      dbDetailBagItem.Location,
-		Details:       (*map[string]interface{})(dbDetailBagItem.Details),
+
+		Name:        dbDetailBagItem.Name,
+		Icon:        dbDetailBagItem.Icon,
+		Description: dbDetailBagItem.Description,
+		Type:        dbDetailBagItem.Type,
+		Rarity:      dbDetailBagItem.Rarity,
+		VendorValue: dbDetailBagItem.VendorValue,
+		Details:     (*map[string]interface{})(dbDetailBagItem.Details),
 	}
 }
 
@@ -107,7 +114,7 @@ func DBDetailBagItemsToAccountInventory(dbIconBagItems []DBDetailBagItem, accoun
 }
 
 func ItemNotInDB(item DBDetailBagItem) bool {
-	if item.Name == nil {
+	if (item.Name) == nil {
 		return true
 	} else {
 		return false

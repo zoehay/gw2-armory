@@ -87,6 +87,7 @@ func (bagItemHandler BagItemHandler) GetAccountInventory(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, accountInventory)
 
 	noDuplicates := removeDuplicates(itemsNotInDB)
+
 	itemIDChunks := SplitArray(noDuplicates, 10)
 	var errs []error
 	for _, idChunk := range itemIDChunks {

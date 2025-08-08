@@ -6,19 +6,19 @@ import (
 )
 
 type DBItem struct {
+	ID           uint `gorm:"primaryKey"`
+	ChatLink     string
 	Name         string
-	Description  string
+	Icon         *string
+	Description  *string
 	Type         string
-	Level        uint
 	Rarity       string
+	Level        uint
 	VendorValue  uint
 	DefaultSkin  *uint
-	GameTypes    pq.StringArray `gorm:"type:text[]"`
-	Flags        pq.StringArray `gorm:"type:text[]"`
-	Restrictions pq.StringArray `gorm:"type:text[]"`
-	ID           uint           `gorm:"primaryKey"`
-	ChatLink     string
-	Icon         string
+	Flags        *pq.StringArray         `gorm:"type:text[]"`
+	GameTypes    *pq.StringArray         `gorm:"type:text[]"`
+	Restrictions *pq.StringArray         `gorm:"type:text[]"`
 	UpgradesInto *models.DetailsMapArray `gorm:"type:json"`
 	UpgradesFrom *models.DetailsMapArray `gorm:"type:json"`
 	Details      *models.DetailsMap      `gorm:"type:json"`
@@ -40,19 +40,19 @@ func (dbItem DBItem) ToItem() models.Item {
 	}
 
 	return models.Item{
-		Name:         dbItem.Name,
-		Type:         dbItem.Name,
-		Level:        dbItem.Level,
-		Rarity:       dbItem.Rarity,
-		VendorValue:  dbItem.VendorValue,
-		DefaultSkin:  dbItem.DefaultSkin,
-		GameTypes:    dbItem.GameTypes,
-		Flags:        dbItem.Flags,
-		Restrictions: dbItem.Restrictions,
 		ID:           dbItem.ID,
-		ChatLink:     dbItem.ChatLink,
+		ChatLink:     &dbItem.ChatLink,
+		Name:         &dbItem.Name,
 		Icon:         dbItem.Icon,
 		Description:  dbItem.Description,
+		Type:         &dbItem.Name,
+		Rarity:       &dbItem.Rarity,
+		Level:        &dbItem.Level,
+		VendorValue:  &dbItem.VendorValue,
+		DefaultSkin:  dbItem.DefaultSkin,
+		Flags:        (*[]string)(dbItem.Flags),
+		GameTypes:    (*[]string)(dbItem.GameTypes),
+		Restrictions: (*[]string)(dbItem.Restrictions),
 		UpgradesInto: &upgradesInto,
 		UpgradesFrom: &upgradesFrom,
 		Details:      (*map[string]interface{})(dbItem.Details),
