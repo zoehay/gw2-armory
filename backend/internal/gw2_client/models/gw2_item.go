@@ -18,16 +18,16 @@ type GW2Item struct {
 	ID           uint                      `json:"id"`
 	ChatLink     string                    `json:"chat_link"`
 	Name         string                    `json:"name"`
-	Icon         *string                   `json:"icon"`
-	Description  *string                   `json:"description"`
+	Icon         *string                   `json:"icon,omitempty"`
+	Description  *string                   `json:"description,omitempty"`
 	Type         string                    `json:"type"`
 	Rarity       string                    `json:"rarity"`
 	Level        uint                      `json:"level"`
 	VendorValue  uint                      `json:"vendor_value"`
 	DefaultSkin  *uint                     `json:"default_skin,omitempty"`
-	Flags        *[]string                 `json:"flags"`
-	GameTypes    *[]string                 `json:"game_types"`
-	Restrictions *[]string                 `json:"restrictions"`
+	Flags        *[]string                 `json:"flags,omitempty"`
+	GameTypes    *[]string                 `json:"game_types,omitempty"`
+	Restrictions *[]string                 `json:"restrictions,omitempty"`
 	UpgradesInto *[]map[string]interface{} `json:"upgrades_into,omitempty"`
 	UpgradesFrom *[]map[string]interface{} `json:"upgrades_from,omitempty"`
 	Details      *map[string]interface{}   `json:"details,omitempty"`

@@ -6,46 +6,48 @@ import (
 )
 
 type DBDetailBagItem struct {
-	AccountID     string             `json:"account_id"`
-	CharacterName string             `json:"character_name"`
-	BagItemID     uint               `json:"id"`
-	Count         uint               `json:"count"`
-	Charges       *uint              `json:"charges,omitempty"`
-	Infusions     *pq.Int64Array     `json:"infusions,omitempty" gorm:"type:integer[]"`
-	Upgrades      *pq.Int64Array     `json:"upgrades,omitempty" gorm:"type:integer[]"`
-	Skin          *uint              `json:"skin,omitempty"`
-	Stats         *models.DetailsMap `json:"stats,omitempty" gorm:"type:json"`
-	Dyes          *pq.Int64Array     `json:"dyes,omitempty" gorm:"type:integer[]"`
-	Binding       *string            `json:"binding,omitempty"`
-	BoundTo       *string            `json:"bound_to,omitempty"`
-	Slot          *string            `json:"slot"`
-	Location      *string            `json:"location"`
+	AccountID     string `json:"account_id"`
+	CharacterName string `json:"character_name"`
+
+	BagItemID uint               `json:"id"`
+	Count     uint               `json:"count"`
+	Charges   *uint              `json:"charges,omitempty"`
+	Infusions *pq.Int64Array     `json:"infusions,omitempty" gorm:"type:integer[]"`
+	Upgrades  *pq.Int64Array     `json:"upgrades,omitempty" gorm:"type:integer[]"`
+	Skin      *uint              `json:"skin,omitempty"`
+	Stats     *models.DetailsMap `json:"stats,omitempty" gorm:"type:json"`
+	Dyes      *pq.Int64Array     `json:"dyes,omitempty" gorm:"type:integer[]"`
+	Binding   *string            `json:"binding,omitempty"`
+	BoundTo   *string            `json:"bound_to,omitempty"`
+	Slot      *string            `json:"slot,omitempty"`
+	Location  *string            `json:"location,omitempty"`
 
 	// fields from full item details optional in case not in db
-	Name        *string            `json:"name"`
-	Icon        *string            `json:"icon"`
-	Description *string            `json:"description"`
-	Type        *string            `json:"type"`
-	Rarity      *string            `json:"rarity"`
-	VendorValue *uint              `json:"vendor_value"`
-	Details     *models.DetailsMap `json:"details" gorm:"type:json"`
+	Name        *string            `json:"name,omitempty"`
+	Icon        *string            `json:"icon,omitempty"`
+	Description *string            `json:"description,omitempty"`
+	Type        *string            `json:"type,omitempty"`
+	Rarity      *string            `json:"rarity,omitempty"`
+	VendorValue *uint              `json:"vendor_value,omitempty"`
+	Details     *models.DetailsMap `json:"details,omitempty" gorm:"type:json"`
 }
 
 func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
 	return models.BagItem{
 		CharacterName: dbDetailBagItem.CharacterName,
 		BagItemID:     dbDetailBagItem.BagItemID,
-		Count:         dbDetailBagItem.Count,
-		Charges:       dbDetailBagItem.Charges,
-		Infusions:     (*[]int64)(dbDetailBagItem.Infusions),
-		Upgrades:      (*[]int64)(dbDetailBagItem.Upgrades),
-		Skin:          dbDetailBagItem.Skin,
-		Stats:         (*map[string]interface{})(dbDetailBagItem.Stats),
-		Dyes:          (*[]int64)(dbDetailBagItem.Dyes),
-		Binding:       dbDetailBagItem.Binding,
-		BoundTo:       dbDetailBagItem.BoundTo,
-		Slot:          dbDetailBagItem.Slot,
-		Location:      dbDetailBagItem.Location,
+
+		Count:     dbDetailBagItem.Count,
+		Charges:   dbDetailBagItem.Charges,
+		Infusions: (*[]int64)(dbDetailBagItem.Infusions),
+		Upgrades:  (*[]int64)(dbDetailBagItem.Upgrades),
+		Skin:      dbDetailBagItem.Skin,
+		Stats:     (*map[string]interface{})(dbDetailBagItem.Stats),
+		Dyes:      (*[]int64)(dbDetailBagItem.Dyes),
+		Binding:   dbDetailBagItem.Binding,
+		BoundTo:   dbDetailBagItem.BoundTo,
+		Slot:      dbDetailBagItem.Slot,
+		Location:  dbDetailBagItem.Location,
 
 		Name:        dbDetailBagItem.Name,
 		Icon:        dbDetailBagItem.Icon,

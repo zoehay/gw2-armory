@@ -93,7 +93,7 @@ func (repository *BagItemRepository) GetDetailBagItemByCharacterName(accountID s
 
 func (repository *BagItemRepository) GetDetailBagItemByAccountID(accountID string) (detailBagItems []dbmodels.DBDetailBagItem, err error) {
 	err = repository.DB.Table("db_bag_items").
-		Select("db_bag_items.*, db_items.name, db_items.description, db_items.type, db_items.rarity, db_items.vendor_value, db_items.icon").
+		Select("db_bag_items.*, db_items.*").
 		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
 		Where("db_bag_items.account_id = ?", accountID).
 		Scan(&detailBagItems).Error
@@ -108,7 +108,7 @@ func (repository *BagItemRepository) GetDetailBagItemByAccountID(accountID strin
 
 func (repository *BagItemRepository) GetDetailBagItemsWithSearch(accountID string, searchTerm string) (detailBagItems []dbmodels.DBDetailBagItem, err error) {
 	err = repository.DB.Table("db_bag_items").
-		Select("db_bag_items.*, db_items.name, db_items.description, db_items.type, db_items.rarity, db_items.vendor_value, db_items.icon").
+		Select("db_bag_items.*, db_items.*").
 		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
 		Where("db_bag_items.account_id = ?", accountID).
 		Where("name ILIKE ? OR description ILIKE ? OR rarity ILIKE ?", searchTerm, searchTerm, searchTerm).

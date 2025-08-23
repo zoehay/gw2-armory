@@ -17,8 +17,8 @@ type GW2BagItem struct {
 	Dyes      *[]int64                `json:"dyes,omitempty"`
 	Binding   *string                 `json:"binding,omitempty"`
 	BoundTo   *string                 `json:"bound_to,omitempty"`
-	Slot      *string                 `json:"slot"`
-	Location  *string                 `json:"location"`
+	Slot      *string                 `json:"slot,omitempty"`
+	Location  *string                 `json:"location,omitempty"`
 }
 
 func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *string) dbmodels.DBBagItem {
@@ -33,7 +33,7 @@ func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *str
 		Upgrades:      (*pq.Int64Array)(gw2BagItem.Upgrades),
 		Skin:          gw2BagItem.Skin,
 		Stats:         stats,
-		Dyes:          (*pq.Int64Array)(gw2BagItem.Infusions),
+		Dyes:          (*pq.Int64Array)(gw2BagItem.Dyes),
 		Binding:       gw2BagItem.Binding,
 		BoundTo:       gw2BagItem.BoundTo,
 		Slot:          gw2BagItem.Slot,

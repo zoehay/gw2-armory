@@ -1,9 +1,6 @@
 export interface BagItem {
   characterName: string;
-  name?: string;
-  description?: string;
   id: number;
-  icon: string;
   count: number;
   charges?: number;
   infusions?: number[];
@@ -13,16 +10,21 @@ export interface BagItem {
   dyes?: number[];
   binding?: string;
   boundTo?: string;
+  slot?: string;
+  location?: string;
+
+  name?: string;
+  icon?: string;
+  description?: string;
+  type?: string;
   rarity?: string;
+  vendorValue?: number;
   details?: { [key: string]: unknown };
 }
 
 export interface APIBagItem {
   character_name: string;
-  name?: string;
-  description?: string;
   id: number;
-  icon: string;
   count: number;
   charges?: number;
   infusions?: number[];
@@ -32,17 +34,22 @@ export interface APIBagItem {
   dyes?: number[];
   binding?: string;
   bound_to?: string;
+  slot?: string;
+  location?: string;
+
+  name?: string;
+  icon?: string;
+  description?: string;
+  type?: string;
   rarity?: string;
+  vendor_value?: number;
   details?: { [key: string]: unknown };
 }
 
 export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
   return {
     characterName: apiBagItem.character_name,
-    name: apiBagItem.name,
-    description: apiBagItem.description,
     id: apiBagItem.id,
-    icon: apiBagItem.icon,
     count: apiBagItem.count,
     charges: apiBagItem.charges,
     infusions: apiBagItem.infusions,
@@ -52,7 +59,15 @@ export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
     dyes: apiBagItem.dyes,
     binding: apiBagItem.binding,
     boundTo: apiBagItem.bound_to,
-    rarity: apiBagItem.rarity as string,
+    slot: apiBagItem.slot,
+    location: apiBagItem.location,
+
+    name: apiBagItem.name,
+    icon: apiBagItem.icon,
+    description: apiBagItem.description,
+    type: apiBagItem.type,
+    rarity: apiBagItem.rarity,
+    vendorValue: apiBagItem.vendor_value,
     details: apiBagItem.details,
   };
 }

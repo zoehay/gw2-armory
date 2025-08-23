@@ -19,16 +19,16 @@ type BagItem struct {
 	Dyes          *[]int64                `json:"dyes,omitempty" gorm:"type:integer[]"`
 	Binding       *string                 `json:"binding,omitempty"`
 	BoundTo       *string                 `json:"bound_to,omitempty"`
-	Slot          *string                 `json:"slot"`
-	Location      *string                 `json:"location"`
+	Slot          *string                 `json:"slot,omitempty"`
+	Location      *string                 `json:"location,omitempty"`
 
 	// fields from full item details optional in case not in db
-	Name        *string `json:"name"`
-	Icon        *string `json:"icon"`
-	Description *string `json:"description"`
-	Type        *string `json:"type"`
-	Rarity      *string `json:"rarity"`
-	VendorValue *uint
+	Name        *string                 `json:"name,omitempty"`
+	Icon        *string                 `json:"icon,omitempty"`
+	Description *string                 `json:"description,omitempty"`
+	Type        *string                 `json:"type,omitempty"`
+	Rarity      *string                 `json:"rarity,omitempty"`
+	VendorValue *uint                   `json:"vendor_value,omitempty"`
 	Details     *map[string]interface{} `json:"details,omitempty" gorm:"type:json"`
 }
 
