@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -13,25 +15,31 @@ import (
 	"github.com/zoehay/gw2armoury/backend/internal/services"
 )
 
-func LoadEnvDSN() string {
-	// replace env with docker secrets
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file:", err)
-	}
+func LoadEnvDSN() (string, error) {
+	var dsn string
+	// docker secrets
+	if dsnFile := os.Getenv("DB_DSN_FILE"); dsnFile != "" {
+		data, err := os.ReadFile(dsnFile)
+		if err != nil {
+			return "", fmt.Errorf("docker secret, failed to read DB_DSN_FILE: %w", err)
+		}
+		dsn = strings.TrimSpace(string(data))
+	} else {
+		// local dev
+		err := godotenv.Load()
+		if err != nil {
+			return "", fmt.Errorf("local env, error loading .env file: %w", err)
+		}
+		appMode := os.Getenv("APP_ENV")
+		if appMode == "test" {
+			dsn = os.Getenv("TEST_DB_DSN")
+		} else {
+			dsn = os.Getenv("DEV_NO_MOCK_DB_DSN")
+		}
 
-	appMode := os.Getenv("APP_ENV")
-	dsn := os.Getenv("DB_DSN")
-
-	if appMode == "test" {
-		dsn = os.Getenv("TEST_DB_DSN")
-	} else if appMode == "development" {
-		dsn = os.Getenv("DEV_NO_MOCK_DB_DSN")
 	}
-	// else if appMode == "docker-test" {
-	// 	dsn = os.Getenv("DOCKER_TEST_DB_DSN")
-	// }
-	return dsn
+	return dsn, nil
+
 }
 
 func SetupRouter(dsn string, mocks bool) (*gin.Engine, *repositories.Repository, *services.Service, error) {

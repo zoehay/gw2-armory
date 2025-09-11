@@ -1,0 +1,78 @@
+version: "3"
+
+volumes:
+  db_data:
+services:
+  db:
+    container_name: db
+    image: postgres
+    # restart: always
+    tty: true
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      APP_ENV: ${APP_ENV}
+      POSTGRES_USER: postgres
+      POSTGRES_DB: gwdb
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - source: db_password
+    healthcheck:
+      test: pg_isready -U postgres
+    networks:
+      - gw-network
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    working_dir: /usr/src/app
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/usr/src/app
+    environment:
+      APP_ENV: ${APP_ENV}
+      DB_DSN_FILE: /run/secrets/db_dsn
+    secrets:
+      - source: db_dsn
+    networks:
+      - gw-network
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+      args:
+        CONFIG_FILE: "localnginx"
+    # restart: always
+    tty: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./frontend/dist:/var/www/frontend-dist-dev:ro
+    #   - ./local-certs/certs:/etc/letsencrypt/live:ro
+    networks:
+      - gw-network
+    depends_on:
+      - db
+      - backend
+  
+
+networks:
+  gw-network:
+    driver: bridge
+
+secrets:
+
+  db_dsn:
+    file: ./secrets/db_dsn.txt
+  db_password:
+    file: ./secrets/db_password.txt

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -9,15 +8,15 @@ import (
 )
 
 func main() {
-
-	dsn := routes.LoadEnvDSN()
+	dsn, err := routes.LoadEnvDSN()
+	if err != nil {
+		log.Fatal("Error getting datatbase dsn", err)
+	}
 	mocks := false
 	appMode := os.Getenv("APP_ENV")
 	if appMode == "test" || appMode == "docker-test" {
 		mocks = true
 	}
-	fmt.Println(dsn)
-	fmt.Println(mocks)
 
 	router, _, _, err := routes.SetupRouter(dsn, mocks)
 	if err != nil {

@@ -9,13 +9,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the source code. Note the slash at the end, as explained in
-# https://docs.docker.com/reference/dockerfile/#copy
 COPY . .
-
-# Use env until find way to mount /run/secrets
-# COPY .env .env
-
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /backend ./cmd/main.go
@@ -26,9 +20,11 @@ FROM golang:1.24
 WORKDIR /
 
 COPY --from=build /backend /backend
-COPY --from=build /src/.env .
 
 EXPOSE 8000
 ARG APP_ENV
+ENV APP_ENV=$APP_ENV
+ENV DB_DSN_FILE=/run/secrets/db_dsn
+
 # Run
-CMD ["/backend" "APP_ENV=docker-test"]
+CMD ["/backend"]
