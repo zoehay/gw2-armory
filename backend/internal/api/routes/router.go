@@ -8,11 +8,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/zoehay/gw2armoury/backend/internal/api/handlers"
-	"github.com/zoehay/gw2armoury/backend/internal/api/middleware"
-	"github.com/zoehay/gw2armoury/backend/internal/db"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	"github.com/zoehay/gw2armoury/backend/internal/services"
+	"github.com/zoehay/gw2-armory/backend/internal/api/handlers"
+	"github.com/zoehay/gw2-armory/backend/internal/api/middleware"
+	"github.com/zoehay/gw2-armory/backend/internal/db"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
 func LoadEnvDSN() (string, error) {

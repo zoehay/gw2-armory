@@ -1,6 +1,6 @@
 package gw2models
 
-import "github.com/zoehay/gw2armoury/backend/internal/api/models"
+import "github.com/zoehay/gw2-armory/backend/internal/api/models"
 
 type GW2Account struct {
 	ID   *string `json:"id"`

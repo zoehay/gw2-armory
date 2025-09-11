@@ -10,11 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zoehay/gw2armoury/backend/internal/api/handlers"
-	"github.com/zoehay/gw2armoury/backend/internal/api/models"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	"github.com/zoehay/gw2armoury/backend/internal/services"
-	"github.com/zoehay/gw2armoury/backend/tests/testutils"
+	"github.com/zoehay/gw2-armory/backend/internal/api/handlers"
+	"github.com/zoehay/gw2-armory/backend/internal/api/models"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
+	"github.com/zoehay/gw2-armory/backend/tests/testutils"
 )
 
 type CreateGuestAccountSessionTestSuite struct {

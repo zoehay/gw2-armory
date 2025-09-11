@@ -4,13 +4,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/zoehay/gw2armoury/backend/internal/api/routes"
+	"github.com/zoehay/gw2-armory/backend/internal/api/routes"
 )
 
 func main() {
 	dsn, err := routes.LoadEnvDSN()
 	if err != nil {
-		log.Fatal("Error getting datatbase dsn", err)
+		log.Fatal("Error getting database dsn", err)
 	}
 	mocks := false
 	appMode := os.Getenv("APP_ENV")

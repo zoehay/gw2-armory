@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	dbmodels "github.com/zoehay/gw2armoury/backend/internal/db/models"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	"github.com/zoehay/gw2armoury/backend/internal/services"
+	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
 type AccountHandler struct {

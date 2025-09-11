@@ -1,4 +1,4 @@
-module github.com/zoehay/gw2armoury/backend
+module github.com/zoehay/gw2-armory/backend
 
 go 1.20
 

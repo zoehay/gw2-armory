@@ -2,8 +2,8 @@ package gw2models
 
 import (
 	"github.com/lib/pq"
-	"github.com/zoehay/gw2armoury/backend/internal/api/models"
-	dbmodels "github.com/zoehay/gw2armoury/backend/internal/db/models"
+	"github.com/zoehay/gw2-armory/backend/internal/api/models"
+	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
 )
 
 type GW2BagItem struct {

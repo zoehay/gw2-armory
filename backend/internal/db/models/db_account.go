@@ -3,7 +3,7 @@ package dbmodels
 import (
 	"time"
 
-	"github.com/zoehay/gw2armoury/backend/internal/api/models"
+	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 )
 
 type DBAccount struct {

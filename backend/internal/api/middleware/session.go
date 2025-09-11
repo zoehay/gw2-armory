@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
 )
 
 func UseSession(accountRepository *repositories.AccountRepository, sessionRepository *repositories.SessionRepository) gin.HandlerFunc {

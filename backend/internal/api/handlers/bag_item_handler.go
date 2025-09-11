@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zoehay/gw2armoury/backend/internal/api/models"
-	dbmodels "github.com/zoehay/gw2armoury/backend/internal/db/models"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	"github.com/zoehay/gw2armoury/backend/internal/services"
+	"github.com/zoehay/gw2-armory/backend/internal/api/models"
+	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
 type BagItemHandler struct {

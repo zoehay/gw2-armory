@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	gw2client "github.com/zoehay/gw2armoury/backend/internal/gw2_client"
-	gw2models "github.com/zoehay/gw2armoury/backend/internal/gw2_client/models"
+	gw2client "github.com/zoehay/gw2-armory/backend/internal/gw2_client"
+	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
 )
 
 type ItemDataProvider interface {

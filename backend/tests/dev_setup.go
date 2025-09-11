@@ -3,8 +3,8 @@ package tests
 import (
 	"fmt"
 
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	"github.com/zoehay/gw2armoury/backend/internal/services"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
 func GetItemsInCharacterBags(itemService *services.ItemService, bagItemRepository repositories.BagItemRepository) error {

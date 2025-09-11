@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	dbmodels "github.com/zoehay/gw2armoury/backend/internal/db/models"
-	"github.com/zoehay/gw2armoury/backend/internal/db/repositories"
-	gw2models "github.com/zoehay/gw2armoury/backend/internal/gw2_client/models"
-	"github.com/zoehay/gw2armoury/backend/internal/gw2_client/providers"
+	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
+	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
+	"github.com/zoehay/gw2-armory/backend/internal/gw2_client/providers"
 
 	"gorm.io/gorm"
 )

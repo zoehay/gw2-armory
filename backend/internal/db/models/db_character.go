@@ -1,6 +1,6 @@
 package dbmodels
 
-import "github.com/zoehay/gw2armoury/backend/internal/api/models"
+import "github.com/zoehay/gw2-armory/backend/internal/api/models"
 
 type DBCharacter struct {
 	Name       string
