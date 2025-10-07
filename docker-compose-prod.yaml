@@ -6,10 +6,12 @@ services:
   db:
     container_name: db
     image: postgres
-    # restart: always
+    restart: always
     tty: true
     volumes:
       - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     environment:
       APP_ENV: ${APP_ENV}
       POSTGRES_USER: postgres
@@ -27,6 +29,8 @@ services:
     build:
       context: ./backend
     working_dir: /usr/src/app
+    ports:
+      - 8000:8000
     depends_on:
       db:
         condition: service_healthy
@@ -34,7 +38,7 @@ services:
       - ./backend:/usr/src/app
     environment:
       APP_ENV: ${APP_ENV}
-      GIN_MODE: debug
+      GIN_MODE: release
       DB_DSN_FILE: /run/secrets/db_dsn
     secrets:
       - source: db_dsn
@@ -47,15 +51,14 @@ services:
       context: .
       dockerfile: ./nginx/Dockerfile
       args:
-        CONFIG_FILE: "localopensslnginx"
-    # restart: always
+        CONFIG_FILE: "prodnginx"
+    restart: always
     tty: true
     ports:
       - 80:80
       - 443:443
     volumes:
-      - ./frontend/dist:/var/www/frontend-dist-dev:ro
-      - ./local-certs/certs:/etc/nginx/certs:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/
     networks:
       - gw-network
     depends_on:

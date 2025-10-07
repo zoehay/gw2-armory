@@ -1,30 +1,33 @@
+
+
 # syntax=docker/dockerfile:1
 
 FROM golang:1.24 AS build
 
-# Set destination for COPY
 WORKDIR /src
 
-# Download Go modules
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-# Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /backend ./cmd/main.go
 
-# Use light weight image for prod later 
-FROM golang:1.24
+FROM gcr.io/distroless/base-debian11 AS build-release
 
 WORKDIR /
 
 COPY --from=build /backend /backend
 
 EXPOSE 8000
+
 ARG APP_ENV
 ENV APP_ENV=$APP_ENV
+ARG GIN_MODE
+ENV GIN_MODE=$GIN_MODE
 ENV DB_DSN_FILE=/run/secrets/db_dsn
 
-# Run
+USER nonroot:nonroot
+
 CMD ["/backend"]
+
