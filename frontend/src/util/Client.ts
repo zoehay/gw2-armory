@@ -14,12 +14,9 @@ export class Client {
   baseURL: string;
 
   constructor(mode: string) {
-    if (mode === "localdocker") {
-      this.baseURL = "/api";
-    } else if (mode === "dev" || "test") {
+    this.baseURL = "/api";
+    if (mode === "dev" || "test") {
       this.baseURL = "http://localhost:8000";
-    } else {
-      this.baseURL = "";
     }
   }
 

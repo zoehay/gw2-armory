@@ -14,6 +14,7 @@ When running the backend, setting `APP_ENV=test` enables mocks in main.go and se
 
 For local development with docker run `docker compose -f docker-compose-dev.yaml up --build`. 
 
+The nginx container will copy www into /var/www to serve. 
+
 For local dev with nginx SSL configuration, from directory local-certs `mkdir certs` and run local-certs.sh for localhost cert using mkcert.
 
-Run `npm run dev-build` from frontend to build with local docker dev baseURL. 

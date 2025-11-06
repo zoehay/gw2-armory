@@ -4,7 +4,7 @@ RUN curl -sSL https://ssl-config.mozilla.org/ffdhe2048.txt -o /etc/ssl/dhparam.p
 
 ARG CONFIG_FILE
 
-COPY www /var/www
+COPY ../www /var/www
 COPY nginx/${CONFIG_FILE}.conf /etc/nginx/nginx.conf
 
 CMD ["nginx", "-g", "daemon off;"]

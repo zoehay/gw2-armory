@@ -3,8 +3,8 @@ version: "3"
 volumes:
   db_data:
 services:
-  db:
-    container_name: db
+  armory-db:
+    container_name: armory-db
     image: postgres
     # restart: always
     tty: true
@@ -28,7 +28,7 @@ services:
       context: ./backend
     working_dir: /usr/src/app
     depends_on:
-      db:
+      armory-db:
         condition: service_healthy
     volumes:
       - ./backend:/usr/src/app
@@ -54,12 +54,12 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./frontend/dist:/var/www/frontend-dist-dev:ro
+      # - ./frontend/dist:/var/www/frontend-dist-dev:ro
       - ./local-certs/certs:/etc/nginx/certs:ro
     networks:
       - gw-network
     depends_on:
-      - db
+      - armory-db
       - backend
   
 
