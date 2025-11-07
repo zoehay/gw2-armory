@@ -35,9 +35,9 @@ services:
     environment:
       APP_ENV: ${APP_ENV}
       GIN_MODE: debug
-      DB_DSN_FILE: /run/secrets/db_dsn
+      DB_PASSWORD_FILE: /run/secrets/db_password
     secrets:
-      - source: db_dsn
+      - source: db_password
     networks:
       - gw-network
 
@@ -68,8 +68,5 @@ networks:
     driver: bridge
 
 secrets:
-
-  db_dsn:
-    file: ./secrets/db_dsn.txt
   db_password:
     file: ./secrets/db_password.txt

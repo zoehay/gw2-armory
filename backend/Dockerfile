@@ -25,7 +25,6 @@ ARG APP_ENV
 ENV APP_ENV=$APP_ENV
 ARG GIN_MODE
 ENV GIN_MODE=$GIN_MODE
-ENV DB_DSN_FILE=/run/secrets/db_dsn
 
 USER nonroot:nonroot
 

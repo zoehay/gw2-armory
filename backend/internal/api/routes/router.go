@@ -18,14 +18,15 @@ import (
 func LoadEnvDSN() (string, error) {
 	var dsn string
 	// docker secrets
-	if dsnFile := os.Getenv("DB_DSN_FILE"); dsnFile != "" {
-		data, err := os.ReadFile(dsnFile)
+	if dbPasswordFile := os.Getenv("DB_PASSWORD_FILE"); dbPasswordFile != "" {
+		data, err := os.ReadFile(dbPasswordFile)
 		if err != nil {
 			return "", fmt.Errorf("docker secret, failed to read DB_DSN_FILE: %w", err)
 		}
-		dsn = strings.TrimSpace(string(data))
+		password := strings.TrimSpace(string(data))
+		dsn = fmt.Sprintf("host=armory-db user=postgres password=%s dbname=gwdb port=5432", password)
 	} else {
-		// local dev
+		// local dev env file
 		err := godotenv.Load()
 		if err != nil {
 			return "", fmt.Errorf("local env, error loading .env file: %w", err)
