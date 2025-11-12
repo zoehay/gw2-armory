@@ -8,13 +8,14 @@ React, TypeScript, Vite
 ## Development
 Run the backend with `go run cmd/main.go -v`. 
 Run the frontend with `npm run dev`.
-Run backend tests with `go test ./...`
+Run backend tests from backend/tests with `go test ./...`
 
 When running the backend, setting `APP_ENV=test` enables mocks in main.go and selects dsn for the testing database in router.go. 
 
-For local development with docker run `docker compose -f docker-compose-dev.yaml up --build`. 
+For local dev with nginx SSL configuration, from directory local-certs `mkdir certs` and run local-certs.sh for localhost cert using mkcert.
 
+For local development with docker run `docker compose -f docker-compose-dev.yaml up --build`. 
 The nginx container will copy www into /var/www to serve. 
 
-For local dev with nginx SSL configuration, from directory local-certs `mkdir certs` and run local-certs.sh for localhost cert using mkcert.
+
 

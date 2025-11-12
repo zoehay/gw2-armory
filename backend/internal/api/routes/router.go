@@ -18,7 +18,7 @@ import (
 func LoadEnvDSN() (string, error) {
 	var dsn string
 	// docker secrets
-	if dbPasswordFile := os.Getenv("DB_PASSWORD_FILE"); dbPasswordFile != "" {
+	if dbPasswordFile := os.Getenv("ARMORY_DB_PASSWORD_FILE"); dbPasswordFile != "" {
 		data, err := os.ReadFile(dbPasswordFile)
 		if err != nil {
 			return "", fmt.Errorf("docker secret, failed to read DB_DSN_FILE: %w", err)

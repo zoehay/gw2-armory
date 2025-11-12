@@ -6,40 +6,38 @@ services:
   armory-db:
     container_name: armory-db
     image: postgres
-    # restart: always
+    restart: unless-stopped
     tty: true
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
-      APP_ENV: ${APP_ENV}
       POSTGRES_USER: postgres
       POSTGRES_DB: gwdb
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_PASSWORD_FILE: /run/secrets/armory_db_password
     secrets:
-      - source: db_password
+      - source: armory_db_password
     healthcheck:
       test: pg_isready -U postgres
     networks:
-      - gw-network
+      - armory-network
 
-  backend:
-    container_name: backend 
+  armory:
+    container_name: armory 
+    restart: unless-stopped
     build:
       context: ./backend
     working_dir: /usr/src/app
     depends_on:
       armory-db:
         condition: service_healthy
-    volumes:
-      - ./backend:/usr/src/app
     environment:
       APP_ENV: ${APP_ENV}
       GIN_MODE: debug
-      DB_PASSWORD_FILE: /run/secrets/db_password
+      ARMORY_DB_PASSWORD_FILE: /run/secrets/armory_db_password
     secrets:
-      - source: db_password
+      - source: armory_db_password
     networks:
-      - gw-network
+      - armory-network
 
   nginx:
     container_name: nginx
@@ -48,7 +46,7 @@ services:
       dockerfile: ./nginx/Dockerfile
       args:
         CONFIG_FILE: "localopensslnginx"
-    # restart: always
+    restart: unless-stopped
     tty: true
     ports:
       - 80:80
@@ -57,16 +55,16 @@ services:
       # - ./frontend/dist:/var/www/frontend-dist-dev:ro
       - ./local-certs/certs:/etc/nginx/certs:ro
     networks:
-      - gw-network
+      - armory-network
     depends_on:
       - armory-db
-      - backend
+      - armory
   
 
 networks:
-  gw-network:
+  armory-network:
     driver: bridge
 
 secrets:
-  db_password:
-    file: ./secrets/db_password.txt
+  armory_db_password:
+    file: ./secrets/armory_db_password.txt
