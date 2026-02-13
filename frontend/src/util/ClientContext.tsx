@@ -1,8 +1,7 @@
 import React, { createContext } from "react";
 import { Client } from "./Client";
 
-const mode = import.meta.env.MODE;
-const client = new Client(mode);
+const client = new Client();
 
 export const ClientContext = createContext(client);
 

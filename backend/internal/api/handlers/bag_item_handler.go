@@ -96,7 +96,9 @@ func (bagItemHandler BagItemHandler) GetAccountInventory(c *gin.Context) {
 			errs = append(errs, fmt.Errorf("service error getting and storing items in chunk %d: %s", idChunk, err))
 		}
 	}
-	fmt.Println(errs)
+	if err != nil {
+		fmt.Println(errs)
+	}
 }
 
 func (bagItemHandler BagItemHandler) GetFilteredAccountInventory(c *gin.Context) {

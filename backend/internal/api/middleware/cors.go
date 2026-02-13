@@ -1,12 +1,16 @@
 package middleware
 
 import (
+	"os"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
 func SetCORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		allowedOrigins := []string{"http://localhost:5173", "http://localhost"}
+		allowedOriginsString := os.Getenv("CORS_ALLOW_ORIGIN")
+		allowedOrigins := strings.Split(allowedOriginsString, " ")
 
 		originIsAllowed := func(origin string, allowedOrigins []string) bool {
 			for _, allowedOrigin := range allowedOrigins {

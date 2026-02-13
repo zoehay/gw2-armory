@@ -24,7 +24,7 @@ func LoadEnvDSN() (string, error) {
 			return "", fmt.Errorf("docker secret, failed to read DB_DSN_FILE: %w", err)
 		}
 		password := strings.TrimSpace(string(data))
-		dsn = fmt.Sprintf("host=armory-db user=postgres password=%s dbname=gwdb port=5432", password)
+		dsn = fmt.Sprintf("host=armory-db user=postgres password=%s dbname=armory port=5432", password)
 	} else {
 		// local dev env file
 		err := godotenv.Load()
@@ -61,7 +61,8 @@ func SetupRouter(dsn string, mocks bool) (*gin.Engine, *repositories.Repository,
 		log.Fatal("Error seeding database", err)
 	}
 
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
 
 	err = router.SetTrustedProxies([]string{"127.0.0.1"})
 	if err != nil {

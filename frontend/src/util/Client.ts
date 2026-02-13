@@ -13,11 +13,8 @@ export interface ClientInterface {
 export class Client {
   baseURL: string;
 
-  constructor(mode: string) {
-    this.baseURL = "/api";
-    if (mode === "dev" || "test") {
-      this.baseURL = "http://localhost:8000";
-    }
+  constructor() {
+    this.baseURL = import.meta.env.VITE_APP_API_URL;
   }
 
   async clientGet(endpoint: string): Promise<any> {
@@ -142,7 +139,7 @@ export class Client {
   }
 
   async postInventorySearch(
-    searchTerm: string
+    searchTerm: string,
   ): Promise<AccountInventory | null> {
     let body = JSON.stringify({
       SearchTerm: searchTerm,
