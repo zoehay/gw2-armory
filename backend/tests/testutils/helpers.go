@@ -46,7 +46,8 @@ func DBRouterSetup() (*gin.Engine, *repositories.Repository, *services.Service, 
 	}
 
 	dsn := os.Getenv("TEST_DB_DSN")
-	router, repository, service, err := routes.SetupRouter(dsn, true)
+	allowedOrigin := []string{"http://localhost"}
+	router, repository, service, err := routes.SetupRouter(allowedOrigin, "localhost", dsn, true)
 	if err != nil {
 		return nil, nil, nil, err
 	}

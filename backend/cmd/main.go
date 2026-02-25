@@ -8,17 +8,20 @@ import (
 )
 
 func main() {
+	allowedOrigins, domain := routes.LoadEnv()
+
 	dsn, err := routes.LoadEnvDSN()
 	if err != nil {
 		log.Fatal("Error getting database dsn", err)
 	}
+
 	mocks := false
 	appMode := os.Getenv("APP_ENV")
 	if appMode == "test" || appMode == "docker-test" {
 		mocks = true
 	}
 
-	router, _, _, err := routes.SetupRouter(dsn, mocks)
+	router, _, _, err := routes.SetupRouter(allowedOrigins, domain, dsn, mocks)
 	if err != nil {
 		log.Fatal("Error setting up router", err)
 	}

@@ -10,6 +10,7 @@ import (
 )
 
 type AccountHandler struct {
+	Domain            string
 	AccountRepository repositories.AccountRepositoryInterface
 	SessionRepository repositories.SessionRepositoryInterface
 	BagItemRepository repositories.BagItemRepositoryInterface
@@ -17,8 +18,9 @@ type AccountHandler struct {
 	BagItemService    services.BagItemServiceInterface
 }
 
-func NewAccountHandler(accountRepository repositories.AccountRepositoryInterface, sessionRepository repositories.SessionRepositoryInterface, bagItemRepostiory repositories.BagItemRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, sessionRepository repositories.SessionRepositoryInterface, bagItemRepostiory repositories.BagItemRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
 	return &AccountHandler{
+		Domain:            domain,
 		AccountRepository: accountRepository,
 		SessionRepository: sessionRepository,
 		BagItemRepository: bagItemRepostiory,
@@ -83,7 +85,7 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("sessionID", session.SessionID, 3600, "/", "localhost", false, true)
+	c.SetCookie("sessionID", session.SessionID, 3600, "/", handler.Domain, false, true)
 
 	if handler.AccountService.IsRecrawlDue(account.LastCrawl) {
 		err = handler.BagItemService.GetAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
@@ -184,7 +186,7 @@ func (handler AccountHandler) Logout(c *gin.Context) {
 	// delete session from account
 
 	// delete cookie
-	c.SetCookie("sessionID", "", -1, "/", "localhost", false, true)
+	c.SetCookie("sessionID", "", -1, "/", handler.Domain, false, true)
 }
 
 type AccountLogin struct {

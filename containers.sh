@@ -22,13 +22,14 @@ docker container create \
     --restart unless-stopped \
     -e ARMORY_DB_PASSWORD_FILE=/run/secrets/db_password.txt \
     -e CORS_ALLOW_ORIGIN='https://localhost http://localhost' \
+    -e DOMAIN='armory.localhost' \
     --network armory-network \
     -v $(pwd)/secrets/armory_db_password.txt:/run/secrets/db_password.txt:ro \
     armory-backend
     
 # nginx with mounted conf file for dev
 docker container create \
-    --name nginx \
+    --name armory-nginx \
     --restart unless-stopped \
     --network armory-network \
     -v $(pwd)/nginx/local-certs/certs:/etc/nginx/certs:ro \

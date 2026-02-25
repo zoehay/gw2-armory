@@ -15,6 +15,75 @@ import (
 	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
+func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool) (*gin.Engine, *repositories.Repository, *services.Service, error) {
+	database, err := db.PostgresInit(dsn)
+	if err != nil {
+		log.Fatal("Error initializing database connection", err)
+	}
+
+	repository := repositories.NewRepository(database)
+	service := services.NewService(repository, mocks)
+
+	itemHandler := handlers.NewItemHandler(&repository.ItemRepository)
+	bagItemHandler := handlers.NewBagItemHandler(&repository.BagItemRepository, service.ItemService)
+	accountHandler := handlers.NewAccountHandler(domain, &repository.AccountRepository, &repository.SessionRepository, &repository.BagItemRepository, service.AccountService, service.BagItemService)
+
+	err = db.SeedItems(repository.ItemRepository, *service.ItemService)
+	if err != nil {
+		log.Fatal("Error seeding database", err)
+	}
+
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+
+	err = router.SetTrustedProxies([]string{"127.0.0.1"})
+	if err != nil {
+		log.Fatalf("Failed to set trusted proxies: %v", err)
+	}
+
+	router.Use(middleware.SetCORS(allowedOrigins))
+
+	router.GET("/items", itemHandler.GetAllItems)
+	router.GET("/items/:id", itemHandler.GetItemByID)
+
+	router.POST("/login", accountHandler.Login)
+	router.POST("/signup", accountHandler.HandlePostAPIKeyRequest) //change signup handler with password verification
+	router.POST("/apikeys", accountHandler.HandlePostAPIKeyRequest)
+
+	account := router.Group("/account")
+	account.Use(middleware.UseSession(&repository.AccountRepository, &repository.SessionRepository))
+	{
+		account.GET("/info", accountHandler.GetAccount)
+		account.GET("/inventory", bagItemHandler.GetByAccount)
+		account.GET("/characters/:charactername/inventory", bagItemHandler.GetByCharacter)
+		account.DELETE("/delete", accountHandler.Delete)
+		account.GET("/accountinventory", bagItemHandler.GetAccountInventory)
+		account.POST("/searchinventory", bagItemHandler.GetFilteredAccountInventory)
+	}
+
+	return router, repository, service, nil
+
+}
+
+func LoadEnv() (allowedOrigins []string, domain string) {
+	allowedOriginsString, ok := os.LookupEnv("CORS_ALLOW_ORIGIN")
+	if !ok {
+		fmt.Printf("CORS_ALLOW_ORIGIN not set, default to localhost")
+		os.Setenv("CORS_ALLOW_ORIGIN", "https://localhost http://localhost")
+		allowedOriginsString = "https://localhost http://localhost"
+	}
+	allowedOrigins = strings.Split(allowedOriginsString, " ")
+
+	domain, ok = os.LookupEnv("DOMAIN")
+	if !ok {
+		fmt.Printf("DOMAIN not set, default to localhost")
+		os.Setenv("DOMAIN", "localhost")
+		domain = "localhost"
+	}
+
+	return allowedOrigins, domain
+}
+
 func LoadEnvDSN() (string, error) {
 	var dsn string
 	// docker secrets
@@ -40,55 +109,5 @@ func LoadEnvDSN() (string, error) {
 
 	}
 	return dsn, nil
-
-}
-
-func SetupRouter(dsn string, mocks bool) (*gin.Engine, *repositories.Repository, *services.Service, error) {
-	database, err := db.PostgresInit(dsn)
-	if err != nil {
-		log.Fatal("Error initializing database connection", err)
-	}
-
-	repository := repositories.NewRepository(database)
-	service := services.NewService(repository, mocks)
-
-	itemHandler := handlers.NewItemHandler(&repository.ItemRepository)
-	bagItemHandler := handlers.NewBagItemHandler(&repository.BagItemRepository, service.ItemService)
-	accountHandler := handlers.NewAccountHandler(&repository.AccountRepository, &repository.SessionRepository, &repository.BagItemRepository, service.AccountService, service.BagItemService)
-
-	err = db.SeedItems(repository.ItemRepository, *service.ItemService)
-	if err != nil {
-		log.Fatal("Error seeding database", err)
-	}
-
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.New()
-
-	err = router.SetTrustedProxies([]string{"127.0.0.1"})
-	if err != nil {
-		log.Fatalf("Failed to set trusted proxies: %v", err)
-	}
-
-	router.Use(middleware.SetCORS())
-
-	router.GET("/items", itemHandler.GetAllItems)
-	router.GET("/items/:id", itemHandler.GetItemByID)
-
-	router.POST("/login", accountHandler.Login)
-	router.POST("/signup", accountHandler.HandlePostAPIKeyRequest) //change signup handler with password verification
-	router.POST("/apikeys", accountHandler.HandlePostAPIKeyRequest)
-
-	account := router.Group("/account")
-	account.Use(middleware.UseSession(&repository.AccountRepository, &repository.SessionRepository))
-	{
-		account.GET("/info", accountHandler.GetAccount)
-		account.GET("/inventory", bagItemHandler.GetByAccount)
-		account.GET("/characters/:charactername/inventory", bagItemHandler.GetByCharacter)
-		account.DELETE("/delete", accountHandler.Delete)
-		account.GET("/accountinventory", bagItemHandler.GetAccountInventory)
-		account.POST("/searchinventory", bagItemHandler.GetFilteredAccountInventory)
-	}
-
-	return router, repository, service, nil
 
 }
