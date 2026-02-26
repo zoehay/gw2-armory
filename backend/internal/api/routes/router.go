@@ -68,17 +68,17 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 func LoadEnv() (allowedOrigins []string, domain string) {
 	allowedOriginsString, ok := os.LookupEnv("CORS_ALLOW_ORIGIN")
 	if !ok {
-		fmt.Printf("CORS_ALLOW_ORIGIN not set, default to localhost")
-		os.Setenv("CORS_ALLOW_ORIGIN", "https://localhost http://localhost")
-		allowedOriginsString = "https://localhost http://localhost"
+		allowedOriginsString = "https://localhost:5173 http://localhost:5173"
+		fmt.Printf("CORS_ALLOW_ORIGIN not set, default to %s", allowedOriginsString)
+		os.Setenv("CORS_ALLOW_ORIGIN", allowedOriginsString)
 	}
 	allowedOrigins = strings.Split(allowedOriginsString, " ")
 
 	domain, ok = os.LookupEnv("DOMAIN")
 	if !ok {
-		fmt.Printf("DOMAIN not set, default to localhost")
-		os.Setenv("DOMAIN", "localhost")
 		domain = "localhost"
+		fmt.Printf("DOMAIN not set, default to %s", domain)
+		os.Setenv("DOMAIN", domain)
 	}
 
 	return allowedOrigins, domain

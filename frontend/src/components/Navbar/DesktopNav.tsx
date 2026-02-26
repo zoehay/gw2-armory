@@ -4,7 +4,7 @@ import navbar from "./navbar.module.css";
 export const DesktopNav = () => {
   return (
     <div className={navbar.desktopContent}>
-      <p>Logo</p>
+      <p>armory</p>
       <div className={navbar.desktopLinks}>
         <Link to={`manageKeys`} className={navbar.link}>
           Manage Keys
