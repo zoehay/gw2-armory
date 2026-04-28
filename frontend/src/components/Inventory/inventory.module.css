@@ -60,9 +60,10 @@
   width: 7rem;
   min-height: 5rem;
   position: fixed;
-  z-index: 2;
+  z-index: 1000;
   background-color: black;
   text-align: left;
+  pointer-events: none;
 }
 
 .tooltip > .name {
