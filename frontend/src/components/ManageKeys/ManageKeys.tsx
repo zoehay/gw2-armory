@@ -14,8 +14,7 @@ export const ManageKeys = () => {
 };
 
 const AccountKey = () => {
-  let context = useContext(ClientContext);
-  let client = context;
+  let client = useContext(ClientContext);
 
   let [account, setAccount] = useState<Account | null>(null);
 
@@ -52,8 +51,7 @@ interface KeyInputProps {
 const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
   const fieldName = "API Key";
   const [formState, setFormState] = useState("");
-  let context = useContext(ClientContext);
-  let client = context;
+  let client = useContext(ClientContext);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;

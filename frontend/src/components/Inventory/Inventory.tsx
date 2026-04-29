@@ -6,8 +6,7 @@ import { AccountInventory } from "../../models/AccountInventory";
 import { InventoryContents } from "./InventoryContents";
 
 export const Inventory = () => {
-  let context = useContext(ClientContext);
-  let client = context;
+  let client = useContext(ClientContext);
 
   let [accountInventory, setAccountInventory] =
     useState<AccountInventory | null>(null);
@@ -43,8 +42,7 @@ interface SearchInputProps {
 
 const SearchInput: React.FC<SearchInputProps> = ({ handleUpdate }) => {
   const [formState, setFormState] = useState("");
-  let context = useContext(ClientContext);
-  let client = context;
+  let client = useContext(ClientContext);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;

@@ -1,23 +1,39 @@
 import { BagItem } from "../../models/BagItem";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useId, useContext, createContext } from "react";
 import { createPortal } from "react-dom";
 import inventory from "./inventory.module.css";
+
+const ActiveTooltipContext = createContext<{
+  activeId: string | null;
+  setActiveId: (id: string | null) => void;
+}>({ activeId: null, setActiveId: () => {} });
+
+export const ActiveTooltipProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  return (
+    <ActiveTooltipContext.Provider value={{ activeId, setActiveId }}>
+      {children}
+    </ActiveTooltipContext.Provider>
+  );
+};
 
 export interface InventoryTileProps {
   bagItem: BagItem;
 }
 
 export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
-  const [displayDetails, setDisplayDetails] = useState(false);
+  const myId = useId();
+  const { activeId, setActiveId } = useContext(ActiveTooltipContext);
+  const displayDetails = activeId === myId;
   const tileRef = useRef<HTMLDivElement>(null);
 
   const style = {
     borderColor: `var(--outline-${bagItem.rarity})`,
   } as React.CSSProperties;
 
-  const handleMouseEnter = () => setDisplayDetails(true);
-  const handleMouseLeave = () => setDisplayDetails(false);
-  const handleTapToggle = () => setDisplayDetails(!displayDetails);
+  const handleMouseEnter = () => setActiveId(myId);
+  const handleMouseLeave = () => setActiveId(null);
+  const handleTapToggle = () => setActiveId(displayDetails ? null : myId);
 
   return (
     <div

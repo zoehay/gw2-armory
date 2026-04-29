@@ -9,8 +9,7 @@ interface KeyTileProps {
 }
 
 export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
-  let context = useContext(ClientContext);
-  let client = context;
+  let client = useContext(ClientContext);
 
   const handleClick = async () => {
     setTimeout(async () => {
