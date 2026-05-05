@@ -1,21 +1,8 @@
 import { BagItem } from "../../models/BagItem";
-import React, { useState, useRef, useId, useContext, createContext } from "react";
+import React, { useRef, useId, useContext } from "react";
 import { createPortal } from "react-dom";
 import inventory from "./inventory.module.css";
-
-const ActiveTooltipContext = createContext<{
-  activeId: string | null;
-  setActiveId: (id: string | null) => void;
-}>({ activeId: null, setActiveId: () => {} });
-
-export const ActiveTooltipProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  return (
-    <ActiveTooltipContext.Provider value={{ activeId, setActiveId }}>
-      {children}
-    </ActiveTooltipContext.Provider>
-  );
-};
+import { TooltipContext } from "./TooltipContext";
 
 export interface InventoryTileProps {
   bagItem: BagItem;
@@ -23,7 +10,7 @@ export interface InventoryTileProps {
 
 export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
   const myId = useId();
-  const { activeId, setActiveId } = useContext(ActiveTooltipContext);
+  const { activeId, setActiveId } = useContext(TooltipContext);
   const displayDetails = activeId === myId;
   const tileRef = useRef<HTMLDivElement>(null);
 
@@ -49,10 +36,26 @@ export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
       )}
       <img className={inventory.icon} src={bagItem.icon} alt={bagItem.name} />
       {displayDetails && tileRef.current && (
-        <ToolTip bagItem={bagItem} rect={tileRef.current.getBoundingClientRect()} />
+        <ToolTip
+          bagItem={bagItem}
+          rect={tileRef.current.getBoundingClientRect()}
+        />
       )}
     </div>
   );
+};
+
+const AttributeLabels: Record<string, string> = {
+  AgonyResistance: "Agony Resistance",
+  BoonDuration: "Concentration",
+  ConditionDamage: "Condition Damage",
+  ConditionDuration: "Expertise",
+  CritDamage: "Ferocity",
+  Healing: "Healing Power",
+  Power: "Power",
+  Precision: "Precision",
+  Toughness: "Toughness",
+  Vitality: "Vitality",
 };
 
 interface ToolTipProps {
@@ -61,14 +64,51 @@ interface ToolTipProps {
 }
 
 const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
+  const viewportWidth = window.innerWidth;
+  const TOOLTIP_MAX_W = Math.min(256, viewportWidth * 0.8); // mirrors CSS min(16rem, 80vw)
+  const overflowsRight = rect.left + TOOLTIP_MAX_W > viewportWidth;
+
+  const position = overflowsRight
+    ? { top: rect.bottom, right: viewportWidth - rect.right }
+    : { top: rect.bottom, left: rect.left };
+
+  const details = bagItem.details;
+  const defense =
+    typeof details?.defense === "number" && details?.defense != 0
+      ? details.defense
+      : null;
+  const minPower =
+    typeof details?.min_power === "number" ? details.min_power : null;
+  const maxPower =
+    typeof details?.max_power === "number" ? details.max_power : null;
+
+  const infix = details?.infix_upgrade;
+  const attributes =
+    infix != null &&
+    typeof infix === "object" &&
+    Array.isArray((infix as Record<string, unknown>).attributes)
+      ? ((infix as Record<string, unknown>).attributes as {
+          attribute: string;
+          modifier: number;
+        }[])
+      : [];
+
   return createPortal(
-    <div
-      className={inventory.tooltip}
-      style={{ top: rect.bottom, left: rect.left }}
-    >
+    <div className={inventory.tooltip} style={position}>
       <p className={inventory.name}>{bagItem.name}</p>
       <p className={inventory.description}>{bagItem.description}</p>
+      {defense !== null && <p>Defense: {defense}</p>}
+      {minPower !== null && maxPower !== null && (
+        <p>
+          Weapon Strength: {minPower} - {maxPower}
+        </p>
+      )}
+      {attributes.map(({ attribute, modifier }) => (
+        <p key={attribute}>
+          +{modifier} {AttributeLabels[attribute] ?? attribute}
+        </p>
+      ))}
     </div>,
-    document.body
+    document.body,
   );
 };

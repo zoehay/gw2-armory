@@ -1,7 +1,7 @@
 import React from "react";
 import { AccountInventory } from "../../models/AccountInventory";
 import { InventoryGroup } from "./InventoryGroup";
-import { ActiveTooltipProvider } from "./InventoryTile";
+import { TooltipProvider } from "./TooltipContext";
 import inventory from "./inventory.module.css";
 
 interface AccountInventoryProps {
@@ -14,7 +14,7 @@ export const InventoryContents: React.FC<AccountInventoryProps> = ({
   let { sharedInventory, characters } = accountInventory;
 
   return (
-    <ActiveTooltipProvider>
+    <TooltipProvider>
       {sharedInventory && (
         <InventoryGroup
           characterName="Shared Inventory"
@@ -34,6 +34,6 @@ export const InventoryContents: React.FC<AccountInventoryProps> = ({
             );
           })}
       </div>
-    </ActiveTooltipProvider>
+    </TooltipProvider>
   );
 };

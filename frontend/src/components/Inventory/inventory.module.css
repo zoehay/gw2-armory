@@ -57,7 +57,9 @@
 }
 
 .tooltip {
-  width: 7rem;
+  width: max-content;
+  min-width: 10rem;
+  max-width: min(16rem, 80vw);
   min-height: 5rem;
   position: fixed;
   z-index: 1000;
