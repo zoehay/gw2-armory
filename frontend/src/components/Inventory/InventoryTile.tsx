@@ -128,8 +128,26 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
           ))}
         </ul>
       </div>
-      <p className={inventory.description}>{bagItem.description}</p>
+      <div className={inventory.description}>
+        {bagItem.description ? parseDescription(bagItem.description) : null}
+      </div>
     </div>,
     document.body,
   );
 };
+
+function parseDescription(description: string): React.ReactNode {
+  const parts = description.split(/(<c=@\w+>.*?<\/c>)/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^<c=@(\w+)>(.*?)<\/c>$/s);
+    if (match) {
+      const [, tag, text] = match;
+      return (
+        <span key={i} className={inventory[tag]}>
+          {text}
+        </span>
+      );
+    }
+    return part;
+  });
+}
