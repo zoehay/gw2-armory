@@ -65,13 +65,14 @@ interface ToolTipProps {
 
 const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
   const viewportWidth = window.innerWidth;
-  const TOOLTIP_MAX_W = Math.min(256, viewportWidth * 0.8); // mirrors CSS min(16rem, 80vw)
-  const overflowsRight = rect.left + TOOLTIP_MAX_W > viewportWidth;
+  const tooltipMaxWidth = Math.min(256, viewportWidth * 0.8);
+  const overflowsRight = rect.left + tooltipMaxWidth > viewportWidth;
 
   const position = overflowsRight
     ? { top: rect.bottom, right: viewportWidth - rect.right }
     : { top: rect.bottom, left: rect.left };
 
+  // Stats
   const details = bagItem.details;
   const defense =
     typeof details?.defense === "number" && details?.defense != 0
@@ -82,8 +83,9 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
   const maxPower =
     typeof details?.max_power === "number" ? details.max_power : null;
 
+  // Attributes
   const infix = details?.infix_upgrade;
-  const attributes =
+  const infixAttributes =
     infix != null &&
     typeof infix === "object" &&
     Array.isArray((infix as Record<string, unknown>).attributes)
@@ -91,23 +93,42 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
           attribute: string;
           modifier: number;
         }[])
-      : [];
+      : null;
+
+  const topLevelAttributes =
+    bagItem.stats != null &&
+    typeof bagItem.stats.attributes === "object" &&
+    bagItem.stats.attributes != null
+      ? Object.entries(bagItem.stats.attributes as Record<string, number>).map(
+          ([attribute, modifier]) => ({ attribute, modifier }),
+        )
+      : null;
+
+  const attributes = infixAttributes ?? topLevelAttributes ?? [];
 
   return createPortal(
     <div className={inventory.tooltip} style={position}>
-      <p className={inventory.name}>{bagItem.name}</p>
+      <div className={inventory.name}>{bagItem.name}</div>
+      <div className={inventory.stats}>
+        <ul>
+          {defense !== null && <li>Defense {defense}</li>}
+          {minPower !== null && maxPower !== null && (
+            <li>
+              Weapon Strength {minPower} - {maxPower}{" "}
+            </li>
+          )}
+        </ul>
+      </div>
+      <div className={inventory.attributes}>
+        <ul>
+          {attributes.map(({ attribute, modifier }) => (
+            <li>
+              +{modifier} {AttributeLabels[attribute] ?? attribute}
+            </li>
+          ))}
+        </ul>
+      </div>
       <p className={inventory.description}>{bagItem.description}</p>
-      {defense !== null && <p>Defense: {defense}</p>}
-      {minPower !== null && maxPower !== null && (
-        <p>
-          Weapon Strength: {minPower} - {maxPower}
-        </p>
-      )}
-      {attributes.map(({ attribute, modifier }) => (
-        <p key={attribute}>
-          +{modifier} {AttributeLabels[attribute] ?? attribute}
-        </p>
-      ))}
     </div>,
     document.body,
   );

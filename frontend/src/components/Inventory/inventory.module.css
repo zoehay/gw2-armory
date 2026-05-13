@@ -66,6 +66,8 @@
   background-color: black;
   text-align: left;
   pointer-events: none;
+  color: white;
+  font-size: 0.75rem;
 }
 
 .tooltip > .name {
@@ -75,7 +77,16 @@
 }
 
 .tooltip > .description {
-  font-size: 0.75rem;
   padding: 0rem 0.75rem;
   margin: 0rem;
+}
+
+.tooltip > .stats {
+  padding: 0.25rem 0rem;
+}
+
+.tooltip ul {
+  padding: 0rem 0.25rem;
+  margin: 0rem;
+  list-style: none;
 }
