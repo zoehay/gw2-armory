@@ -26,6 +26,7 @@ export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
     <div
       ref={tileRef}
       className={inventory.tile}
+      data-inventory-tile
       onMouseEnter={handleMouseEnter}
       onClick={handleTapToggle}
       onMouseLeave={handleMouseLeave}
@@ -66,11 +67,11 @@ interface ToolTipProps {
 const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
   const viewportWidth = window.innerWidth;
   const tooltipMaxWidth = Math.min(256, viewportWidth * 0.8);
-  const overflowsRight = rect.left + tooltipMaxWidth > viewportWidth;
-
-  const position = overflowsRight
-    ? { top: rect.bottom, right: viewportWidth - rect.right }
-    : { top: rect.bottom, left: rect.left };
+  const left = Math.max(
+    4,
+    Math.min(rect.left, viewportWidth - tooltipMaxWidth - 4),
+  );
+  const position = { top: rect.bottom, left };
 
   // Stats
   const details = bagItem.details;
@@ -130,6 +131,9 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
       </div>
       <div className={inventory.description}>
         {bagItem.description ? parseDescription(bagItem.description) : null}
+      </div>
+      <div>
+        <ul>{bagItem.type && <li>{bagItem.type}</li>}</ul>
       </div>
     </div>,
     document.body,

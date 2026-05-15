@@ -12,11 +12,10 @@
 }
 
 .group > .contents {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 3.1rem);
+  justify-content: center;
   box-sizing: border-box;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: start;
   @media (min-width: 46rem) {
     margin: 1rem;
     max-width: 75rem;
@@ -79,10 +78,6 @@
 .tooltip > .description {
   padding: 0rem 0.75rem;
   margin: 0rem;
-}
-
-.tooltip > .stats {
-  padding: 0.25rem 0rem;
 }
 
 .tooltip ul {
