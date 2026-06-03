@@ -129,6 +129,21 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
           ))}
         </ul>
       </div>
+      {bagItem.upgradeDetails?.map((upgrade) => {
+        const bonuses = Array.isArray(upgrade.details?.bonuses)
+          ? (upgrade.details.bonuses as string[])
+          : [];
+        return (
+          <div key={upgrade.id}>
+            <div className={inventory.upgradeName}>{upgrade.name}</div>
+            <ul>
+              {bonuses.map((bonus, i) => (
+                <li key={i}>{bonus}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
       <div className={inventory.description}>
         {bagItem.description ? parseDescription(bagItem.description) : null}
       </div>

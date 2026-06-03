@@ -1,3 +1,11 @@
+export interface UpgradeComponent {
+  id: number;
+  name: string;
+  icon: string;
+  rarity: string;
+  details?: { [key: string]: unknown };
+}
+
 export interface BagItem {
   characterName: string;
   id: number;
@@ -5,6 +13,8 @@ export interface BagItem {
   charges?: number;
   infusions?: number[];
   upgrades?: number[];
+  infusionDetails?: UpgradeComponent[];
+  upgradeDetails?: UpgradeComponent[];
   skin?: number;
   stats?: { [key: string]: unknown };
   dyes?: number[];
@@ -29,6 +39,8 @@ export interface APIBagItem {
   charges?: number;
   infusions?: number[];
   upgrades?: number[];
+  infusion_details?: UpgradeComponent[];
+  upgrade_details?: UpgradeComponent[];
   skin?: number;
   stats?: { [key: string]: unknown };
   dyes?: number[];
@@ -54,6 +66,8 @@ export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
     charges: apiBagItem.charges,
     infusions: apiBagItem.infusions,
     upgrades: apiBagItem.upgrades,
+    infusionDetails: apiBagItem.infusion_details,
+    upgradeDetails: apiBagItem.upgrade_details,
     skin: apiBagItem.skin,
     stats: apiBagItem.stats,
     dyes: apiBagItem.dyes,

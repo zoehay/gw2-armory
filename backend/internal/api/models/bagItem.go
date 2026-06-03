@@ -17,10 +17,12 @@ type BagItem struct {
 	Skin          *uint                   `json:"skin,omitempty"`
 	Stats         *map[string]interface{} `json:"stats,omitempty" gorm:"type:json"`
 	Dyes          *[]int64                `json:"dyes,omitempty" gorm:"type:integer[]"`
-	Binding       *string                 `json:"binding,omitempty"`
-	BoundTo       *string                 `json:"bound_to,omitempty"`
-	Slot          *string                 `json:"slot,omitempty"`
-	Location      *string                 `json:"location,omitempty"`
+	Binding        *string                   `json:"binding,omitempty"`
+	BoundTo        *string                   `json:"bound_to,omitempty"`
+	Slot           *string                   `json:"slot,omitempty"`
+	Location       *string                   `json:"location,omitempty"`
+	InfusionDetails *[]map[string]interface{} `json:"infusion_details,omitempty"`
+	UpgradeDetails  *[]map[string]interface{} `json:"upgrade_details,omitempty"`
 
 	// fields from full item details optional in case not in db
 	Name        *string                 `json:"name,omitempty"`

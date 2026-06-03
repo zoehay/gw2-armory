@@ -89,3 +89,8 @@
 .flavor {
   color: #99d9ea;
 }
+
+.upgradeName {
+  padding: 0.25rem 0.25rem 0rem;
+  color: rgb(255, 238, 0);
+}

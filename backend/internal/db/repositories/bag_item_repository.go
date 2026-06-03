@@ -78,11 +78,42 @@ func (repository *BagItemRepository) GetIds() ([]int, error) {
 func (repository *BagItemRepository) GetDetailBagItemByCharacterName(accountID string, characterName string) ([]dbmodels.DBDetailBagItem, error) {
 	var detailBagItems []dbmodels.DBDetailBagItem
 
-	err := repository.DB.Table("db_bag_items").
-		Select("db_bag_items.*, db_items.icon, db_items.name, db_items.description, db_items.rarity").
-		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
-		Where("db_bag_items.account_id = ? AND db_bag_items.character_name = ?", accountID, characterName).
-		Scan(&detailBagItems).Error
+	err := repository.DB.Raw(`
+		SELECT
+			db_bag_items.*,
+			db_items.icon,
+			db_items.name,
+			db_items.description,
+			db_items.rarity,
+			db_items.type,
+			db_items.vendor_value,
+			db_items.details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      infusion_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.infusions) AS infusion_id
+				LEFT JOIN db_items uc ON uc.id = infusion_id
+			) AS infusion_details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      upgrade_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.upgrades) AS upgrade_id
+				LEFT JOIN db_items uc ON uc.id = upgrade_id
+			) AS upgrade_details
+		FROM db_bag_items
+		LEFT JOIN db_items ON db_bag_items.bag_item_id = db_items.id
+		WHERE db_bag_items.account_id = ? AND db_bag_items.character_name = ?
+	`, accountID, characterName).Scan(&detailBagItems).Error
 
 	if err != nil {
 		return nil, err
@@ -92,32 +123,92 @@ func (repository *BagItemRepository) GetDetailBagItemByCharacterName(accountID s
 }
 
 func (repository *BagItemRepository) GetDetailBagItemByAccountID(accountID string) (detailBagItems []dbmodels.DBDetailBagItem, err error) {
-	err = repository.DB.Table("db_bag_items").
-		Select("db_bag_items.*, db_items.*").
-		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
-		Where("db_bag_items.account_id = ?", accountID).
-		Scan(&detailBagItems).Error
+	err = repository.DB.Raw(`
+		SELECT
+			db_bag_items.*,
+			db_items.icon,
+			db_items.name,
+			db_items.description,
+			db_items.rarity,
+			db_items.type,
+			db_items.vendor_value,
+			db_items.details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      infusion_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.infusions) AS infusion_id
+				LEFT JOIN db_items uc ON uc.id = infusion_id
+			) AS infusion_details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      upgrade_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.upgrades) AS upgrade_id
+				LEFT JOIN db_items uc ON uc.id = upgrade_id
+			) AS upgrade_details
+		FROM db_bag_items
+		LEFT JOIN db_items ON db_bag_items.bag_item_id = db_items.id
+		WHERE db_bag_items.account_id = ?
+	`, accountID).Scan(&detailBagItems).Error
 
 	if err != nil {
 		return nil, err
 	}
 
 	return detailBagItems, nil
-
 }
 
 func (repository *BagItemRepository) GetDetailBagItemsWithSearch(accountID string, searchTerm string) (detailBagItems []dbmodels.DBDetailBagItem, err error) {
-	err = repository.DB.Table("db_bag_items").
-		Select("db_bag_items.*, db_items.*").
-		Joins("left join db_items on db_bag_items.bag_item_id = db_items.id").
-		Where("db_bag_items.account_id = ?", accountID).
-		Where("name ILIKE ? OR description ILIKE ? OR rarity ILIKE ?", searchTerm, searchTerm, searchTerm).
-		Scan(&detailBagItems).Error
+	err = repository.DB.Raw(`
+		SELECT
+			db_bag_items.*,
+			db_items.icon,
+			db_items.name,
+			db_items.description,
+			db_items.rarity,
+			db_items.type,
+			db_items.vendor_value,
+			db_items.details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      infusion_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.infusions) AS infusion_id
+				LEFT JOIN db_items uc ON uc.id = infusion_id
+			) AS infusion_details,
+			(
+				SELECT json_agg(json_build_object(
+					'id',      upgrade_id,
+					'name',    uc.name,
+					'icon',    uc.icon,
+					'rarity',  uc.rarity,
+					'details', uc.details
+				))
+				FROM unnest(db_bag_items.upgrades) AS upgrade_id
+				LEFT JOIN db_items uc ON uc.id = upgrade_id
+			) AS upgrade_details
+		FROM db_bag_items
+		LEFT JOIN db_items ON db_bag_items.bag_item_id = db_items.id
+		WHERE db_bag_items.account_id = ?
+		AND (db_items.name ILIKE ? OR db_items.description ILIKE ? OR db_items.rarity ILIKE ?)
+	`, accountID, searchTerm, searchTerm, searchTerm).Scan(&detailBagItems).Error
 
 	if err != nil {
 		return nil, err
 	}
 
 	return detailBagItems, nil
-
 }

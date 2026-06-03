@@ -53,11 +53,8 @@ func (s *ItemServiceTestSuite) TearDownSuite() {
 func (s *ItemServiceTestSuite) TestGetAndStoreAllItems() {
 	err := s.Service.ItemService.GetAndStoreAllItems()
 	assert.NoError(s.T(), err, "Failed to get and store items")
-}
 
-func (s *ItemServiceTestSuite) TestGetItemById() {
 	item, err := s.Service.ItemService.ItemRepository.GetById(27952)
 	assert.NoError(s.T(), err, "Failed to get item by id")
 	assert.Equal(s.T(), "Axiquiotl", item.Name, "Correct item name")
-
 }

@@ -17,10 +17,12 @@ type DBDetailBagItem struct {
 	Skin      *uint              `json:"skin,omitempty"`
 	Stats     *models.DetailsMap `json:"stats,omitempty" gorm:"type:json"`
 	Dyes      *pq.Int64Array     `json:"dyes,omitempty" gorm:"type:integer[]"`
-	Binding   *string            `json:"binding,omitempty"`
-	BoundTo   *string            `json:"bound_to,omitempty"`
-	Slot      *string            `json:"slot,omitempty"`
-	Location  *string            `json:"location,omitempty"`
+	Binding         *string                `json:"binding,omitempty"`
+	BoundTo         *string                `json:"bound_to,omitempty"`
+	Slot            *string                `json:"slot,omitempty"`
+	Location        *string                `json:"location,omitempty"`
+	InfusionDetails *models.DetailsMapArray `json:"infusion_details,omitempty" gorm:"type:json"`
+	UpgradeDetails  *models.DetailsMapArray `json:"upgrade_details,omitempty" gorm:"type:json"`
 
 	// fields from full item details optional in case not in db
 	Name        *string            `json:"name,omitempty"`
@@ -44,10 +46,12 @@ func (dbDetailBagItem DBDetailBagItem) ToBagItem() models.BagItem {
 		Skin:      dbDetailBagItem.Skin,
 		Stats:     (*map[string]interface{})(dbDetailBagItem.Stats),
 		Dyes:      (*[]int64)(dbDetailBagItem.Dyes),
-		Binding:   dbDetailBagItem.Binding,
-		BoundTo:   dbDetailBagItem.BoundTo,
-		Slot:      dbDetailBagItem.Slot,
-		Location:  dbDetailBagItem.Location,
+		Binding:         dbDetailBagItem.Binding,
+		BoundTo:         dbDetailBagItem.BoundTo,
+		Slot:            dbDetailBagItem.Slot,
+		Location:        dbDetailBagItem.Location,
+		InfusionDetails: (*[]map[string]interface{})(dbDetailBagItem.InfusionDetails),
+		UpgradeDetails:  (*[]map[string]interface{})(dbDetailBagItem.UpgradeDetails),
 
 		Name:        dbDetailBagItem.Name,
 		Icon:        dbDetailBagItem.Icon,
@@ -66,8 +70,21 @@ func DBDetailBagItemsToAccountInventory(dbIconBagItems []DBDetailBagItem, accoun
 	var characters []models.Character
 
 	for _, item := range dbIconBagItems {
-		if ItemNotInDB(item) {
+		if item.Name == nil {
 			itemsNotInDB = append(itemsNotInDB, int64(item.BagItemID))
+		}
+
+		for _, details := range []*models.DetailsMapArray{item.InfusionDetails, item.UpgradeDetails} {
+			if details == nil {
+				continue
+			}
+			for _, detail := range *details {
+				if NotInDB(detail) {
+					if id, ok := detail["id"].(float64); ok {
+						itemsNotInDB = append(itemsNotInDB, int64(id))
+					}
+				}
+			}
 		}
 
 		item := item.ToBagItem()
@@ -115,10 +132,7 @@ func DBDetailBagItemsToAccountInventory(dbIconBagItems []DBDetailBagItem, accoun
 	return accountInventory, itemsNotInDB
 }
 
-func ItemNotInDB(item DBDetailBagItem) bool {
-	if (item.Name) == nil {
-		return true
-	} else {
-		return false
-	}
+func NotInDB(detail map[string]interface{}) bool {
+	name, ok := detail["name"]
+	return !ok || name == nil
 }
