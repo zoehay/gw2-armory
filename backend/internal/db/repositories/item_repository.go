@@ -3,6 +3,7 @@ package repositories
 import (
 	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ItemRepositoryInterface interface {
@@ -24,25 +25,19 @@ func NewItemRepository(db *gorm.DB) ItemRepository {
 }
 
 func (repository *ItemRepository) Create(item *dbmodels.DBItem) (*dbmodels.DBItem, error) {
-
-	err := repository.DB.Create(&item).Error
+	err := repository.DB.Clauses(clause.OnConflict{UpdateAll: true}).Create(&item).Error
 	if err != nil {
 		return nil, err
 	}
-
 	return item, nil
-
 }
 
 func (repository *ItemRepository) CreateMany(items []*dbmodels.DBItem) error {
-
-	err := repository.DB.Create(&items).Error
+	err := repository.DB.Clauses(clause.OnConflict{UpdateAll: true}).Create(&items).Error
 	if err != nil {
 		return err
 	}
-
 	return nil
-
 }
 
 func (repository *ItemRepository) GetAll() ([]dbmodels.DBItem, error) {

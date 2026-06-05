@@ -82,7 +82,7 @@ func (bagItemHandler BagItemHandler) GetAccountInventory(c *gin.Context) {
 		return
 	}
 
-	accountInventory, itemsNotInDB := dbmodels.DBDetailBagItemsToAccountInventory(detailBagItems, accountID)
+	accountInventory, itemsNotInDB := dbmodels.DBBagItemsToAccountInventory(detailBagItems, accountID)
 
 	c.IndentedJSON(http.StatusOK, accountInventory)
 
@@ -122,7 +122,7 @@ func (bagItemHandler BagItemHandler) GetFilteredAccountInventory(c *gin.Context)
 		return
 	}
 
-	accountInventory, _ := dbmodels.DBDetailBagItemsToAccountInventory(detailBagItems, accountID)
+	accountInventory, _ := dbmodels.DBBagItemsToAccountInventory(detailBagItems, accountID)
 
 	c.IndentedJSON(http.StatusOK, accountInventory)
 

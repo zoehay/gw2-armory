@@ -23,14 +23,29 @@ type GW2BagItem struct {
 
 func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *string) dbmodels.DBBagItem {
 	var stats = (*models.DetailsMap)(gw2BagItem.Stats)
+
+	var infusions []dbmodels.DBItem
+	if gw2BagItem.Infusions != nil {
+		for _, id := range *gw2BagItem.Infusions {
+			infusions = append(infusions, dbmodels.DBItem{ID: uint(id)})
+		}
+	}
+
+	var upgrades []dbmodels.DBItem
+	if gw2BagItem.Upgrades != nil {
+		for _, id := range *gw2BagItem.Upgrades {
+			upgrades = append(upgrades, dbmodels.DBItem{ID: uint(id)})
+		}
+	}
+
 	return dbmodels.DBBagItem{
 		AccountID:     accountID,
 		CharacterName: apiCharacterName,
 		BagItemID:     gw2BagItem.ID,
 		Count:         gw2BagItem.Count,
 		Charges:       gw2BagItem.Charges,
-		Infusions:     (*pq.Int64Array)(gw2BagItem.Infusions),
-		Upgrades:      (*pq.Int64Array)(gw2BagItem.Upgrades),
+		Infusions:     infusions,
+		Upgrades:      upgrades,
 		Skin:          gw2BagItem.Skin,
 		Stats:         stats,
 		Dyes:          (*pq.Int64Array)(gw2BagItem.Dyes),
@@ -39,5 +54,4 @@ func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *str
 		Slot:          gw2BagItem.Slot,
 		Location:      gw2BagItem.Location,
 	}
-
 }
