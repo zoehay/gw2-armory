@@ -123,7 +123,7 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
       <div className={inventory.attributes}>
         <ul>
           {attributes.map(({ attribute, modifier }) => (
-            <li>
+            <li key={attribute}>
               +{modifier} {AttributeLabels[attribute] ?? attribute}
             </li>
           ))}
