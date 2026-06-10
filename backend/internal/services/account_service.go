@@ -23,6 +23,7 @@ type AccountServiceInterface interface {
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
 	IsRecrawlDue(lastCrawl *time.Time) bool
+	DeleteAccount(accountID string, sessionID string) error
 }
 
 type AccountService struct {
@@ -180,4 +181,39 @@ func (service *AccountService) IsRecrawlDue(lastCrawl *time.Time) bool {
 	}
 
 	return (elapsed >= minHoursSinceCrawl || lastCrawl == nil)
+}
+
+func (service *AccountService) DeleteAccount(accountID string, sessionID string) error {
+	tx := service.AccountRepository.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Exec(`DELETE FROM db_bag_item_infusions WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ?)`, accountID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting bag item infusions: %w", err)
+	}
+	if err := tx.Exec(`DELETE FROM db_bag_item_upgrades WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ?)`, accountID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting bag item upgrades: %w", err)
+	}
+	if err := tx.Where("account_id = ?", accountID).Delete(&dbmodels.DBBagItem{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting bag items: %w", err)
+	}
+	if err := tx.Where("account_id = ?", accountID).Delete(&dbmodels.DBAccount{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting account: %w", err)
+	}
+	if err := tx.Where("session_id = ?", sessionID).Delete(&dbmodels.DBSession{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting session: %w", err)
+	}
+
+	return tx.Commit().Error
 }

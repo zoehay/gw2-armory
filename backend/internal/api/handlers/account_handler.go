@@ -13,17 +13,15 @@ type AccountHandler struct {
 	Domain            string
 	AccountRepository repositories.AccountRepositoryInterface
 	SessionRepository repositories.SessionRepositoryInterface
-	BagItemRepository repositories.BagItemRepositoryInterface
 	AccountService    services.AccountServiceInterface
 	BagItemService    services.BagItemServiceInterface
 }
 
-func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, sessionRepository repositories.SessionRepositoryInterface, bagItemRepostiory repositories.BagItemRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, sessionRepository repositories.SessionRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
 	return &AccountHandler{
 		Domain:            domain,
 		AccountRepository: accountRepository,
 		SessionRepository: sessionRepository,
-		BagItemRepository: bagItemRepostiory,
 		AccountService:    accountService,
 		BagItemService:    bagItemService,
 	}
@@ -116,24 +114,8 @@ func (handler AccountHandler) Delete(c *gin.Context) {
 	accountID := c.MustGet("accountID").(string)
 	sessionID := c.MustGet("sessionID").(string)
 
-	// delete api key
-	err := handler.AccountRepository.DeleteAccount(accountID)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error deleting api key": err.Error()})
-		return
-	}
-
-	// delete associated bag items
-	err = handler.BagItemRepository.DeleteByAccountID(accountID)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error deleting bag items": err.Error()})
-		return
-	}
-
-	// if no user (only one apikey) delete the session
-	err = handler.SessionRepository.Delete(sessionID)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error session items": err.Error()})
+	if err := handler.AccountService.DeleteAccount(accountID, sessionID); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error deleting account": err.Error()})
 		return
 	}
 
