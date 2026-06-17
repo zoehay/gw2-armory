@@ -26,7 +26,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 
 	itemHandler := handlers.NewItemHandler(&repository.ItemRepository)
 	bagItemHandler := handlers.NewBagItemHandler(&repository.BagItemRepository, service.ItemService)
-	accountHandler := handlers.NewAccountHandler(domain, &repository.AccountRepository, &repository.SessionRepository, service.AccountService, service.BagItemService)
+	accountHandler := handlers.NewAccountHandler(domain, &repository.AccountRepository, service.AccountService, service.BagItemService)
 
 	err = db.SeedItems(repository.ItemRepository, *service.ItemService)
 	if err != nil {

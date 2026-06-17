@@ -23,6 +23,8 @@ type AccountServiceInterface interface {
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
 	IsRecrawlDue(lastCrawl *time.Time) bool
+	UpdateLastCrawl(accountID string) error
+	Logout(sessionID string) error
 	DeleteAccount(accountID string, sessionID string) error
 }
 
@@ -181,6 +183,14 @@ func (service *AccountService) IsRecrawlDue(lastCrawl *time.Time) bool {
 	}
 
 	return (elapsed >= minHoursSinceCrawl || lastCrawl == nil)
+}
+
+func (service *AccountService) UpdateLastCrawl(accountID string) error {
+	return service.AccountRepository.UpdateLastCrawl(accountID)
+}
+
+func (service *AccountService) Logout(sessionID string) error {
+	return service.SessionRepository.Delete(sessionID)
 }
 
 func (service *AccountService) DeleteAccount(accountID string, sessionID string) error {

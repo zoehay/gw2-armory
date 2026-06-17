@@ -12,16 +12,14 @@ import (
 type AccountHandler struct {
 	Domain            string
 	AccountRepository repositories.AccountRepositoryInterface
-	SessionRepository repositories.SessionRepositoryInterface
 	AccountService    services.AccountServiceInterface
 	BagItemService    services.BagItemServiceInterface
 }
 
-func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, sessionRepository repositories.SessionRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
 	return &AccountHandler{
 		Domain:            domain,
 		AccountRepository: accountRepository,
-		SessionRepository: sessionRepository,
 		AccountService:    accountService,
 		BagItemService:    bagItemService,
 	}
@@ -91,7 +89,7 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting inventory after guest creation": err.Error()})
 			return
 		}
-		err = handler.AccountRepository.UpdateLastCrawl(account.AccountID)
+		err = handler.AccountService.UpdateLastCrawl(account.AccountID)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error updating account last crawl": err.Error()})
 			return
@@ -130,7 +128,6 @@ func (handler AccountHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Find account
 	account, err := handler.AccountRepository.GetByName(accountLogin.AccountName)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -138,6 +135,7 @@ func (handler AccountHandler) Login(c *gin.Context) {
 	}
 
 	// Add password verification
+
 	_, _, err = handler.AccountService.RenewOrGenerateSession(account)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -151,24 +149,16 @@ func (handler AccountHandler) Login(c *gin.Context) {
 }
 
 func (handler AccountHandler) Logout(c *gin.Context) {
-	// find session
-	// delete session
 	sessionID, err := c.Cookie("sessionID")
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	err = handler.SessionRepository.Delete(sessionID)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	if err == nil {
+		if err = handler.AccountService.Logout(sessionID); err != nil {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
 	}
 
-	// find account
-	// delete session from account
-
-	// delete cookie
 	c.SetCookie("sessionID", "", -1, "/", handler.Domain, false, true)
+	c.Status(http.StatusNoContent)
 }
 
 type AccountLogin struct {
