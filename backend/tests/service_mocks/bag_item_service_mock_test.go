@@ -1,7 +1,6 @@
 package servicemocks_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +9,15 @@ import (
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
 	"github.com/zoehay/gw2-armory/backend/internal/services"
 	"github.com/zoehay/gw2-armory/backend/tests/testutils"
+)
+
+// Item counts derived from mock test data files.
+const (
+	sharedInventoryCount = 4  // account_inventory_test_data.txt
+	romanMeowsCount      = 32 // character_test_data.txt: 15 bag + 17 equipment
+	lauraLesdottirCount  = 35 // character_test_data.txt: 30 bag + 5 equipment
+	allCharactersCount   = romanMeowsCount + lauraLesdottirCount
+	totalInventoryCount  = sharedInventoryCount + allCharactersCount
 )
 
 type BagItemAccountServiceTestSuite struct {
@@ -26,78 +34,85 @@ func TestBagItemAccountServiceTestSuite(t *testing.T) {
 func (s *BagItemAccountServiceTestSuite) SetupSuite() {
 	router, repository, service, err := testutils.DBRouterSetup()
 	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
+		s.T().Fatalf("Error setting up router: %v", err)
 	}
-
 	s.Router = router
 	s.Repository = repository
 	s.Service = service
 }
 
+func (s *BagItemAccountServiceTestSuite) SetupTest() {
+	s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items")
+}
+
 func (s *BagItemAccountServiceTestSuite) TearDownSuite() {
-	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
-	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
+	err := testutils.TearDownTruncateTables(s.Repository, []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"})
 	if err != nil {
 		s.T().Errorf("Error tearing down suite: %v", err)
 	}
 }
 
-func (s *BagItemAccountServiceTestSuite) TestGetAndStoreAllBagItems() {
+func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItems() {
 	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store items")
-	bagItems, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
-	numberAllBagItems := len(bagItems)
-	fmt.Println(numberAllBagItems)
-	assert.Equal(s.T(), 71, numberAllBagItems, "Correct number of items added")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), totalInventoryCount, len(items))
 }
 
-func (s *BagItemAccountServiceTestSuite) TestGetAndStoreSharedInventory() {
+func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItemsIsIdempotent() {
+	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+	first, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+
+	err = s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+	second, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+
+	assert.Equal(s.T(), len(first), len(second), "second sync should replace inventory, not duplicate it")
+}
+
+func (s *BagItemAccountServiceTestSuite) TestStoreSharedInventory() {
 	err := s.Service.BagItemService.GetAndStoreSharedInventory("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store items")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), sharedInventoryCount, len(items))
 }
 
-func (s *BagItemAccountServiceTestSuite) TestGetBagItemsByAccount() {
-	_, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
+func (s *BagItemAccountServiceTestSuite) TestStoreAllCharacters() {
+	err := s.Service.BagItemService.GetAndStoreAllCharacters("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), allCharactersCount, len(items))
 }
 
-func (s *BagItemAccountServiceTestSuite) TestClearAccountBagItems() {
-	err := s.Service.BagItemService.GetAndStoreSharedInventory("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store account inventory")
-	err = s.Service.BagItemService.GetAndStoreAllCharacters("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store character inventory")
-	bagItems, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
-	numberAllBagItems := len(bagItems)
-	fmt.Println(numberAllBagItems)
+func (s *BagItemAccountServiceTestSuite) TestClearSharedInventory() {
+	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+
 	err = s.Service.BagItemService.ClearSharedInventory("accountid")
-	assert.NoError(s.T(), err, "Failed to clear account shared inventory")
-	bagItems, err = s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
-	numberCharacterBagItems := len(bagItems)
-	fmt.Println(numberCharacterBagItems)
-	assert.Equal(s.T(), 4, (numberAllBagItems - numberCharacterBagItems))
+	assert.NoError(s.T(), err)
 
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), allCharactersCount, len(items))
 }
 
 func (s *BagItemAccountServiceTestSuite) TestClearCharacterInventory() {
-	err := s.Service.BagItemService.GetAndStoreSharedInventory("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and account inventory")
-	err = s.Service.BagItemService.GetAndStoreAllCharacters("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store character inventory")
-	bagItems, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
-	numberAllBagItems := len(bagItems)
-	fmt.Println(numberAllBagItems)
-	err = s.Service.BagItemService.ClearCharacterInventory("accountid", "Laura Lesdottir")
-	assert.NoError(s.T(), err, "Failed to clear character inventory")
-	err = s.Service.BagItemService.ClearCharacterInventory("accountid", "Roman Meows")
-	assert.NoError(s.T(), err, "Failed to clear character inventory")
-	bagItems, err = s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
-	assert.NoError(s.T(), err, "Failed to get account bag items")
-	numberBagItemsWithoutCharacter := len(bagItems)
-	fmt.Println(numberBagItemsWithoutCharacter)
-	assert.Equal(s.T(), 67, (numberAllBagItems - numberBagItemsWithoutCharacter))
+	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
 
+	err = s.Service.BagItemService.ClearCharacterInventory("accountid", "Laura Lesdottir")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), totalInventoryCount-lauraLesdottirCount, len(items))
 }

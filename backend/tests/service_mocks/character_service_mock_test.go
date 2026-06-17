@@ -47,6 +47,6 @@ func (s *CharacterServiceTestSuite) TestGetAndStoreAllCharacters() {
 }
 
 func (s *CharacterServiceTestSuite) TestGetBagItemsByCharacterName() {
-	_, err := s.Service.BagItemService.BagItemRepository.GetByCharacterName("accountid", "Roman Meows")
+	_, err := s.Service.BagItemService.BagItemRepository.GetDetailBagItemByCharacterName("accountid", "Roman Meows")
 	assert.NoError(s.T(), err, "Failed to get item by id")
 }
