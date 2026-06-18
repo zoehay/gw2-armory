@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
 	"gorm.io/gorm"
 )
@@ -127,6 +129,7 @@ func (repository *BagItemRepository) GetDetailBagItemByAccountID(accountID strin
 }
 
 func (repository *BagItemRepository) GetDetailBagItemsWithSearch(accountID string, searchTerm string) ([]dbmodels.DBBagItem, error) {
+	likePattern := fmt.Sprintf("%%%s%%", searchTerm)
 	var bagItems []dbmodels.DBBagItem
 	err := repository.DB.
 		Preload("Item").
@@ -135,7 +138,7 @@ func (repository *BagItemRepository) GetDetailBagItemsWithSearch(accountID strin
 		Select("db_bag_items.*").
 		Joins("JOIN db_items ON db_bag_items.bag_item_id = db_items.id").
 		Where("db_bag_items.account_id = ? AND (db_items.name ILIKE ? OR db_items.description ILIKE ? OR db_items.rarity ILIKE ?)",
-			accountID, searchTerm, searchTerm, searchTerm).
+			accountID, likePattern, likePattern, likePattern).
 		Find(&bagItems).Error
 	if err != nil {
 		return nil, err

@@ -28,8 +28,8 @@ func NewService(repository *repositories.Repository, mocks bool) *Service {
 	}
 
 	accountService := NewAccountService(&repository.AccountRepository, accountProvider, &repository.SessionRepository)
-	bagItemService := NewBagItemService(&repository.BagItemRepository, characterProvider, accountProvider)
 	itemService := NewItemService(&repository.ItemRepository, itemProvider)
+	bagItemService := NewBagItemService(&repository.BagItemRepository, characterProvider, accountProvider, itemService)
 
 	return &Service{
 		AccountService: accountService,
