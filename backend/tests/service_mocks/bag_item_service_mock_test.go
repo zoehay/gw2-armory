@@ -53,7 +53,7 @@ func (s *BagItemAccountServiceTestSuite) TearDownSuite() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItems() {
-	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
@@ -62,12 +62,12 @@ func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItems() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItemsIsIdempotent() {
-	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 	first, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
 	assert.NoError(s.T(), err)
 
-	err = s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	err = s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 	second, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
 	assert.NoError(s.T(), err)
@@ -76,7 +76,7 @@ func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItemsIsIdempotent() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestStoreSharedInventory() {
-	err := s.Service.BagItemService.GetAndStoreSharedInventory("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreSharedInventory("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
@@ -85,7 +85,7 @@ func (s *BagItemAccountServiceTestSuite) TestStoreSharedInventory() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestStoreAllCharacters() {
-	err := s.Service.BagItemService.GetAndStoreAllCharacters("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreAllCharacters("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
@@ -94,7 +94,7 @@ func (s *BagItemAccountServiceTestSuite) TestStoreAllCharacters() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestClearSharedInventory() {
-	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
 	err = s.Service.BagItemService.ClearSharedInventory("accountid")
@@ -106,7 +106,7 @@ func (s *BagItemAccountServiceTestSuite) TestClearSharedInventory() {
 }
 
 func (s *BagItemAccountServiceTestSuite) TestClearCharacterInventory() {
-	err := s.Service.BagItemService.GetAndStoreAllBagItems("accountid", "apikeystring")
+	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
 	err = s.Service.BagItemService.ClearCharacterInventory("accountid", "Laura Lesdottir")

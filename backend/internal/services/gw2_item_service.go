@@ -11,8 +11,8 @@ import (
 )
 
 type ItemServiceInterface interface {
-	GetAndStoreItemsByID(ids []int) error
-	GetAndStoreAllItems() error
+	FetchAndStoreItemsByID(ids []int) error
+	FetchAndStoreAllItems() error
 }
 
 type ItemService struct {
@@ -27,7 +27,7 @@ func NewItemService(itemRepository *repositories.ItemRepository, itemProvider pr
 	}
 }
 
-func (service *ItemService) GetAndStoreItemsByID(ids []int) error {
+func (service *ItemService) FetchAndStoreItemsByID(ids []int) error {
 	apiItems, err := service.ItemProvider.GetItemsByIDs(ids)
 	if err != nil {
 		return fmt.Errorf("service error using provider: %s", err)
@@ -38,14 +38,14 @@ func (service *ItemService) GetAndStoreItemsByID(ids []int) error {
 		dbItem := item.ToDBItem()
 		_, err := service.ItemRepository.Create(&dbItem)
 		if err != nil {
-			errs = append(errs, fmt.Errorf("GetAndStoreItemsByID: %s", err))
+			errs = append(errs, fmt.Errorf("FetchAndStoreItemsByID: %s", err))
 		}
 	}
 
 	return errors.Join(errs...)
 }
 
-func (service *ItemService) GetAndStoreAllItems() error {
+func (service *ItemService) FetchAndStoreAllItems() error {
 	// allItemIDs, err := service.ItemProvider.GetAllItemIDs()
 
 	// if err != nil {
@@ -58,7 +58,7 @@ func (service *ItemService) GetAndStoreAllItems() error {
 	var errs []error
 
 	for _, idChunk := range itemIDChunks {
-		err := service.GetAndStoreItemsByID(idChunk)
+		err := service.FetchAndStoreItemsByID(idChunk)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("service error getting and storing items in chunk %d: %s", idChunk, err))
 		}

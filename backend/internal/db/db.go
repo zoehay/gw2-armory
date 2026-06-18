@@ -85,7 +85,7 @@ func SeedItems(itemRepository repositories.ItemRepository, itemService services.
 	_, err := itemRepository.GetFirst()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Print("Seeding database")
-		err = itemService.GetAndStoreAllItems()
+		err = itemService.FetchAndStoreAllItems()
 		if err != nil {
 			return err
 		}

@@ -91,7 +91,7 @@ func (bagItemHandler BagItemHandler) GetAccountInventory(c *gin.Context) {
 	itemIDChunks := SplitArray(noDuplicates, 10)
 	var errs []error
 	for _, idChunk := range itemIDChunks {
-		err = bagItemHandler.ItemService.GetAndStoreItemsByID(idChunk)
+		err = bagItemHandler.ItemService.FetchAndStoreItemsByID(idChunk)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("service error getting and storing items in chunk %d: %s", idChunk, err))
 		}

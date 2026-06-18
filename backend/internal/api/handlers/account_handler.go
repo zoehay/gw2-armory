@@ -78,7 +78,7 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	c.SetCookie("sessionID", session.SessionID, 3600, "/", handler.Domain, false, true)
 
 	if handler.AccountService.IsRecrawlDue(account.LastCrawl) {
-		err = handler.BagItemService.GetAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
+		err = handler.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting inventory after guest creation": err.Error()})
 			return

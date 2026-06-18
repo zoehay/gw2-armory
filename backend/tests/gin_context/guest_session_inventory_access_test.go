@@ -40,7 +40,11 @@ func (s *GuestSessionInventoryAccessTestSuite) SetupSuite() {
 	s.Service = service
 	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
 
-	s.Service.ItemService.GetAndStoreAllItems()
+	s.Service.ItemService.FetchAndStoreAllItems()
+}
+
+func (s *GuestSessionInventoryAccessTestSuite) SetupTest() {
+	s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items, db_sessions, db_accounts")
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) TearDownSuite() {

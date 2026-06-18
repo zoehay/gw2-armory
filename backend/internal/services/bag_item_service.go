@@ -11,9 +11,9 @@ import (
 )
 
 type BagItemServiceInterface interface {
-	GetAndStoreAllBagItems(accountID string, apiKey string) error
-	GetAndStoreAllCharacters(accountID string, apiKey string) error
-	GetAndStoreSharedInventory(accountID string, apiKey string) error
+	FetchAndStoreAllBagItems(accountID string, apiKey string) error
+	FetchAndStoreAllCharacters(accountID string, apiKey string) error
+	FetchAndStoreSharedInventory(accountID string, apiKey string) error
 	ClearCharacterInventory(accountID string, characterName string) error
 	ClearSharedInventory(accountID string) error
 }
@@ -32,18 +32,18 @@ func NewBagItemService(bagItemRepository *repositories.BagItemRepository, charac
 	}
 }
 
-func (service *BagItemService) GetAndStoreAllBagItems(accountID string, apiKey string) error {
+func (service *BagItemService) FetchAndStoreAllBagItems(accountID string, apiKey string) error {
 	var errs []error
-	if err := service.GetAndStoreSharedInventory(accountID, apiKey); err != nil {
-		errs = append(errs, fmt.Errorf("GetAndStoreAllBagItems could not get account inventory: %s", err))
+	if err := service.FetchAndStoreSharedInventory(accountID, apiKey); err != nil {
+		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get account inventory: %s", err))
 	}
-	if err := service.GetAndStoreAllCharacters(accountID, apiKey); err != nil {
-		errs = append(errs, fmt.Errorf("GetAndStoreAllBagItems could not get character inventory: %s", err))
+	if err := service.FetchAndStoreAllCharacters(accountID, apiKey); err != nil {
+		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get character inventory: %s", err))
 	}
 	return errors.Join(errs...)
 }
 
-func (service *BagItemService) GetAndStoreAllCharacters(accountID string, apiKey string) error {
+func (service *BagItemService) FetchAndStoreAllCharacters(accountID string, apiKey string) error {
 	characters, err := service.CharacterProvider.GetAllCharacters(apiKey)
 	if err != nil {
 		return fmt.Errorf("service error using provider could not get characters: %s", err)
@@ -58,7 +58,7 @@ func (service *BagItemService) GetAndStoreAllCharacters(accountID string, apiKey
 	return nil
 }
 
-func (service *BagItemService) GetAndStoreSharedInventory(accountID string, apiKey string) error {
+func (service *BagItemService) FetchAndStoreSharedInventory(accountID string, apiKey string) error {
 	accountInventory, err := service.AccountProvider.GetAccountInventory(apiKey)
 	if err != nil {
 		return fmt.Errorf("service error using provider could not get account inventory: %s", err)

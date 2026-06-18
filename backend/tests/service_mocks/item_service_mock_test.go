@@ -51,7 +51,7 @@ func (s *ItemServiceTestSuite) TearDownSuite() {
 }
 
 func (s *ItemServiceTestSuite) TestGetAndStoreAllItems() {
-	err := s.Service.ItemService.GetAndStoreAllItems()
+	err := s.Service.ItemService.FetchAndStoreAllItems()
 	assert.NoError(s.T(), err, "Failed to get and store items")
 
 	item, err := s.Service.ItemService.ItemRepository.GetById(27952)

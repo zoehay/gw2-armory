@@ -41,8 +41,8 @@ func (s *CharacterServiceTestSuite) TearDownSuite() {
 	}
 }
 
-func (s *CharacterServiceTestSuite) TestGetAndStoreAllCharacters() {
-	err := s.Service.BagItemService.GetAndStoreAllCharacters("accountid", "apikeystring")
+func (s *CharacterServiceTestSuite) TestFetchAndStoreAllCharacters() {
+	err := s.Service.BagItemService.FetchAndStoreAllCharacters("accountid", "apikeystring")
 	assert.NoError(s.T(), err, "Failed to get and store items")
 }
 
