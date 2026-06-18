@@ -24,7 +24,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 	repository := repositories.NewRepository(database)
 	service := services.NewService(repository, mocks)
 
-	itemHandler := handlers.NewItemHandler(&repository.ItemRepository)
+	itemHandler := handlers.NewItemHandler(service.ItemService)
 	bagItemHandler := handlers.NewBagItemHandler(service.BagItemService)
 	accountHandler := handlers.NewAccountHandler(domain, service.AccountService, service.BagItemService)
 

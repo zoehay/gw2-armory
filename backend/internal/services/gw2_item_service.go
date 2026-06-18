@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	apimodels "github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
 	"github.com/zoehay/gw2-armory/backend/internal/gw2_client/providers"
 	"gorm.io/gorm"
@@ -13,6 +14,8 @@ import (
 type ItemServiceInterface interface {
 	FetchAndStoreItemsByID(ids []int) error
 	FetchAndStoreAllItems() error
+	GetAllItems() ([]apimodels.Item, error)
+	GetItemByID(id int) (*apimodels.Item, error)
 }
 
 type ItemService struct {
@@ -53,7 +56,7 @@ func (service *ItemService) FetchAndStoreAllItems() error {
 	// }
 	allItemIDs := []int{4, 5, 6} // not pre filling db during development
 
-	itemIDChunks := SplitArray(allItemIDs, 50)
+	itemIDChunks := splitArray(allItemIDs, 50)
 
 	var errs []error
 
@@ -67,19 +70,25 @@ func (service *ItemService) FetchAndStoreAllItems() error {
 	return errors.Join(errs...)
 }
 
-func SplitArray(arr []int, chunkSize int) [][]int {
-	var result [][]int
-
-	for i := 0; i < len(arr); i += chunkSize {
-		end := i + chunkSize
-		if end > len(arr) {
-			end = len(arr)
-		}
-		result = append(result, arr[i:end])
+func (service *ItemService) GetAllItems() ([]apimodels.Item, error) {
+	dbItems, err := service.ItemRepository.GetAll()
+	if err != nil {
+		return nil, err
 	}
+	items := make([]apimodels.Item, len(dbItems))
+	for i := range dbItems {
+		items[i] = dbItems[i].ToItem()
+	}
+	return items, nil
+}
 
-	return result
-
+func (service *ItemService) GetItemByID(id int) (*apimodels.Item, error) {
+	dbItem, err := service.ItemRepository.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+	item := dbItem.ToItem()
+	return &item, nil
 }
 
 func (service *ItemService) GetAndStoreEachByIDs(itemIds []int) error {

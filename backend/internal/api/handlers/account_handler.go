@@ -22,9 +22,9 @@ func NewAccountHandler(domain string, accountService services.AccountServiceInte
 	}
 }
 
-func (handler AccountHandler) GetAccount(c *gin.Context) {
+func (h AccountHandler) GetAccount(c *gin.Context) {
 	accountID := c.MustGet("accountID").(string)
-	account, err := handler.AccountService.GetAccountByID(accountID)
+	account, err := h.AccountService.GetAccountByID(accountID)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -33,7 +33,7 @@ func (handler AccountHandler) GetAccount(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, account)
 }
 
-func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
+func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 
 	var accountRequest AccountRequest
 
@@ -42,13 +42,13 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	gw2Token, err := handler.AccountService.FetchToken(accountRequest.APIKey)
+	gw2Token, err := h.AccountService.FetchToken(accountRequest.APIKey)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get token info from gw2 api": err.Error()})
 		return
 	}
 
-	gw2Account, err := handler.AccountService.FetchAccount(accountRequest.APIKey)
+	gw2Account, err := h.AccountService.FetchAccount(accountRequest.APIKey)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get account id from gw2 api": err.Error()})
 		return
@@ -69,21 +69,21 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		Password:       accountRequest.Password,
 	}
 
-	account, session, err := handler.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
+	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error generating or updating account": err.Error()})
 		return
 	}
 
-	c.SetCookie("sessionID", session.SessionID, 3600, "/", handler.Domain, false, true)
+	c.SetCookie("sessionID", session.SessionID, 3600, "/", h.Domain, false, true)
 
-	if handler.AccountService.IsRecrawlDue(account.LastCrawl) {
-		err = handler.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
+	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
+		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting inventory after guest creation": err.Error()})
 			return
 		}
-		err = handler.AccountService.UpdateLastCrawl(account.AccountID)
+		err = h.AccountService.UpdateLastCrawl(account.AccountID)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error updating account last crawl": err.Error()})
 			return
@@ -93,7 +93,7 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, account)
 }
 
-func (handler AccountHandler) Delete(c *gin.Context) {
+func (h AccountHandler) Delete(c *gin.Context) {
 
 	// use request later for User with multiple Accounts
 	var deleteKeyRequest DeleteKeyRequest
@@ -106,7 +106,7 @@ func (handler AccountHandler) Delete(c *gin.Context) {
 	accountID := c.MustGet("accountID").(string)
 	sessionID := c.MustGet("sessionID").(string)
 
-	if err := handler.AccountService.DeleteAccount(accountID, sessionID); err != nil {
+	if err := h.AccountService.DeleteAccount(accountID, sessionID); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error deleting account": err.Error()})
 		return
 	}
@@ -114,7 +114,7 @@ func (handler AccountHandler) Delete(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"API key deleted": deleteKeyRequest.APIKey})
 }
 
-func (handler AccountHandler) Login(c *gin.Context) {
+func (h AccountHandler) Login(c *gin.Context) {
 	var accountLogin AccountLogin
 
 	if err := c.BindJSON(&accountLogin); err != nil {
@@ -122,7 +122,7 @@ func (handler AccountHandler) Login(c *gin.Context) {
 		return
 	}
 
-	account, _, err := handler.AccountService.Login(accountLogin.AccountName, accountLogin.Password)
+	account, _, err := h.AccountService.Login(accountLogin.AccountName, accountLogin.Password)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -131,16 +131,16 @@ func (handler AccountHandler) Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, account)
 }
 
-func (handler AccountHandler) Logout(c *gin.Context) {
+func (h AccountHandler) Logout(c *gin.Context) {
 	sessionID, err := c.Cookie("sessionID")
 	if err == nil {
-		if err = handler.AccountService.Logout(sessionID); err != nil {
+		if err = h.AccountService.Logout(sessionID); err != nil {
 			c.Status(http.StatusInternalServerError)
 			return
 		}
 	}
 
-	c.SetCookie("sessionID", "", -1, "/", handler.Domain, false, true)
+	c.SetCookie("sessionID", "", -1, "/", h.Domain, false, true)
 	c.Status(http.StatusNoContent)
 }
 
