@@ -1,7 +1,6 @@
 package gincontext_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -38,7 +37,7 @@ func (s *CreateGuestAccountSessionTestSuite) SetupSuite() {
 	s.Router = router
 	s.Repository = repository
 	s.Service = service
-	s.AccountHandler = handlers.NewAccountHandler("localhost", &repository.AccountRepository, service.AccountService, service.BagItemService)
+	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
 
 }
 
@@ -59,30 +58,22 @@ func (s *CreateGuestAccountSessionTestSuite) TestCreateGuestWithNewAPIKey() {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	// req := &http.Request{
-	// 	URL:    &url.URL{},
-	// 	Header: make(http.Header),
-	// }
-
-	// q := req.URL.Query()
-	// q.Add("id", "27952")
-	// req.URL.RawQuery = q.Encode()
-
 	c.Request = req
 	s.AccountHandler.HandlePostAPIKeyRequest(c)
 
 	cookie := w.Result().Cookies()[0]
-
-	assert.Equal(s.T(), "sessionID", cookie.Name, "Correct cookie name")
 
 	account, err := testutils.UnmarshalToType[models.Account](w)
 	if err != nil {
 		s.T().Errorf("Failed to unmarshal response: %v", err)
 	}
 
-	fmt.Println(w.Body)
-	assert.Equal(s.T(), *account.SessionID, cookie.Value)
 	assert.Equal(s.T(), 200, w.Code)
+	assert.Equal(s.T(), "sessionID", cookie.Name, "Correct cookie name")
+	assert.Equal(s.T(), *account.SessionID, cookie.Value)
+	assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
+	assert.Equal(s.T(), "gw2name", *account.GW2AccountName)
+	assert.Equal(s.T(), "armourytest", *account.GW2TokenName)
 }
 
 // func (s *CreateGuestAccountSessionTestSuite) TestOldAPIKeyRefreshesSession() {}

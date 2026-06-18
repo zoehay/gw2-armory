@@ -33,7 +33,7 @@ func (s *AccountRouterServiceTestSuite) SetupSuite() {
 	s.Router = router
 	s.Repository = repository
 	s.Service = service
-	s.AccountHandler = handlers.NewAccountHandler("localhost", &repository.AccountRepository, service.AccountService, service.BagItemService)
+	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
 }
 
 func (s *AccountRouterServiceTestSuite) TearDownSuite() {
@@ -44,14 +44,14 @@ func (s *AccountRouterServiceTestSuite) TearDownSuite() {
 	}
 }
 
-func (s *AccountRouterServiceTestSuite) TestGetAccount() {
-	account, err := s.Service.AccountService.GetAccount("apiKey")
+func (s *AccountRouterServiceTestSuite) TestFetchAccount() {
+	account, err := s.Service.AccountService.FetchAccount("apiKey")
 	testutils.PrintObject(account)
 	assert.NoError(s.T(), err, "Failed to get account")
 }
 
 func (s *AccountRouterServiceTestSuite) TestGetTokenInfo() {
-	token, err := s.Service.AccountService.GetTokenInfo("apiKey")
+	token, err := s.Service.AccountService.FetchToken("apiKey")
 	testutils.PrintObject(token)
 	assert.NoError(s.T(), err, "Failed to get account")
 	assert.Equal(s.T(), "armourytest", *token.Name, "Token info returns correct name")

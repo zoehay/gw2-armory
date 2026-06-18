@@ -79,7 +79,7 @@ func (accountProvider *AccountProviderMock) ReadAccountInventoryFromFile(filepat
 	return accountInventory, nil
 }
 
-func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2models.GW2TokenInfo, error) {
+func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2models.GW2Token, error) {
 	wd, _ := os.Getwd()
 	isTesting := strings.Contains(wd, "test")
 	leadingFilepath := ""
@@ -98,13 +98,13 @@ func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2mod
 	return token, nil
 }
 
-func (accountProvider *AccountProviderMock) ReadTokenInfoFromFile(filepath string) (*gw2models.GW2TokenInfo, error) {
+func (accountProvider *AccountProviderMock) ReadTokenInfoFromFile(filepath string) (*gw2models.GW2Token, error) {
 	content, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, err
 	}
 
-	var token gw2models.GW2TokenInfo
+	var token gw2models.GW2Token
 	err = json.Unmarshal(content, &token)
 	if err != nil {
 		return nil, err

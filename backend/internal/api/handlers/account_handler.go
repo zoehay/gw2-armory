@@ -4,38 +4,33 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
-	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	apimodels "github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
 type AccountHandler struct {
-	Domain            string
-	AccountRepository repositories.AccountRepositoryInterface
-	AccountService    services.AccountServiceInterface
-	BagItemService    services.BagItemServiceInterface
+	Domain         string
+	AccountService services.AccountServiceInterface
+	BagItemService services.BagItemServiceInterface
 }
 
-func NewAccountHandler(domain string, accountRepository repositories.AccountRepositoryInterface, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(domain string, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
 	return &AccountHandler{
-		Domain:            domain,
-		AccountRepository: accountRepository,
-		AccountService:    accountService,
-		BagItemService:    bagItemService,
+		Domain:         domain,
+		AccountService: accountService,
+		BagItemService: bagItemService,
 	}
 }
 
 func (handler AccountHandler) GetAccount(c *gin.Context) {
-
 	accountID := c.MustGet("accountID").(string)
-	account, err := handler.AccountRepository.GetByID(accountID)
-
+	account, err := handler.AccountService.GetAccountByID(accountID)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, account.DBAccountToAccount())
+	c.IndentedJSON(http.StatusOK, account)
 }
 
 func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
@@ -47,35 +42,34 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	gw2TokenInfo, err := handler.AccountService.GetTokenInfo(accountRequest.APIKey)
+	gw2Token, err := handler.AccountService.FetchToken(accountRequest.APIKey)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get token info from gw2 api": err.Error()})
 		return
 	}
 
-	gw2Account, err := handler.AccountService.GetAccount(accountRequest.APIKey)
+	gw2Account, err := handler.AccountService.FetchAccount(accountRequest.APIKey)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get account id from gw2 api": err.Error()})
 		return
 	}
 
 	// token name is set by user, truncate if very long
-	gw2TokenName := string(*gw2TokenInfo.Name)
-	if len(*gw2TokenInfo.Name) > 25 {
+	gw2TokenName := string(*gw2Token.Name)
+	if len(*gw2Token.Name) > 25 {
 		gw2TokenName = gw2TokenName[:25]
 	}
 
-	var requestAccount = &dbmodels.DBAccount{
-		AccountID:      *gw2Account.ID,
+	var requestAccount = &apimodels.Account{
+		AccountID:      *&gw2Account.AccountID,
 		AccountName:    accountRequest.AccountName,
-		GW2AccountName: gw2Account.Name,
+		GW2AccountName: gw2Account.GW2AccountName,
 		GW2TokenName:   &gw2TokenName,
 		APIKey:         &accountRequest.APIKey,
 		Password:       accountRequest.Password,
 	}
 
-	// determine new or returning user, return new or updated account
-	account, session, err := handler.AccountService.GenerateOrUpdateAccount(requestAccount, *gw2Account.ID)
+	account, session, err := handler.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error generating or updating account": err.Error()})
 		return
@@ -96,7 +90,7 @@ func (handler AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		}
 	}
 
-	c.IndentedJSON(http.StatusOK, account.DBAccountToAccount())
+	c.IndentedJSON(http.StatusOK, account)
 }
 
 func (handler AccountHandler) Delete(c *gin.Context) {
@@ -128,24 +122,13 @@ func (handler AccountHandler) Login(c *gin.Context) {
 		return
 	}
 
-	account, err := handler.AccountRepository.GetByName(accountLogin.AccountName)
+	account, _, err := handler.AccountService.Login(accountLogin.AccountName, accountLogin.Password)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Add password verification
-
-	_, _, err = handler.AccountService.RenewOrGenerateSession(account)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, account.DBAccountToAccount())
-
-	// refresh account info in db
-
+	c.IndentedJSON(http.StatusOK, account)
 }
 
 func (handler AccountHandler) Logout(c *gin.Context) {

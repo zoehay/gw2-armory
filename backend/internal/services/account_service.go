@@ -7,19 +7,21 @@ import (
 	"fmt"
 	"time"
 
+	apimodels "github.com/zoehay/gw2-armory/backend/internal/api/models"
 	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
-	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
 	"github.com/zoehay/gw2-armory/backend/internal/gw2_client/providers"
 
 	"gorm.io/gorm"
 )
 
 type AccountServiceInterface interface {
-	GetAccount(apiKey string) (*gw2models.GW2Account, error)
-	GetTokenInfo(apiKey string) (*gw2models.GW2TokenInfo, error)
-	GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2AccountID string) (*dbmodels.DBAccount, *dbmodels.DBSession, error)
-	RenewOrGenerateSession(account *dbmodels.DBAccount) (*dbmodels.DBAccount, *dbmodels.DBSession, error)
+	FetchAccount(apiKey string) (*apimodels.Account, error)
+	FetchToken(apiKey string) (*apimodels.Token, error)
+	GetAccountByID(accountID string) (*apimodels.Account, error)
+	GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error)
+	Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error)
+	RenewOrGenerateSession(account *dbmodels.DBAccount) (*apimodels.Account, *apimodels.Session, error)
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
 	IsRecrawlDue(lastCrawl *time.Time) bool
@@ -42,7 +44,7 @@ func NewAccountService(accountRepository *repositories.AccountRepository, accoun
 	}
 }
 
-func (service *AccountService) GetAccount(apiKey string) (*gw2models.GW2Account, error) {
+func (service *AccountService) FetchAccount(apiKey string) (*apimodels.Account, error) {
 	account, err := service.AccountProvider.GetAccount(apiKey)
 	if err != nil {
 		return nil, fmt.Errorf("service error using provider could not get account id: %s", err)
@@ -54,10 +56,11 @@ func (service *AccountService) GetAccount(apiKey string) (*gw2models.GW2Account,
 		return nil, fmt.Errorf("service error no account id: %s", err)
 	}
 
-	return account, nil
+	result := account.ToAccount()
+	return &result, nil
 }
 
-func (service *AccountService) GetTokenInfo(apiKey string) (*gw2models.GW2TokenInfo, error) {
+func (service *AccountService) FetchToken(apiKey string) (*apimodels.Token, error) {
 	token, err := service.AccountProvider.GetTokenInfo(apiKey)
 	if err != nil {
 		return nil, fmt.Errorf("service error using provider could not get account id: %s", err)
@@ -66,17 +69,47 @@ func (service *AccountService) GetTokenInfo(apiKey string) (*gw2models.GW2TokenI
 		return nil, fmt.Errorf("service error no token id or name: %s", err)
 	}
 
-	return token, nil
+	result := token.ToToken()
+	return &result, nil
 }
 
-func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.DBAccount, gw2AccountID string) (*dbmodels.DBAccount, *dbmodels.DBSession, error) {
+func (service *AccountService) GetAccountByID(accountID string) (*apimodels.Account, error) {
+	account, err := service.AccountRepository.GetByID(accountID)
+	if err != nil {
+		return nil, err
+	}
+	result := account.DBAccountToAccount()
+	return &result, nil
+}
+
+func (service *AccountService) Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error) {
+	account, err := service.AccountRepository.GetByName(accountName)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error finding account: %w", err)
+	}
+
+	// TODO: add password verification
+
+	return service.RenewOrGenerateSession(account)
+}
+
+func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error) {
+	dbRequestAccount := &dbmodels.DBAccount{
+		AccountID:      requestAccount.AccountID,
+		AccountName:    requestAccount.AccountName,
+		GW2AccountName: requestAccount.GW2AccountName,
+		GW2TokenName:   requestAccount.GW2TokenName,
+		APIKey:         requestAccount.APIKey,
+		Password:       requestAccount.Password,
+	}
+
 	var account *dbmodels.DBAccount
 
 	existingAccount, err := service.AccountRepository.GetByID(gw2AccountID)
 	if err != nil {
 		// new user
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			account, err = service.AccountRepository.Create(requestAccount)
+			account, err = service.AccountRepository.Create(dbRequestAccount)
 			if err != nil {
 				return nil, nil, fmt.Errorf("account repository create error: %s", err)
 			}
@@ -94,33 +127,29 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *dbmodels.
 			return nil, nil, fmt.Errorf("error existing account for account id: %s", gw2AccountID)
 		} else {
 			// returning user has not previously set a password
-			if requestAccount.Password != nil {
+			if dbRequestAccount.Password != nil {
 				// existing guest account, accountRequest has password so upgrade to full account
-				account, err = service.AccountRepository.Update(existingAccount, requestAccount)
+				account, err = service.AccountRepository.Update(existingAccount, dbRequestAccount)
 				// TODO add password encryption
 				if err != nil {
 					return nil, nil, fmt.Errorf("account repository update account error: %s", err)
 				}
 			} else {
 				// existing guest account, no password in request so update api key
-				// account, err = handler.AccountRepository.UpdateAPIKey(existingAccount.AccountID, *newAccount.APIKey)
-				// if err != nil {
-				// 	return nil, fmt.Errorf("account repository update apikey error: %s", err)
-				// }
 				account = existingAccount
 			}
 		}
 	}
 
-	account, session, err := service.RenewOrGenerateSession(account)
+	apiAccount, apiSession, err := service.RenewOrGenerateSession(account)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error generating or updating session: %s", err.Error())
 	}
 
-	return account, session, nil
+	return apiAccount, apiSession, nil
 }
 
-func (service *AccountService) RenewOrGenerateSession(account *dbmodels.DBAccount) (*dbmodels.DBAccount, *dbmodels.DBSession, error) {
+func (service *AccountService) RenewOrGenerateSession(account *dbmodels.DBAccount) (*apimodels.Account, *apimodels.Session, error) {
 	var session *dbmodels.DBSession
 	var err error
 
@@ -136,7 +165,8 @@ func (service *AccountService) RenewOrGenerateSession(account *dbmodels.DBAccoun
 		}
 	}
 
-	return account, session, nil
+	apiAccount := account.DBAccountToAccount()
+	return &apiAccount, (*apimodels.Session)(session), nil
 }
 
 func (service *AccountService) generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error) {
