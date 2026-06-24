@@ -1,7 +1,6 @@
 package gincontext_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zoehay/gw2-armory/backend/internal/api/handlers"
 	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
 	"github.com/zoehay/gw2-armory/backend/internal/services"
@@ -19,10 +17,9 @@ import (
 
 type GuestSessionInventoryAccessTestSuite struct {
 	suite.Suite
-	Router         *gin.Engine
-	Repository     *repositories.Repository
-	Service        *services.Service
-	AccountHandler *handlers.AccountHandler
+	Router     *gin.Engine
+	Repository *repositories.Repository
+	Service    *services.Service
 }
 
 func TestGuestSessionInventoryAccessSuite(t *testing.T) {
@@ -31,57 +28,53 @@ func TestGuestSessionInventoryAccessSuite(t *testing.T) {
 
 func (s *GuestSessionInventoryAccessTestSuite) SetupSuite() {
 	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
-	}
-
+	s.Require().NoError(err, "Error setting up router")
 	s.Router = router
 	s.Repository = repository
 	s.Service = service
-	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
 
-	s.Service.ItemService.FetchAndStoreAllItems()
+	err = s.Service.ItemService.FetchAndStoreAllItems()
+	s.Require().NoError(err, "Error seeding items")
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) SetupTest() {
-	s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items, db_sessions, db_accounts")
+	err := s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items, db_sessions, db_accounts").Error
+	s.Require().NoError(err, "Error truncating tables")
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) TearDownSuite() {
 	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) TestNoCookieNoInventoryAccess() {
-	s.T().Log("GET /account with no cookie")
-	w0 := httptest.NewRecorder()
-	req0, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
-	s.Router.ServeHTTP(w0, req0)
-	assert.Equal(s.T(), http.StatusForbidden, w0.Code)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	s.Router.ServeHTTP(w, req)
+
+	assert.Equal(s.T(), http.StatusForbidden, w.Code)
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) TestGuestInventoryAccess() {
-	s.T().Log("Create account with POST /apikeys")
 	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
 	w1 := httptest.NewRecorder()
 	req1, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
+	req1.Header.Set("Content-Type", "application/json")
 	s.Router.ServeHTTP(w1, req1)
-	assert.Equal(s.T(), http.StatusOK, w1.Code)
-	cookie := w1.Result().Cookies()
+	s.Require().Equal(http.StatusOK, w1.Code, "POST /apikeys must succeed")
 
-	s.T().Log("GET /account with cookie")
+	cookies := w1.Result().Cookies()
+	s.Require().NotEmpty(cookies, "Expected sessionID cookie from POST /apikeys")
+
 	w2 := httptest.NewRecorder()
 	req2, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
-	req2.AddCookie(cookie[0])
+	req2.AddCookie(cookies[0])
 	s.Router.ServeHTTP(w2, req2)
+
 	assert.Equal(s.T(), http.StatusOK, w2.Code)
 
-	var response []models.BagItem
-	err := json.Unmarshal(w2.Body.Bytes(), &response)
-	if err != nil {
-		s.T().Errorf("Failed to unmarshal response: %v", err)
-	}
+	inventory, err := testutils.UnmarshalToType[[]models.BagItem](w2)
+	s.Require().NoError(err, "Failed to unmarshal inventory response")
+	assert.NotEmpty(s.T(), *inventory, "Expected non-empty inventory for Roman Meows")
 }
