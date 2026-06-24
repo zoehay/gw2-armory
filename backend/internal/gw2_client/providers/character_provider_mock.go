@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
 )
@@ -12,21 +11,10 @@ import (
 type CharacterProviderMock struct{}
 
 func (characterProvider *CharacterProviderMock) GetAllCharacters(apiKey string) ([]gw2models.GW2Character, error) {
-	wd, _ := os.Getwd()
-	isTesting := strings.Contains(wd, "test")
-	leadingFilepath := ""
-
-	if isTesting {
-		leadingFilepath = "../."
-	}
-
-	filepath := fmt.Sprintf("%s./test_data/character_test_data.txt", leadingFilepath)
-	apiCharacters, err := characterProvider.ReadCharactersFromFile(filepath)
-
+	apiCharacters, err := characterProvider.ReadCharactersFromFile(testDataPath("character_test_data.txt"))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}
-
 	return apiCharacters, nil
 }
 

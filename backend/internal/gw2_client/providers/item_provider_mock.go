@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
 )
@@ -12,21 +11,10 @@ import (
 type ItemProviderMock struct{}
 
 func (itemProvider *ItemProviderMock) GetItemsByIDs(intArrIds []int) ([]gw2models.GW2Item, error) {
-	wd, _ := os.Getwd()
-	isTesting := strings.Contains(wd, "test")
-	leadingFilepath := ""
-
-	if isTesting {
-		leadingFilepath = "../."
-	}
-
-	filepath := fmt.Sprintf("%s./test_data/item_test_data.txt", leadingFilepath)
-	apiItems, err := itemProvider.readItemFromFile(filepath)
-
+	apiItems, err := itemProvider.readItemFromFile(testDataPath("item_test_data.txt"))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}
-
 	return apiItems, nil
 }
 

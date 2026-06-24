@@ -8,7 +8,7 @@ React, TypeScript, Vite
 ## Development
 Run the backend with `go run cmd/main.go -v`. 
 Run the frontend with `npm run dev`.
-Run backend tests from backend/tests with `go test -v ./... 2>&1 | grep -E "^(--- FAIL|--- PASS|FAIL|ok)"`
+Run tests with `go test -p 1 -v ./tests/... 2>&1 | grep -E "^(--- FAIL|--- PASS|FAIL|ok)"`. Tests currently share the same database so are not run in parallel for now.
 
 When running the backend, setting `APP_ENV=test` enables mocks in main.go and selects dsn for the testing database in router.go. 
 

@@ -4,29 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
+	"path/filepath"
+	"runtime"
 
 	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
 )
 
+func testDataPath(filename string) string {
+	_, sourceFile, _, _ := runtime.Caller(0)
+	backendDir := filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(sourceFile))))
+	return filepath.Join(backendDir, "test_data", filename)
+}
+
 type AccountProviderMock struct{}
 
 func (accountProvider *AccountProviderMock) GetAccount(apiKey string) (*gw2models.GW2Account, error) {
-	wd, _ := os.Getwd()
-	isTesting := strings.Contains(wd, "test")
-	leadingFilepath := ""
-
-	if isTesting {
-		leadingFilepath = "../."
-	}
-
-	filepath := fmt.Sprintf("%s./test_data/account_test_data.txt", leadingFilepath)
-	account, err := accountProvider.ReadAccountFromFile(filepath)
-
+	account, err := accountProvider.ReadAccountFromFile(testDataPath("account_test_data.txt"))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}
-
 	return account, nil
 }
 
@@ -46,21 +42,10 @@ func (accountProvider *AccountProviderMock) ReadAccountFromFile(filepath string)
 }
 
 func (accountProvider *AccountProviderMock) GetAccountInventory(apiKey string) (*[]gw2models.GW2BagItem, error) {
-	wd, _ := os.Getwd()
-	isTesting := strings.Contains(wd, "test")
-	leadingFilepath := ""
-
-	if isTesting {
-		leadingFilepath = "../."
-	}
-
-	filepath := fmt.Sprintf("%s./test_data/account_inventory_test_data.txt", leadingFilepath)
-	accountInventory, err := accountProvider.ReadAccountInventoryFromFile(filepath)
-
+	accountInventory, err := accountProvider.ReadAccountInventoryFromFile(testDataPath("account_inventory_test_data.txt"))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}
-
 	return accountInventory, nil
 }
 
@@ -80,21 +65,10 @@ func (accountProvider *AccountProviderMock) ReadAccountInventoryFromFile(filepat
 }
 
 func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2models.GW2Token, error) {
-	wd, _ := os.Getwd()
-	isTesting := strings.Contains(wd, "test")
-	leadingFilepath := ""
-
-	if isTesting {
-		leadingFilepath = "../."
-	}
-
-	filepath := fmt.Sprintf("%s./test_data/token_info_test_data.txt", leadingFilepath)
-	token, err := accountProvider.ReadTokenInfoFromFile(filepath)
-
+	token, err := accountProvider.ReadTokenInfoFromFile(testDataPath("token_info_test_data.txt"))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}
-
 	return token, nil
 }
 
