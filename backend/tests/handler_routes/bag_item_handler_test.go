@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
-	"github.com/zoehay/gw2-armory/backend/internal/services"
 	"github.com/zoehay/gw2-armory/backend/tests/testutils"
 )
 
@@ -19,7 +18,6 @@ type BagItemHandlerTestSuite struct {
 	suite.Suite
 	Router     *gin.Engine
 	Repository *repositories.Repository
-	Service    *services.Service
 	Cookie     *http.Cookie
 }
 
@@ -28,32 +26,27 @@ func TestBagItemHandlerTestSuite(t *testing.T) {
 }
 
 func (s *BagItemHandlerTestSuite) SetupSuite() {
-	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
-	}
-
+	router, repository, _, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
 	s.Router = router
 	s.Repository = repository
-	s.Service = service
 
-	s.T().Log("Create account with POST /apikeys")
 	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
+	req.Header.Set("Content-Type", "application/json")
 	s.Router.ServeHTTP(w, req)
-	assert.Equal(s.T(), http.StatusOK, w.Code)
-	cookie := w.Result().Cookies()
+	s.Require().Equal(http.StatusOK, w.Code, "Setup: POST /apikeys must succeed")
 
-	s.Cookie = cookie[0]
+	cookies := w.Result().Cookies()
+	s.Require().NotEmpty(cookies, "Setup: expected sessionID cookie from POST /apikeys")
+	s.Cookie = cookies[0]
 }
 
 func (s *BagItemHandlerTestSuite) TearDownSuite() {
 	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 }
 
 func (s *BagItemHandlerTestSuite) TestGetByAccount() {
@@ -62,17 +55,13 @@ func (s *BagItemHandlerTestSuite) TestGetByAccount() {
 	req.AddCookie(s.Cookie)
 	s.Router.ServeHTTP(w, req)
 
+	assert.Equal(s.T(), http.StatusOK, w.Code)
+
 	responseBagItems, err := testutils.UnmarshalToType[[]models.BagItem](w)
-	if err != nil {
-		s.T().Errorf("Failed to unmarshal response: %v", err)
-	}
-	assert.Equal(s.T(), 200, w.Code)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.NotEmpty(s.T(), *responseBagItems, "Expected non-empty bag items")
 
-	bagItemsResponseOK := BagItemsResponseOK(responseBagItems)
-	assert.Equal(s.T(), true, bagItemsResponseOK, "BagItem response OK")
-
-	allSameCharacterName := BagItemsAllSameCharacterName(responseBagItems)
-	assert.Equal(s.T(), false, allSameCharacterName, "BagItems should belong to multiple different characters")
+	assert.False(s.T(), bagItemsAllSameCharacterName(responseBagItems), "BagItems should belong to multiple different characters")
 }
 
 func (s *BagItemHandlerTestSuite) TestGetByCharacterName() {
@@ -81,33 +70,18 @@ func (s *BagItemHandlerTestSuite) TestGetByCharacterName() {
 	req.AddCookie(s.Cookie)
 	s.Router.ServeHTTP(w, req)
 
+	assert.Equal(s.T(), http.StatusOK, w.Code)
+
 	responseBagItems, err := testutils.UnmarshalToType[[]models.BagItem](w)
-	if err != nil {
-		s.T().Errorf("Failed to unmarshal response: %v", err)
-	}
-
-	bagItemsResponseOK := BagItemsResponseOK(responseBagItems)
-	assert.Equal(s.T(), true, bagItemsResponseOK)
-
-	allSameCharacterName := BagItemsAllSameCharacterName(responseBagItems)
-	assert.Equal(s.T(), true, allSameCharacterName)
-	assert.Equal(s.T(), 200, w.Code)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.NotEmpty(s.T(), *responseBagItems, "Expected non-empty bag items for character")
+	assert.True(s.T(), bagItemsAllSameCharacterName(responseBagItems), "All items should belong to the same character")
 }
 
-func BagItemsResponseOK(bagItems *[]models.BagItem) bool {
-	if len(*bagItems) == 0 {
-		return false
-	} else {
-		return true
-	}
-}
-
-func BagItemsAllSameCharacterName(bagItems *[]models.BagItem) bool {
+func bagItemsAllSameCharacterName(bagItems *[]models.BagItem) bool {
 	characterName := (*bagItems)[0].CharacterName
 	for _, bagItem := range *bagItems {
-		if bagItem.CharacterName == characterName {
-			continue
-		} else {
+		if bagItem.CharacterName != characterName {
 			return false
 		}
 	}
