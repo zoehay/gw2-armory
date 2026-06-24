@@ -3,57 +3,46 @@ package servicemocks_test
 import (
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zoehay/gw2-armory/backend/internal/api/handlers"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
 	"github.com/zoehay/gw2-armory/backend/internal/services"
 	"github.com/zoehay/gw2-armory/backend/tests/testutils"
 )
 
-type AccountRouterServiceTestSuite struct {
+type AccountServiceTestSuite struct {
 	suite.Suite
-	Router         *gin.Engine
-	Repository     *repositories.Repository
-	Service        *services.Service
-	AccountHandler *handlers.AccountHandler
+	Repository *repositories.Repository
+	Service    *services.Service
 }
 
-func TestAccountRouterServiceTestSuite(t *testing.T) {
-	suite.Run(t, new(AccountRouterServiceTestSuite))
+func TestAccountServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(AccountServiceTestSuite))
 }
 
-func (s *AccountRouterServiceTestSuite) SetupSuite() {
-	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
-	}
-
-	s.Router = router
+func (s *AccountServiceTestSuite) SetupSuite() {
+	_, repository, service, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
 	s.Repository = repository
 	s.Service = service
-	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
 }
 
-func (s *AccountRouterServiceTestSuite) TearDownSuite() {
+func (s *AccountServiceTestSuite) TearDownSuite() {
 	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 }
 
-func (s *AccountRouterServiceTestSuite) TestFetchAccount() {
+func (s *AccountServiceTestSuite) TestFetchAccount() {
 	account, err := s.Service.AccountService.FetchAccount("apiKey")
-	testutils.PrintObject(account)
-	assert.NoError(s.T(), err, "Failed to get account")
+	assert.NoError(s.T(), err, "Failed to fetch account")
+	assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
+	assert.NotNil(s.T(), account.GW2AccountName)
+	assert.Equal(s.T(), "gw2name", *account.GW2AccountName)
 }
 
-func (s *AccountRouterServiceTestSuite) TestGetTokenInfo() {
+func (s *AccountServiceTestSuite) TestFetchToken() {
 	token, err := s.Service.AccountService.FetchToken("apiKey")
-	testutils.PrintObject(token)
-	assert.NoError(s.T(), err, "Failed to get account")
+	assert.NoError(s.T(), err, "Failed to fetch token")
 	assert.Equal(s.T(), "armourytest", *token.Name, "Token info returns correct name")
-
 }

@@ -3,7 +3,6 @@ package servicemocks_test
 import (
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
@@ -13,7 +12,6 @@ import (
 
 type CharacterServiceTestSuite struct {
 	suite.Suite
-	Router     *gin.Engine
 	Repository *repositories.Repository
 	Service    *services.Service
 }
@@ -23,30 +21,42 @@ func TestCharacterServiceTestSuite(t *testing.T) {
 }
 
 func (s *CharacterServiceTestSuite) SetupSuite() {
-	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
-	}
-
-	s.Router = router
+	_, repository, service, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
 	s.Repository = repository
 	s.Service = service
+}
+
+func (s *CharacterServiceTestSuite) SetupTest() {
+	err := s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items").Error
+	s.Require().NoError(err, "Error truncating bag item tables")
 }
 
 func (s *CharacterServiceTestSuite) TearDownSuite() {
 	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 }
 
 func (s *CharacterServiceTestSuite) TestFetchAndStoreAllCharacters() {
 	err := s.Service.BagItemService.FetchAndStoreAllCharacters("accountid", "apikeystring")
-	assert.NoError(s.T(), err, "Failed to get and store items")
+	assert.NoError(s.T(), err, "Failed to fetch and store characters")
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), allCharactersCount, len(items))
 }
 
 func (s *CharacterServiceTestSuite) TestGetBagItemsByCharacterName() {
-	_, err := s.Service.BagItemService.BagItemRepository.GetDetailBagItemByCharacterName("accountid", "Roman Meows")
-	assert.NoError(s.T(), err, "Failed to get item by id")
+	err := s.Service.BagItemService.FetchAndStoreAllCharacters("accountid", "apikeystring")
+	s.Require().NoError(err, "Failed to seed character data")
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByCharacterName("accountid", "Roman Meows")
+	assert.NoError(s.T(), err, "Failed to get items by character name")
+	assert.Equal(s.T(), romanMeowsCount, len(items), "Expected correct item count for Roman Meows")
+
+	for _, item := range items {
+		assert.NotNil(s.T(), item.CharacterName)
+		assert.Equal(s.T(), "Roman Meows", *item.CharacterName)
+	}
 }

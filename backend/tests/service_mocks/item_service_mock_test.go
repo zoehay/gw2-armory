@@ -3,7 +3,6 @@ package servicemocks_test
 import (
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
@@ -13,7 +12,6 @@ import (
 
 type ItemServiceTestSuite struct {
 	suite.Suite
-	Router     *gin.Engine
 	Repository *repositories.Repository
 	Service    *services.Service
 }
@@ -23,36 +21,28 @@ func TestItemServiceTestSuite(t *testing.T) {
 }
 
 func (s *ItemServiceTestSuite) SetupSuite() {
-	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Errorf("Error setting up router: %v", err)
-	}
-
-	s.Router = router
+	_, repository, service, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
 	s.Repository = repository
 	s.Service = service
 
 	err = s.Service.ItemService.ItemRepository.DB.Exec("TRUNCATE TABLE db_items;").Error
-	assert.NoError(s.T(), err, "Failed to clear database")
+	s.Require().NoError(err, "Failed to clear items table before test")
 }
 
 func (s *ItemServiceTestSuite) TearDownSuite() {
 	dropTables := []string{"db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 
 	db, err := s.Service.ItemService.ItemRepository.DB.DB()
-	if err != nil {
-		s.T().Fatal(err)
-	}
+	s.Require().NoError(err, "Failed to get underlying DB")
 	db.Close()
 }
 
 func (s *ItemServiceTestSuite) TestGetAndStoreAllItems() {
 	err := s.Service.ItemService.FetchAndStoreAllItems()
-	assert.NoError(s.T(), err, "Failed to get and store items")
+	assert.NoError(s.T(), err, "Failed to fetch and store items")
 
 	item, err := s.Service.ItemService.ItemRepository.GetById(27952)
 	assert.NoError(s.T(), err, "Failed to get item by id")

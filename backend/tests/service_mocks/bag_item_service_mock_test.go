@@ -3,7 +3,6 @@ package servicemocks_test
 import (
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
@@ -22,7 +21,6 @@ const (
 
 type BagItemAccountServiceTestSuite struct {
 	suite.Suite
-	Router     *gin.Engine
 	Repository *repositories.Repository
 	Service    *services.Service
 }
@@ -32,24 +30,20 @@ func TestBagItemAccountServiceTestSuite(t *testing.T) {
 }
 
 func (s *BagItemAccountServiceTestSuite) SetupSuite() {
-	router, repository, service, err := testutils.DBRouterSetup()
-	if err != nil {
-		s.T().Fatalf("Error setting up router: %v", err)
-	}
-	s.Router = router
+	_, repository, service, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
 	s.Repository = repository
 	s.Service = service
 }
 
 func (s *BagItemAccountServiceTestSuite) SetupTest() {
-	s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items")
+	err := s.Repository.AccountRepository.DB.Exec("TRUNCATE TABLE db_bag_item_infusions, db_bag_item_upgrades, db_bag_items").Error
+	s.Require().NoError(err, "Error truncating bag item tables")
 }
 
 func (s *BagItemAccountServiceTestSuite) TearDownSuite() {
 	err := testutils.TearDownTruncateTables(s.Repository, []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"})
-	if err != nil {
-		s.T().Errorf("Error tearing down suite: %v", err)
-	}
+	s.Require().NoError(err, "Error tearing down suite")
 }
 
 func (s *BagItemAccountServiceTestSuite) TestStoreAllBagItems() {
