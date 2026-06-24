@@ -78,6 +78,36 @@ func (s *BagItemHandlerTestSuite) TestGetByCharacterName() {
 	assert.True(s.T(), bagItemsAllSameCharacterName(responseBagItems), "All items should belong to the same character")
 }
 
+func (s *BagItemHandlerTestSuite) TestGetFilteredInventory() {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/account/searchinventory", strings.NewReader(`{"SearchTerm":"Leather"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(s.Cookie)
+	s.Router.ServeHTTP(w, req)
+
+	assert.Equal(s.T(), http.StatusOK, w.Code)
+
+	inventory, err := testutils.UnmarshalToType[models.AccountInventory](w)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.Equal(s.T(), "gw2apiaccountidstring", inventory.AccountID)
+	assert.NotNil(s.T(), inventory.Characters, "Expected results for search term 'Leather'")
+}
+
+func (s *BagItemHandlerTestSuite) TestGetFilteredInventoryNoResults() {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/account/searchinventory", strings.NewReader(`{"SearchTerm":"zznonexistentitem"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(s.Cookie)
+	s.Router.ServeHTTP(w, req)
+
+	assert.Equal(s.T(), http.StatusOK, w.Code)
+
+	inventory, err := testutils.UnmarshalToType[models.AccountInventory](w)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.Equal(s.T(), "gw2apiaccountidstring", inventory.AccountID)
+	assert.Nil(s.T(), inventory.Characters, "Expected no results for unknown search term")
+}
+
 func bagItemsAllSameCharacterName(bagItems *[]models.BagItem) bool {
 	characterName := (*bagItems)[0].CharacterName
 	for _, bagItem := range *bagItems {

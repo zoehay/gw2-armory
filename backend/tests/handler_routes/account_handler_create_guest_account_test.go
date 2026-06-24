@@ -63,6 +63,39 @@ func (s *CreateGuestAccountTestSuite) TestCreateGuestWithNewAPIKey() {
 	assert.Equal(s.T(), dbAccount.SessionID, &cookieSessionID, "SessionID in db matches returned cookie")
 }
 
+func (s *CreateGuestAccountTestSuite) TestReturningGuestSessionRenewal() {
+	// First call creates the account (or finds the existing one from a prior test)
+	userJson := `{"APIKey":"stringthatisapikey"}`
+	w1 := httptest.NewRecorder()
+	req1, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
+	req1.Header.Set("Content-Type", "application/json")
+	s.Router.ServeHTTP(w1, req1)
+	s.Require().Equal(http.StatusOK, w1.Code)
+
+	// Second call exercises the returning-guest path (existing account, no password)
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
+	req2.Header.Set("Content-Type", "application/json")
+	s.Router.ServeHTTP(w2, req2)
+
+	assert.Equal(s.T(), http.StatusOK, w2.Code)
+
+	account, err := testutils.UnmarshalToType[models.Account](w2)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.Equal(s.T(), guestAccountID, account.AccountID)
+	assert.NotNil(s.T(), account.SessionID, "Renewed session should be present in response")
+
+	cookies := w2.Result().Cookies()
+	s.Require().NotEmpty(cookies, "Expected sessionID cookie on session renewal")
+
+	// The renewed session should grant access to protected routes
+	w3 := httptest.NewRecorder()
+	req3, _ := http.NewRequest("GET", "/account/info", nil)
+	req3.AddCookie(cookies[0])
+	s.Router.ServeHTTP(w3, req3)
+	assert.Equal(s.T(), http.StatusOK, w3.Code)
+}
+
 func (s *CreateGuestAccountTestSuite) TestCreateGuestWithMalformedBody() {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader("not valid json"))

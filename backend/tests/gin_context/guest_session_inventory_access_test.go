@@ -56,6 +56,15 @@ func (s *GuestSessionInventoryAccessTestSuite) TestNoCookieNoInventoryAccess() {
 	assert.Equal(s.T(), http.StatusForbidden, w.Code)
 }
 
+func (s *GuestSessionInventoryAccessTestSuite) TestInvalidSessionCookieAccess() {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	req.AddCookie(&http.Cookie{Name: "sessionID", Value: "not-a-real-session-id"})
+	s.Router.ServeHTTP(w, req)
+
+	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+}
+
 func (s *GuestSessionInventoryAccessTestSuite) TestGuestInventoryAccess() {
 	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
 	w1 := httptest.NewRecorder()
