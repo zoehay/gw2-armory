@@ -12,8 +12,10 @@ type BagItemRepositoryInterface interface {
 	DeleteByAccountID(accountID string) error
 	DeleteByCharacterName(accountID string, characterName string) error
 	DeleteSharedInventory(accountID string) error
+	DeleteBankInventory(accountID string) error
 	ReplaceCharacterInventory(accountID string, characterName string, items []dbmodels.DBBagItem) error
 	ReplaceSharedInventory(accountID string, items []dbmodels.DBBagItem) error
+	ReplaceBankInventory(accountID string, items []dbmodels.DBBagItem) error
 	GetDetailBagItemByCharacterName(accountID string, characterName string) ([]dbmodels.DBBagItem, error)
 	GetDetailBagItemByAccountID(accountID string) ([]dbmodels.DBBagItem, error)
 	GetDetailBagItemsWithSearch(accountID string, searchTerm string) ([]dbmodels.DBBagItem, error)
@@ -50,6 +52,10 @@ func (repository *BagItemRepository) DeleteSharedInventory(accountID string) err
 	return repository.deleteSharedInventory(repository.DB, accountID)
 }
 
+func (repository *BagItemRepository) DeleteBankInventory(accountID string) error {
+	return repository.deleteBankInventory(repository.DB, accountID)
+}
+
 func (repository *BagItemRepository) ReplaceCharacterInventory(accountID string, characterName string, items []dbmodels.DBBagItem) error {
 	tx := repository.DB.Begin()
 	defer func() {
@@ -62,6 +68,31 @@ func (repository *BagItemRepository) ReplaceCharacterInventory(accountID string,
 	}
 
 	if err := repository.deleteCharacterInventory(tx, accountID, characterName); err != nil {
+		tx.Rollback()
+		return err
+	}
+	for i := range items {
+		if err := repository.createItem(tx, &items[i]); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}
+
+func (repository *BagItemRepository) ReplaceBankInventory(accountID string, items []dbmodels.DBBagItem) error {
+	tx := repository.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := repository.deleteBankInventory(tx, accountID); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -178,4 +209,14 @@ func (repository *BagItemRepository) deleteSharedInventory(db *gorm.DB, accountI
 		return err
 	}
 	return db.Where("account_id = ? AND source = ?", accountID, "shared").Delete(&dbmodels.DBBagItem{}).Error
+}
+
+func (repository *BagItemRepository) deleteBankInventory(db *gorm.DB, accountID string) error {
+	if err := db.Exec(`DELETE FROM db_bag_item_infusions WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND source = 'bank')`, accountID).Error; err != nil {
+		return err
+	}
+	if err := db.Exec(`DELETE FROM db_bag_item_upgrades WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND source = 'bank')`, accountID).Error; err != nil {
+		return err
+	}
+	return db.Where("account_id = ? AND source = ?", accountID, "bank").Delete(&dbmodels.DBBagItem{}).Error
 }

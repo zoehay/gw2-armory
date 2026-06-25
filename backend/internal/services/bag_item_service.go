@@ -15,8 +15,10 @@ type BagItemServiceInterface interface {
 	FetchAndStoreAllBagItems(accountID string, apiKey string) error
 	FetchAndStoreAllCharacters(accountID string, apiKey string) error
 	FetchAndStoreSharedInventory(accountID string, apiKey string) error
+	FetchAndStoreBankInventory(accountID string, apiKey string) error
 	ClearCharacterInventory(accountID string, characterName string) error
 	ClearSharedInventory(accountID string) error
+	ClearBankInventory(accountID string) error
 	GetBagItemsByCharacter(accountID string, characterName string) ([]apimodels.BagItem, error)
 	GetBagItemsByAccount(accountID string) ([]apimodels.BagItem, error)
 	GetAccountInventory(accountID string) (apimodels.AccountInventory, []int64, error)
@@ -93,6 +95,30 @@ func (service *BagItemService) ClearCharacterInventory(accountID string, charact
 func (service *BagItemService) ClearSharedInventory(accountID string) error {
 	if err := service.BagItemRepository.DeleteSharedInventory(accountID); err != nil {
 		return fmt.Errorf("service error deleting shared inventory for account %s: %s", accountID, err)
+	}
+	return nil
+}
+
+func (service *BagItemService) FetchAndStoreBankInventory(accountID string, apiKey string) error {
+	bankInventory, err := service.AccountProvider.GetBankInventory(apiKey)
+	if err != nil {
+		return fmt.Errorf("service error using provider could not get bank inventory: %s", err)
+	}
+
+	items := make([]dbmodels.DBBagItem, 0, len(*bankInventory))
+	for _, bagItem := range *bankInventory {
+		items = append(items, bagItem.ToDBBagItem(accountID, nil, "bank"))
+	}
+
+	if err = service.BagItemRepository.ReplaceBankInventory(accountID, items); err != nil {
+		return fmt.Errorf("service error replacing bank inventory for account %s: %s", accountID, err)
+	}
+	return nil
+}
+
+func (service *BagItemService) ClearBankInventory(accountID string) error {
+	if err := service.BagItemRepository.DeleteBankInventory(accountID); err != nil {
+		return fmt.Errorf("service error deleting bank inventory for account %s: %s", accountID, err)
 	}
 	return nil
 }
