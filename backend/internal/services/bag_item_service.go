@@ -47,6 +47,9 @@ func (service *BagItemService) FetchAndStoreAllBagItems(accountID string, apiKey
 	if err := service.FetchAndStoreSharedInventory(accountID, apiKey); err != nil {
 		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get account inventory: %s", err))
 	}
+	if err := service.FetchAndStoreBankInventory(accountID, apiKey); err != nil {
+		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get bank inventory: %s", err))
+	}
 	if err := service.FetchAndStoreAllCharacters(accountID, apiKey); err != nil {
 		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get character inventory: %s", err))
 	}

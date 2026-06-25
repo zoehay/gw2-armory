@@ -17,7 +17,7 @@ const (
 	romanMeowsCount      = 32  // character_test_data.txt: 15 bag + 17 equipment
 	lauraLesdottirCount  = 35  // character_test_data.txt: 30 bag + 5 equipment
 	allCharactersCount   = romanMeowsCount + lauraLesdottirCount
-	totalInventoryCount  = sharedInventoryCount + allCharactersCount
+	totalInventoryCount  = sharedInventoryCount + bankInventoryCount + allCharactersCount
 )
 
 type BagItemAccountServiceTestSuite struct {
@@ -97,7 +97,7 @@ func (s *BagItemAccountServiceTestSuite) TestClearSharedInventory() {
 
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), allCharactersCount, len(items))
+	assert.Equal(s.T(), totalInventoryCount-sharedInventoryCount, len(items))
 }
 
 func (s *BagItemAccountServiceTestSuite) TestClearCharacterInventory() {
@@ -125,13 +125,10 @@ func (s *BagItemAccountServiceTestSuite) TestClearBankInventory() {
 	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
 	assert.NoError(s.T(), err)
 
-	err = s.Service.BagItemService.FetchAndStoreBankInventory("accountid", "apikeystring")
-	assert.NoError(s.T(), err)
-
 	err = s.Service.BagItemService.ClearBankInventory("accountid")
 	assert.NoError(s.T(), err)
 
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), totalInventoryCount, len(items))
+	assert.Equal(s.T(), totalInventoryCount-bankInventoryCount, len(items))
 }
