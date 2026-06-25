@@ -9,6 +9,7 @@ type DBBagItem struct {
 	ID            uint               `gorm:"primaryKey;autoIncrement"`
 	AccountID     string
 	CharacterName *string
+	Source        string
 	BagItemID     uint
 	Item          DBItem             `gorm:"foreignKey:BagItemID"`
 	Count         uint
@@ -86,6 +87,7 @@ func (b DBBagItem) ToBagItem() models.BagItem {
 
 	bagItem := models.BagItem{
 		CharacterName:   characterName,
+		Source:          b.Source,
 		BagItemID:       b.BagItemID,
 		Count:           b.Count,
 		Charges:         b.Charges,
@@ -138,7 +140,7 @@ func DBBagItemsToAccountInventory(bagItems []DBBagItem, accountID string) (accou
 		item := dbItem.ToBagItem()
 		name := item.CharacterName
 
-		if name == "Shared Inventory" {
+		if item.Source == "shared" {
 			sharedInventory = append(sharedInventory, item)
 		} else {
 			entry, ok := characterNameMap[name]

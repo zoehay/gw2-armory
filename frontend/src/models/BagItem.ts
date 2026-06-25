@@ -8,6 +8,7 @@ export interface UpgradeComponent {
 
 export interface BagItem {
   characterName: string;
+  source: string;
   id: number;
   count: number;
   charges?: number;
@@ -34,6 +35,7 @@ export interface BagItem {
 
 export interface APIBagItem {
   character_name: string;
+  source: string;
   id: number;
   count: number;
   charges?: number;
@@ -61,6 +63,7 @@ export interface APIBagItem {
 export function APIBagItemToBagItem(apiBagItem: APIBagItem): BagItem {
   return {
     characterName: apiBagItem.character_name,
+    source: apiBagItem.source,
     id: apiBagItem.id,
     count: apiBagItem.count,
     charges: apiBagItem.charges,

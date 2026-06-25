@@ -21,7 +21,7 @@ type GW2BagItem struct {
 	Location  *string                 `json:"location,omitempty"`
 }
 
-func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *string) dbmodels.DBBagItem {
+func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, characterName *string, source string) dbmodels.DBBagItem {
 	var stats = (*models.DetailsMap)(gw2BagItem.Stats)
 
 	var infusions []dbmodels.DBItem
@@ -40,7 +40,8 @@ func (gw2BagItem GW2BagItem) ToDBBagItem(accountID string, apiCharacterName *str
 
 	return dbmodels.DBBagItem{
 		AccountID:     accountID,
-		CharacterName: apiCharacterName,
+		CharacterName: characterName,
+		Source:        source,
 		BagItemID:     gw2BagItem.ID,
 		Count:         gw2BagItem.Count,
 		Charges:       gw2BagItem.Charges,

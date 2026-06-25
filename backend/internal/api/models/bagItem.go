@@ -9,6 +9,7 @@ import (
 
 type BagItem struct {
 	CharacterName string                  `json:"character_name"`
+	Source        string                  `json:"source"`
 	BagItemID     uint                    `json:"id"`
 	Count         uint                    `json:"count"`
 	Charges       *uint                   `json:"charges,omitempty"`

@@ -72,10 +72,9 @@ func (service *BagItemService) FetchAndStoreSharedInventory(accountID string, ap
 		return fmt.Errorf("service error using provider could not get account inventory: %s", err)
 	}
 
-	characterName := "Shared Inventory"
 	items := make([]dbmodels.DBBagItem, 0, len(*accountInventory))
 	for _, bagItem := range *accountInventory {
-		items = append(items, bagItem.ToDBBagItem(accountID, &characterName))
+		items = append(items, bagItem.ToDBBagItem(accountID, nil, "shared"))
 	}
 
 	if err = service.BagItemRepository.ReplaceSharedInventory(accountID, items); err != nil {
@@ -180,13 +179,13 @@ func collectCharacterBagItems(accountID string, character gw2models.GW2Character
 		for _, bag := range *character.Bags {
 			for _, bagItem := range bag.Inventory {
 				if bagItem != nil {
-					items = append(items, bagItem.ToDBBagItem(accountID, &character.Name))
+					items = append(items, bagItem.ToDBBagItem(accountID, &character.Name, "character"))
 				}
 			}
 		}
 	}
 	for _, bagItem := range *character.Equipment {
-		items = append(items, bagItem.ToDBBagItem(accountID, &character.Name))
+		items = append(items, bagItem.ToDBBagItem(accountID, &character.Name, "character"))
 	}
 	return items
 }

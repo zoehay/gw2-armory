@@ -171,11 +171,11 @@ func (repository *BagItemRepository) deleteCharacterInventory(db *gorm.DB, accou
 }
 
 func (repository *BagItemRepository) deleteSharedInventory(db *gorm.DB, accountID string) error {
-	if err := db.Exec(`DELETE FROM db_bag_item_infusions WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND character_name = 'Shared Inventory')`, accountID).Error; err != nil {
+	if err := db.Exec(`DELETE FROM db_bag_item_infusions WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND source = 'shared')`, accountID).Error; err != nil {
 		return err
 	}
-	if err := db.Exec(`DELETE FROM db_bag_item_upgrades WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND character_name = 'Shared Inventory')`, accountID).Error; err != nil {
+	if err := db.Exec(`DELETE FROM db_bag_item_upgrades WHERE db_bag_item_id IN (SELECT id FROM db_bag_items WHERE account_id = ? AND source = 'shared')`, accountID).Error; err != nil {
 		return err
 	}
-	return db.Where("account_id = ? AND character_name = ?", accountID, "Shared Inventory").Delete(&dbmodels.DBBagItem{}).Error
+	return db.Where("account_id = ? AND source = ?", accountID, "shared").Delete(&dbmodels.DBBagItem{}).Error
 }
