@@ -11,7 +11,7 @@ interface AccountInventoryProps {
 export const InventoryContents: React.FC<AccountInventoryProps> = ({
   accountInventory,
 }) => {
-  let { sharedInventory, characters } = accountInventory;
+  let { sharedInventory, bankInventory, characters } = accountInventory;
 
   return (
     <TooltipProvider>
@@ -19,6 +19,12 @@ export const InventoryContents: React.FC<AccountInventoryProps> = ({
         <InventoryGroup
           characterName="Shared Inventory"
           characterInventory={sharedInventory}
+        ></InventoryGroup>
+      )}
+      {bankInventory && (
+        <InventoryGroup
+          characterName="Bank"
+          characterInventory={bankInventory}
         ></InventoryGroup>
       )}
       <div className={inventory.inventoryGroups}>

@@ -173,7 +173,7 @@ func (service *BagItemService) FetchMissingItems(itemIDs []int64) {
 	chunks := splitArray(noDuplicates, 10)
 	for _, chunk := range chunks {
 		if err := service.ItemService.FetchAndStoreItemsByID(chunk); err != nil {
-			fmt.Printf("error fetching missing items: %v\n", err)
+			fmt.Printf("error fetching missing items %v: %v\n", chunk, err)
 		}
 	}
 }
