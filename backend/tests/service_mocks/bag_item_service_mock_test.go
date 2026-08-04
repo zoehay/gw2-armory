@@ -12,12 +12,13 @@ import (
 
 // Item counts derived from mock test data files.
 const (
-	sharedInventoryCount = 4   // account_inventory_test_data.txt
-	bankInventoryCount   = 150 // account_bank_test_data.txt
-	romanMeowsCount      = 32  // character_test_data.txt: 15 bag + 17 equipment
-	lauraLesdottirCount  = 35  // character_test_data.txt: 30 bag + 5 equipment
-	allCharactersCount   = romanMeowsCount + lauraLesdottirCount
-	totalInventoryCount  = sharedInventoryCount + bankInventoryCount + allCharactersCount
+	sharedInventoryCount    = 4   // account_inventory_test_data.txt
+	bankInventoryCount      = 150 // account_bank_test_data.txt
+	materialsInventoryCount = 680 // materials_test_data.txt
+	romanMeowsCount         = 32  // character_test_data.txt: 15 bag + 17 equipment
+	lauraLesdottirCount     = 35  // character_test_data.txt: 30 bag + 5 equipment
+	allCharactersCount      = romanMeowsCount + lauraLesdottirCount
+	totalInventoryCount     = sharedInventoryCount + bankInventoryCount + materialsInventoryCount + allCharactersCount
 )
 
 type BagItemAccountServiceTestSuite struct {
@@ -131,4 +132,25 @@ func (s *BagItemAccountServiceTestSuite) TestClearBankInventory() {
 	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), totalInventoryCount-bankInventoryCount, len(items))
+}
+
+func (s *BagItemAccountServiceTestSuite) TestStoreMaterialsInventory() {
+	err := s.Service.BagItemService.FetchAndStoreMaterialsInventory("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), materialsInventoryCount, len(items))
+}
+
+func (s *BagItemAccountServiceTestSuite) TestClearMaterialsInventory() {
+	err := s.Service.BagItemService.FetchAndStoreAllBagItems("accountid", "apikeystring")
+	assert.NoError(s.T(), err)
+
+	err = s.Service.BagItemService.ClearMaterialsInventory("accountid")
+	assert.NoError(s.T(), err)
+
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByAccountID("accountid")
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), totalInventoryCount-materialsInventoryCount, len(items))
 }

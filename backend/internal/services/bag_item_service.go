@@ -16,9 +16,11 @@ type BagItemServiceInterface interface {
 	FetchAndStoreAllCharacters(accountID string, apiKey string) error
 	FetchAndStoreSharedInventory(accountID string, apiKey string) error
 	FetchAndStoreBankInventory(accountID string, apiKey string) error
+	FetchAndStoreMaterialsInventory(accountID string, apiKey string) error
 	ClearCharacterInventory(accountID string, characterName string) error
 	ClearSharedInventory(accountID string) error
 	ClearBankInventory(accountID string) error
+	ClearMaterialsInventory(accountID string) error
 	GetBagItemsByCharacter(accountID string, characterName string) ([]apimodels.BagItem, error)
 	GetBagItemsByAccount(accountID string) ([]apimodels.BagItem, error)
 	GetAccountInventory(accountID string) (apimodels.AccountInventory, []int64, error)
@@ -49,6 +51,9 @@ func (service *BagItemService) FetchAndStoreAllBagItems(accountID string, apiKey
 	}
 	if err := service.FetchAndStoreBankInventory(accountID, apiKey); err != nil {
 		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get bank inventory: %s", err))
+	}
+	if err := service.FetchAndStoreMaterialsInventory(accountID, apiKey); err != nil {
+		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get materials inventory: %s", err))
 	}
 	if err := service.FetchAndStoreAllCharacters(accountID, apiKey); err != nil {
 		errs = append(errs, fmt.Errorf("FetchAndStoreAllBagItems could not get character inventory: %s", err))
@@ -122,6 +127,30 @@ func (service *BagItemService) FetchAndStoreBankInventory(accountID string, apiK
 func (service *BagItemService) ClearBankInventory(accountID string) error {
 	if err := service.BagItemRepository.DeleteBankInventory(accountID); err != nil {
 		return fmt.Errorf("service error deleting bank inventory for account %s: %s", accountID, err)
+	}
+	return nil
+}
+
+func (service *BagItemService) FetchAndStoreMaterialsInventory(accountID string, apiKey string) error {
+	materialsInventory, err := service.AccountProvider.GetMaterialsInventory(apiKey)
+	if err != nil {
+		return fmt.Errorf("service error using provider could not get materials inventory: %s", err)
+	}
+
+	items := make([]dbmodels.DBBagItem, 0, len(*materialsInventory))
+	for _, bagItem := range *materialsInventory {
+		items = append(items, bagItem.ToDBBagItem(accountID, nil, "materials"))
+	}
+
+	if err = service.BagItemRepository.ReplaceMaterialsInventory(accountID, items); err != nil {
+		return fmt.Errorf("service error replacing materials inventory for account %s: %s", accountID, err)
+	}
+	return nil
+}
+
+func (service *BagItemService) ClearMaterialsInventory(accountID string) error {
+	if err := service.BagItemRepository.DeleteMaterialsInventory(accountID); err != nil {
+		return fmt.Errorf("service error deleting materials inventory for account %s: %s", accountID, err)
 	}
 	return nil
 }

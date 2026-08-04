@@ -13,6 +13,7 @@ type AccountDataProvider interface {
 	GetAccount(apiKey string) (*gw2models.GW2Account, error)
 	GetAccountInventory(apiKey string) (*[]gw2models.GW2BagItem, error)
 	GetBankInventory(apiKey string) (*[]gw2models.GW2BagItem, error)
+	GetMaterialsInventory(apiKey string) (*[]gw2models.GW2BagItem, error)
 	GetTokenInfo(apiKey string) (*gw2models.GW2Token, error)
 }
 
@@ -72,6 +73,30 @@ func (accountProvider *AccountProvider) GetAccountInventory(apiKey string) (*[]g
 
 func (accountProvider *AccountProvider) GetBankInventory(apiKey string) (*[]gw2models.GW2BagItem, error) {
 	res, err := gw2client.GetBankInventory(apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("provider get error: %s", err)
+	}
+
+	defer func() {
+		_ = res.Body.Close()
+	}()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("provider io.ReadAll error: %s", err)
+	}
+
+	var result *[]gw2models.GW2BagItem
+
+	if err = json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("provider json.Unmarshal error: %s", err)
+	}
+
+	return result, nil
+}
+
+func (accountProvider *AccountProvider) GetMaterialsInventory(apiKey string) (*[]gw2models.GW2BagItem, error) {
+	res, err := gw2client.GetMaterialsInventory(apiKey)
 	if err != nil {
 		return nil, fmt.Errorf("provider get error: %s", err)
 	}

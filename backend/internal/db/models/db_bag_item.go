@@ -6,16 +6,16 @@ import (
 )
 
 type DBBagItem struct {
-	ID            uint               `gorm:"primaryKey;autoIncrement"`
+	ID            uint `gorm:"primaryKey;autoIncrement"`
 	AccountID     string
 	CharacterName *string
 	Source        string
 	BagItemID     uint
-	Item          DBItem             `gorm:"foreignKey:BagItemID"`
+	Item          DBItem `gorm:"foreignKey:BagItemID"`
 	Count         uint
 	Charges       *uint
-	Infusions     []DBItem           `gorm:"many2many:db_bag_item_infusions;"`
-	Upgrades      []DBItem           `gorm:"many2many:db_bag_item_upgrades;"`
+	Infusions     []DBItem `gorm:"many2many:db_bag_item_infusions;"`
+	Upgrades      []DBItem `gorm:"many2many:db_bag_item_upgrades;"`
 	Skin          *uint
 	Stats         *models.DetailsMap `gorm:"type:json"`
 	Dyes          *pq.Int64Array     `gorm:"type:integer[]"`

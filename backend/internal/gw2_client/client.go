@@ -70,6 +70,15 @@ func GetBankInventory(apiKey string) (*http.Response, error) {
 	return res, err
 }
 
+func GetMaterialsInventory(apiKey string) (*http.Response, error) {
+	url := baseUrl + "account/materials?v=latest&access_token=" + apiKey
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	return res, err
+}
+
 func Get(baseUrl string, params map[string]string, headers http.Header) (*http.Response, error) {
 	// req, err := http.NewRequest(http.MethodGet, baseUrl, nil)
 	// if err != nil {

@@ -8,20 +8,20 @@ import (
 )
 
 type BagItem struct {
-	CharacterName string                  `json:"character_name"`
-	Source        string                  `json:"source"`
-	BagItemID     uint                    `json:"id"`
-	Count         uint                    `json:"count"`
-	Charges       *uint                   `json:"charges,omitempty"`
-	Infusions     *[]int64                `json:"infusions,omitempty"`
-	Upgrades      *[]int64                `json:"upgrades,omitempty"`
-	Skin          *uint                   `json:"skin,omitempty"`
-	Stats         *map[string]interface{} `json:"stats,omitempty" gorm:"type:json"`
-	Dyes          *[]int64                `json:"dyes,omitempty" gorm:"type:integer[]"`
-	Binding        *string                   `json:"binding,omitempty"`
-	BoundTo        *string                   `json:"bound_to,omitempty"`
-	Slot           *string                   `json:"slot,omitempty"`
-	Location       *string                   `json:"location,omitempty"`
+	CharacterName   string                    `json:"character_name"`
+	Source          string                    `json:"source"`
+	BagItemID       uint                      `json:"id"`
+	Count           uint                      `json:"count"`
+	Charges         *uint                     `json:"charges,omitempty"`
+	Infusions       *[]int64                  `json:"infusions,omitempty"`
+	Upgrades        *[]int64                  `json:"upgrades,omitempty"`
+	Skin            *uint                     `json:"skin,omitempty"`
+	Stats           *map[string]interface{}   `json:"stats,omitempty" gorm:"type:json"`
+	Dyes            *[]int64                  `json:"dyes,omitempty" gorm:"type:integer[]"`
+	Binding         *string                   `json:"binding,omitempty"`
+	BoundTo         *string                   `json:"bound_to,omitempty"`
+	Slot            *string                   `json:"slot,omitempty"`
+	Location        *string                   `json:"location,omitempty"`
 	InfusionDetails *[]map[string]interface{} `json:"infusion_details,omitempty"`
 	UpgradeDetails  *[]map[string]interface{} `json:"upgrade_details,omitempty"`
 

@@ -87,6 +87,29 @@ func (accountProvider *AccountProviderMock) ReadBankInventoryFromFile(filepath s
 	return bankInventory, nil
 }
 
+func (accountProvider *AccountProviderMock) GetMaterialsInventory(apiKey string) (*[]gw2models.GW2BagItem, error) {
+	materialsInventory, err := accountProvider.ReadMaterialsInventoryFromFile(testDataPath("materials_test_data.txt"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading from test data file: %s", err)
+	}
+	return materialsInventory, nil
+}
+
+func (accountProvider *AccountProviderMock) ReadMaterialsInventoryFromFile(filepath string) (*[]gw2models.GW2BagItem, error) {
+	content, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	var materialsInventory *[]gw2models.GW2BagItem
+	err = json.Unmarshal(content, &materialsInventory)
+	if err != nil {
+		return nil, err
+	}
+
+	return materialsInventory, nil
+}
+
 func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2models.GW2Token, error) {
 	token, err := accountProvider.ReadTokenInfoFromFile(testDataPath("token_info_test_data.txt"))
 	if err != nil {
