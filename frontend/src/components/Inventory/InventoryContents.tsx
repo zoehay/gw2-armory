@@ -1,7 +1,7 @@
 import React from "react";
 import { AccountInventory } from "../../models/AccountInventory";
 import { InventoryGroup } from "./InventoryGroup";
-import { TooltipProvider } from "./TooltipContext";
+import { TooltipProvider } from "./TooltipProvider";
 import inventory from "./inventory.module.css";
 
 interface AccountInventoryProps {

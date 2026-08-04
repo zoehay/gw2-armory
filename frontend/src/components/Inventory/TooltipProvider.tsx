@@ -1,9 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
-
-export const TooltipContext = createContext<{
-  activeId: string | null;
-  setActiveId: (id: string | null) => void;
-}>({ activeId: null, setActiveId: () => {} });
+import React, { useEffect, useState } from "react";
+import { TooltipContext } from "./TooltipContext";
 
 export const TooltipProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

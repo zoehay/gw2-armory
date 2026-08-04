@@ -1,9 +1,5 @@
-import React, { createContext } from "react";
-import { Client } from "./Client";
-
-const client = new Client();
-
-export const ClientContext = createContext(client);
+import React from "react";
+import { client, ClientContext } from "./ClientContext";
 
 export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

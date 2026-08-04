@@ -1,7 +1,7 @@
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ManageKeys } from "./components/ManageKeys/ManageKeys";
-import { ClientProvider } from "./util/ClientContext";
+import { ClientProvider } from "./util/ClientProvider";
 import { Inventory } from "./components/Inventory/Inventory";
 import { Root } from "./components/Root";
 import { ErrorPage } from "./components/ErrorPage/ErrorPage";
