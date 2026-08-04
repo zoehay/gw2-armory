@@ -18,13 +18,14 @@ export interface APIAccountInventory {
 }
 
 export function APIAccountInventoryToAccountInventory(
-  apiInventory: APIAccountInventory
+  apiInventory: APIAccountInventory,
 ): AccountInventory {
   return {
     accountID: apiInventory.id,
     sharedInventory: apiInventory.shared_inventory?.map(APIBagItemToBagItem),
     bankInventory: apiInventory.bank_inventory?.map(APIBagItemToBagItem),
-    materialsInventory: apiInventory.materials_inventory?.map(APIBagItemToBagItem),
+    materialsInventory:
+      apiInventory.materials_inventory?.map(APIBagItemToBagItem),
     characters: apiInventory.characters?.map(APICharacterToCharacter),
   };
 }
