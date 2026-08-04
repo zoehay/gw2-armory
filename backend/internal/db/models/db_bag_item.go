@@ -121,6 +121,7 @@ func DBBagItemsToAccountInventory(bagItems []DBBagItem, accountID string) (accou
 	characterNameMap := map[string]models.Character{}
 	var sharedInventory []models.BagItem
 	var bankInventory []models.BagItem
+	var materialsInventory []models.BagItem
 	var characters []models.Character
 
 	for _, dbItem := range bagItems {
@@ -145,6 +146,8 @@ func DBBagItemsToAccountInventory(bagItems []DBBagItem, accountID string) (accou
 			sharedInventory = append(sharedInventory, item)
 		} else if item.Source == "bank" {
 			bankInventory = append(bankInventory, item)
+		} else if item.Source == "materials" {
+			materialsInventory = append(materialsInventory, item)
 		} else {
 			entry, ok := characterNameMap[name]
 			isEquipment := item.IsEquipment()
@@ -179,6 +182,7 @@ func DBBagItemsToAccountInventory(bagItems []DBBagItem, accountID string) (accou
 	accountInventory.AccountID = accountID
 	accountInventory.SharedInventory = &sharedInventory
 	accountInventory.BankInventory = &bankInventory
+	accountInventory.MaterialsInventory = &materialsInventory
 	accountInventory.Characters = &characters
 
 	return accountInventory, itemsNotInDB

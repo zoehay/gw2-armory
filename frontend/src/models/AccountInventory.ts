@@ -5,6 +5,7 @@ export interface AccountInventory {
   accountID: string;
   sharedInventory?: BagItem[];
   bankInventory?: BagItem[];
+  materialsInventory?: BagItem[];
   characters?: Character[];
 }
 
@@ -12,6 +13,7 @@ export interface APIAccountInventory {
   id: string;
   shared_inventory?: APIBagItem[];
   bank_inventory?: APIBagItem[];
+  materials_inventory?: APIBagItem[];
   characters?: APICharacter[];
 }
 
@@ -22,6 +24,7 @@ export function APIAccountInventoryToAccountInventory(
     accountID: apiInventory.id,
     sharedInventory: apiInventory.shared_inventory?.map(APIBagItemToBagItem),
     bankInventory: apiInventory.bank_inventory?.map(APIBagItemToBagItem),
+    materialsInventory: apiInventory.materials_inventory?.map(APIBagItemToBagItem),
     characters: apiInventory.characters?.map(APICharacterToCharacter),
   };
 }
