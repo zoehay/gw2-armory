@@ -5,7 +5,8 @@ export const ErrorPage = () => {
   let errorMessage: string;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error.data.message || error.statusText;
+    const data = error.data as { message?: string } | undefined;
+    errorMessage = data?.message || error.statusText;
   } else if (error instanceof Error) {
     errorMessage = error.message;
   } else if (typeof error === "string") {

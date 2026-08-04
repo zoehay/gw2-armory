@@ -14,18 +14,17 @@ export const ManageKeys = () => {
 };
 
 const AccountKey = () => {
-  let client = useContext(ClientContext);
+  const client = useContext(ClientContext);
 
-  let [account, setAccount] = useState<Account | null>(null);
-
-  async function fetchData() {
-    let fetchAccount = await client.getAccount();
-    setAccount(fetchAccount);
-  }
+  const [account, setAccount] = useState<Account | null>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      const fetchAccount = await client.getAccount();
+      setAccount(fetchAccount);
+    };
+    void fetchData();
+  }, [client]);
 
   return (
     <div className={content.page}>
@@ -51,7 +50,7 @@ interface KeyInputProps {
 const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
   const fieldName = "API Key";
   const [formState, setFormState] = useState("");
-  let client = useContext(ClientContext);
+  const client = useContext(ClientContext);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
@@ -70,7 +69,7 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => void handleSubmit(e)}>
         <label htmlFor="apikey-input">{`Add ${fieldName}`}</label>
         <div>
           <input

@@ -11,7 +11,7 @@ interface AccountInventoryProps {
 export const InventoryContents: React.FC<AccountInventoryProps> = ({
   accountInventory,
 }) => {
-  let { sharedInventory, bankInventory, materialsInventory, characters } =
+  const { sharedInventory, bankInventory, materialsInventory, characters } =
     accountInventory;
 
   return (

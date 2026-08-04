@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export const MobileNav = () => {
-  let [showMenu, setShowMenu] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   let position;
 
   if (!showMenu) {
@@ -11,7 +11,7 @@ export const MobileNav = () => {
   } else {
     position = "0%";
   }
-  let style = { left: position } as React.CSSProperties;
+  const style = { left: position } as React.CSSProperties;
 
   const handleClose = () => {
     if (showMenu) {

@@ -9,9 +9,9 @@ interface KeyTileProps {
 }
 
 export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
-  let client = useContext(ClientContext);
+  const client = useContext(ClientContext);
 
-  const handleClick = async () => {
+  const handleClick = () => {
     setTimeout(async () => {
       let deletedAccount;
       if (account.apiKey) {

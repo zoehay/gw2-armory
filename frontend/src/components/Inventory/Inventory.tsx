@@ -6,19 +6,18 @@ import { AccountInventory } from "../../models/AccountInventory";
 import { InventoryContents } from "./InventoryContents";
 
 export const Inventory = () => {
-  let client = useContext(ClientContext);
+  const client = useContext(ClientContext);
 
-  let [accountInventory, setAccountInventory] =
+  const [accountInventory, setAccountInventory] =
     useState<AccountInventory | null>(null);
 
-  const fetchData = async () => {
-    let inventory: AccountInventory = await client.getAccountInventory();
-    setAccountInventory(inventory);
-  };
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      const inventory: AccountInventory = await client.getAccountInventory();
+      setAccountInventory(inventory);
+    };
+    void fetchData();
+  }, [client]);
 
   return (
     <div className={content.page}>
@@ -42,7 +41,7 @@ interface SearchInputProps {
 
 const SearchInput: React.FC<SearchInputProps> = ({ handleUpdate }) => {
   const [formState, setFormState] = useState("");
-  let client = useContext(ClientContext);
+  const client = useContext(ClientContext);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
@@ -61,7 +60,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ handleUpdate }) => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => void handleSubmit(e)}>
         <label htmlFor="search-input">{"Search"}</label>
         <div>
           <input
