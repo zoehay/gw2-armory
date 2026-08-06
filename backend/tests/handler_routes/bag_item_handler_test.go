@@ -66,7 +66,7 @@ func (s *BagItemHandlerTestSuite) TestGetByAccount() {
 
 func (s *BagItemHandlerTestSuite) TestGetByCharacterName() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	req, _ := http.NewRequest("GET", "/account/characters/Grix%20Bristlefang/inventory", nil)
 	req.AddCookie(s.Cookie)
 	s.Router.ServeHTTP(w, req)
 

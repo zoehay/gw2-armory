@@ -51,12 +51,12 @@ func (s *CharacterServiceTestSuite) TestGetBagItemsByCharacterName() {
 	err := s.Service.BagItemService.FetchAndStoreAllCharacters("accountid", "apikeystring")
 	s.Require().NoError(err, "Failed to seed character data")
 
-	items, err := s.Repository.BagItemRepository.GetDetailBagItemByCharacterName("accountid", "Roman Meows")
+	items, err := s.Repository.BagItemRepository.GetDetailBagItemByCharacterName("accountid", "Grix Bristlefang")
 	assert.NoError(s.T(), err, "Failed to get items by character name")
-	assert.Equal(s.T(), romanMeowsCount, len(items), "Expected correct item count for Roman Meows")
+	assert.Equal(s.T(), grixCount, len(items), "Expected correct item count for Grix Bristlefang")
 
 	for _, item := range items {
 		assert.NotNil(s.T(), item.CharacterName)
-		assert.Equal(s.T(), "Roman Meows", *item.CharacterName)
+		assert.Equal(s.T(), "Grix Bristlefang", *item.CharacterName)
 	}
 }

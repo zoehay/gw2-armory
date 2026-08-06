@@ -1,0 +1,23 @@
+{
+  "id": "gw2apiaccountidstring",
+  "name": "gw2name",
+  "age": 3329940,
+  "world": 1014,
+  "guilds": [
+    "guild-string"
+  ],
+  "guild_leader": [],
+  "created": "2020-08-16T01:36:00Z",
+  "access": [
+    "GuildWars2",
+    "PlayForFree",
+    "PathOfFire",
+    "EndOfDragons",
+    "SecretsOfTheObscure"
+  ],
+  "commander": false,
+  "fractal_level": 29,
+  "daily_ap": 2310,
+  "monthly_ap": 0,
+  "wvw_rank": 1
+}

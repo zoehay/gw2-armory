@@ -1,0 +1,1479 @@
+[
+  {
+    "name": "Grix Bristlefang",
+    "race": "Charr",
+    "gender": "Male",
+    "flags": [],
+    "profession": "Engineer",
+    "level": 80,
+    "guild": null,
+    "age": 23930,
+    "created": "2023-08-17T02:51:00Z",
+    "deaths": 0,
+    "crafting": [
+      {
+        "discipline": "Armorsmith",
+        "rating": 25,
+        "active": true
+      },
+      {
+        "discipline": "Huntsman",
+        "rating": 175,
+        "active": true
+      }
+    ],
+    "backstory": [
+      "15-85",
+      "181-180",
+      "17-92",
+      "16-91",
+      "7-53"
+    ],
+    "wvw_abilities": [],
+    "equipment": [
+      {
+        "id": 95393,
+        "slot": "HelmAquatic",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95396,
+        "slot": "Backpack",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang",
+        "dyes": [
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 95381,
+        "slot": "Coat",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95345,
+        "slot": "Boots",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95371,
+        "slot": "Gloves",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95341,
+        "slot": "Helm",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95375,
+        "slot": "Leggings",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95319,
+        "slot": "Shoulders",
+        "upgrades": [
+          24812
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95401,
+        "slot": "Accessory1",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95401,
+        "slot": "Accessory2",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95389,
+        "slot": "Ring1",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95389,
+        "slot": "Ring2",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95423,
+        "slot": "Amulet",
+        "upgrades": [
+          43866
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95338,
+        "slot": "WeaponAquaticA",
+        "upgrades": [
+          24615,
+          24618
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 95299,
+        "slot": "WeaponA1",
+        "upgrades": [
+          24615,
+          24618
+        ],
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      },
+      {
+        "id": 97730,
+        "slot": "FishingRod",
+        "binding": "Account"
+      },
+      {
+        "id": 100248,
+        "slot": "Relic",
+        "binding": "Character",
+        "bound_to": "Grix Bristlefang"
+      }
+    ],
+    "recipes": [
+      1,
+      3,
+      6,
+      9,
+      16,
+      19,
+      20,
+      23,
+      24,
+      25,
+      29,
+      30,
+      31,
+      32,
+      33,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      200,
+      201,
+      202,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      261,
+      262,
+      263,
+      264,
+      499,
+      838,
+      839,
+      840,
+      841,
+      4458,
+      4460,
+      4461,
+      4464,
+      4465,
+      4466,
+      4467,
+      4468,
+      4470,
+      4471,
+      4473,
+      4474,
+      4475,
+      4476,
+      4478,
+      4479,
+      4480,
+      4486,
+      4487,
+      4488,
+      4489,
+      4490,
+      4491,
+      4492,
+      4493,
+      4494,
+      4495,
+      4496,
+      4509,
+      4510,
+      4527,
+      4542,
+      4543,
+      4544,
+      4545,
+      4546,
+      4547,
+      4549,
+      4550,
+      4551,
+      4552,
+      4553,
+      4554,
+      4555,
+      4556,
+      4557,
+      4558,
+      4560,
+      4561,
+      4651,
+      4652,
+      4653,
+      4654,
+      4661,
+      4664,
+      4665,
+      4666,
+      4668,
+      4670,
+      4725,
+      4726,
+      4730,
+      4743,
+      4765,
+      4766,
+      4767,
+      4768,
+      4769,
+      4770,
+      4771,
+      4772,
+      4773,
+      5070,
+      5071,
+      5072,
+      5073,
+      5074,
+      5075,
+      5118,
+      5130,
+      5135,
+      6468,
+      6503,
+      6745,
+      7002,
+      7003,
+      8514,
+      8520,
+      9509,
+      9510,
+      9514,
+      9515,
+      9516,
+      9517,
+      10762,
+      10888,
+      10950,
+      12915
+    ],
+    "training": [],
+    "bags": [
+      {
+        "id": 9488,
+        "size": 12,
+        "inventory": [
+          {
+            "id": 94975,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 85465,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 72831,
+            "count": 2,
+            "binding": "Account"
+          },
+          {
+            "id": 26223,
+            "count": 1
+          },
+          {
+            "id": 43773,
+            "count": 100
+          },
+          {
+            "id": 43772,
+            "count": 7,
+            "binding": "Account"
+          },
+          {
+            "id": 89140,
+            "count": 250
+          },
+          {
+            "id": 67280,
+            "count": 5,
+            "binding": "Account"
+          },
+          {
+            "id": 19688,
+            "count": 79
+          },
+          {
+            "id": 19750,
+            "count": 86
+          },
+          {
+            "id": 23000,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 23001,
+            "count": 1,
+            "binding": "Account"
+          }
+        ]
+      },
+      {
+        "id": 8932,
+        "size": 20,
+        "inventory": [
+          {
+            "id": 46731,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 46735,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 46735,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 46731,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 46733,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 46733,
+            "count": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 9452,
+            "count": 5
+          },
+          {
+            "id": 23041,
+            "count": 1,
+            "charges": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 21156,
+            "count": 1
+          },
+          {
+            "id": 21159,
+            "count": 2
+          },
+          {
+            "id": 21161,
+            "count": 1
+          },
+          {
+            "id": 23042,
+            "count": 1,
+            "charges": 15,
+            "binding": "Account"
+          },
+          {
+            "id": 12945,
+            "count": 2
+          },
+          {
+            "id": 74202,
+            "count": 209
+          },
+          {
+            "id": 23042,
+            "count": 1,
+            "charges": 19,
+            "binding": "Account"
+          },
+          {
+            "id": 101102,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 45176,
+            "count": 4,
+            "binding": "Account"
+          },
+          {
+            "id": 45175,
+            "count": 23,
+            "binding": "Account"
+          },
+          {
+            "id": 92132,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 78658,
+            "count": 25,
+            "binding": "Account"
+          }
+        ]
+      },
+      {
+        "id": 9566,
+        "size": 18,
+        "inventory": [
+          {
+            "id": 78305,
+            "count": 25,
+            "binding": "Account"
+          },
+          {
+            "id": 23045,
+            "count": 1,
+            "charges": 250,
+            "binding": "Account"
+          },
+          {
+            "id": 22997,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 101938,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 19567,
+            "count": 2,
+            "binding": "Character",
+            "bound_to": "Grix Bristlefang"
+          },
+          {
+            "id": 26571,
+            "count": 1
+          },
+          {
+            "id": 1596,
+            "count": 1,
+            "upgrades": [
+              24716
+            ],
+            "upgrade_slot_indices": [
+              0
+            ]
+          },
+          {
+            "id": 83075,
+            "count": 1
+          },
+          {
+            "id": 95020,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 101062,
+            "count": 1,
+            "binding": "Account"
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 8936,
+        "size": 15,
+        "inventory": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 9586,
+        "size": 18,
+        "inventory": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "equipment_pvp": {
+      "amulet": null,
+      "rune": 21172,
+      "sigils": [
+        21150,
+        81268,
+        21150,
+        81268
+      ]
+    },
+    "specializations": {
+      "pve": [
+        {
+          "id": 6,
+          "traits": [
+            525,
+            1892,
+            1947
+          ]
+        },
+        {
+          "id": 38,
+          "traits": [
+            1914,
+            1923,
+            526
+          ]
+        },
+        {
+          "id": 21,
+          "traits": [
+            532,
+            1832,
+            1679
+          ]
+        }
+      ],
+      "pvp": [
+        {
+          "id": 6,
+          "traits": [
+            525,
+            1892,
+            1947
+          ]
+        },
+        {
+          "id": 38,
+          "traits": [
+            1914,
+            1923,
+            526
+          ]
+        },
+        {
+          "id": 21,
+          "traits": [
+            532,
+            1832,
+            1679
+          ]
+        }
+      ],
+      "wvw": [
+        {
+          "id": 6,
+          "traits": [
+            525,
+            1892,
+            1947
+          ]
+        },
+        {
+          "id": 38,
+          "traits": [
+            1914,
+            1923,
+            526
+          ]
+        },
+        {
+          "id": 21,
+          "traits": [
+            532,
+            1832,
+            1679
+          ]
+        }
+      ]
+    },
+    "skills": {
+      "pve": {
+        "heal": 21659,
+        "utilities": [
+          5805,
+          6161,
+          5862
+        ],
+        "elite": 30800
+      },
+      "pvp": {
+        "heal": 21659,
+        "utilities": [
+          5805,
+          6161,
+          5862
+        ],
+        "elite": 30800
+      },
+      "wvw": {
+        "heal": 21659,
+        "utilities": [
+          5805,
+          6161,
+          5862
+        ],
+        "elite": 30800
+      }
+    }
+  },
+  {
+    "name": "Freya Wintermaul",
+    "race": "Norn",
+    "gender": "Female",
+    "flags": [],
+    "profession": "Ranger",
+    "level": 16,
+    "guild": null,
+    "age": 14613,
+    "created": "2024-01-23T03:04:00Z",
+    "deaths": 0,
+    "crafting": [
+      {
+        "discipline": "Jeweler",
+        "rating": 48,
+        "active": true
+      },
+      {
+        "discipline": "Tailor",
+        "rating": 325,
+        "active": true
+      }
+    ],
+    "backstory": [
+      "183-182",
+      "27-124",
+      "26-122",
+      "25-118",
+      "7-53"
+    ],
+    "wvw_abilities": [],
+    "equipment": [
+      {
+        "id": 6472,
+        "slot": "Coat",
+        "binding": "Character",
+        "bound_to": "Freya Wintermaul",
+        "dyes": [
+          435,
+          17,
+          480,
+          null
+        ]
+      },
+      {
+        "id": 6470,
+        "slot": "Boots",
+        "binding": "Character",
+        "bound_to": "Freya Wintermaul",
+        "dyes": [
+          17,
+          17,
+          14,
+          null
+        ]
+      },
+      {
+        "id": 6473,
+        "slot": "Leggings",
+        "binding": "Character",
+        "bound_to": "Freya Wintermaul",
+        "dyes": [
+          17,
+          14,
+          101,
+          null
+        ]
+      },
+      {
+        "id": 33344,
+        "slot": "WeaponA1"
+      },
+      {
+        "id": 97730,
+        "slot": "FishingRod",
+        "binding": "Account"
+      }
+    ],
+    "recipes": [
+      7,
+      8,
+      9,
+      10,
+      12,
+      15,
+      18,
+      19,
+      20,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      196,
+      197,
+      198,
+      199,
+      2004,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026,
+      2027,
+      2028,
+      2029,
+      2030,
+      2031,
+      2032,
+      2033,
+      2034,
+      2035,
+      2036,
+      2037,
+      2038,
+      2039,
+      2040,
+      2041,
+      2042,
+      2043,
+      2044,
+      2045,
+      2046,
+      2047,
+      2048,
+      2049,
+      2050,
+      2051,
+      2064,
+      2072,
+      2111,
+      2113,
+      2114,
+      2124,
+      2126,
+      2130,
+      2134,
+      2136,
+      2137,
+      2138,
+      2140,
+      2142,
+      2144,
+      2147,
+      2148,
+      2149,
+      2150,
+      2153,
+      2157,
+      2160,
+      2161,
+      2162,
+      2164,
+      2165,
+      2167,
+      2168,
+      2170,
+      2172,
+      2173,
+      2174,
+      2176,
+      2178,
+      2180,
+      2183,
+      2184,
+      2185,
+      2186,
+      2189,
+      2199,
+      2209,
+      2212,
+      2215,
+      2218,
+      2221,
+      2227,
+      2228,
+      2230,
+      2231,
+      2232,
+      2238,
+      2240,
+      2242,
+      2243,
+      2244,
+      2246,
+      2248,
+      2250,
+      2253,
+      2254,
+      2255,
+      2256,
+      2259,
+      2264,
+      2265,
+      2266,
+      2267,
+      2268,
+      2269,
+      2270,
+      2271,
+      2272,
+      2273,
+      2274,
+      2275,
+      2276,
+      2277,
+      2278,
+      2279,
+      2280,
+      2281,
+      2282,
+      2283,
+      2284,
+      2285,
+      2286,
+      2287,
+      2303,
+      2305,
+      2306,
+      2308,
+      2310,
+      2345,
+      2347,
+      2348,
+      2352,
+      2426,
+      2429,
+      2431,
+      2432,
+      2435,
+      2436,
+      2468,
+      2471,
+      2473,
+      2474,
+      2477,
+      2478,
+      2560,
+      2561,
+      2562,
+      2563,
+      2566,
+      2567,
+      2570,
+      2571,
+      2572,
+      2573,
+      2577,
+      2578,
+      2579,
+      2580,
+      2581,
+      2582,
+      2583,
+      2584,
+      2585,
+      2587,
+      2588,
+      3386,
+      3392,
+      3399,
+      3556,
+      3557,
+      3565,
+      3566,
+      3567,
+      3571,
+      3572,
+      3573,
+      6728,
+      6745,
+      6746,
+      6747,
+      6843,
+      8673,
+      8674,
+      8675,
+      8676,
+      8678,
+      8679,
+      8680,
+      8681,
+      8682,
+      8683,
+      9280,
+      9281,
+      10323,
+      10950,
+      11240,
+      11480,
+      11540,
+      12915
+    ],
+    "training": [],
+    "bags": [
+      {
+        "id": 8932,
+        "size": 20,
+        "inventory": [
+          {
+            "id": 32130,
+            "count": 1,
+            "binding": "Character",
+            "bound_to": "Freya Wintermaul"
+          },
+          {
+            "id": 45175,
+            "count": 85,
+            "binding": "Account"
+          },
+          {
+            "id": 45176,
+            "count": 20,
+            "binding": "Account"
+          },
+          {
+            "id": 12806,
+            "count": 13
+          },
+          {
+            "id": 12812,
+            "count": 3
+          },
+          {
+            "id": 45177,
+            "count": 2,
+            "binding": "Account"
+          },
+          {
+            "id": 19810,
+            "count": 2
+          },
+          {
+            "id": 13042,
+            "count": 3
+          },
+          {
+            "id": 13041,
+            "count": 3
+          },
+          {
+            "id": 23042,
+            "count": 1,
+            "charges": 5,
+            "binding": "Account"
+          },
+          {
+            "id": 64101,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 64114,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 64115,
+            "count": 1,
+            "binding": "Account"
+          },
+          {
+            "id": 62975,
+            "count": 3
+          },
+          {
+            "id": 72752,
+            "count": 4
+          },
+          {
+            "id": 13171,
+            "count": 4
+          },
+          {
+            "id": 13175,
+            "count": 2
+          },
+          {
+            "id": 13176,
+            "count": 2
+          },
+          {
+            "id": 89140,
+            "count": 1
+          },
+          {
+            "id": 76216,
+            "count": 9
+          }
+        ]
+      },
+      {
+        "id": 8936,
+        "size": 15,
+        "inventory": [
+          {
+            "id": 19748,
+            "count": 168
+          },
+          {
+            "id": 19747,
+            "count": 250
+          },
+          null,
+          null,
+          {
+            "id": 19747,
+            "count": 250
+          },
+          {
+            "id": 19747,
+            "count": 122
+          },
+          {
+            "id": 19748,
+            "count": 250
+          },
+          {
+            "id": 19748,
+            "count": 250
+          },
+          {
+            "id": 8936,
+            "count": 1,
+            "binding": "Account"
+          },
+          null,
+          {
+            "id": 19748,
+            "count": 250
+          },
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 8936,
+        "size": 15,
+        "inventory": [
+          {
+            "id": 19748,
+            "count": 250
+          },
+          null,
+          null,
+          {
+            "id": 98599,
+            "count": 1,
+            "binding": "Character",
+            "bound_to": "Freya Wintermaul"
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 8936,
+        "size": 15,
+        "inventory": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 8936,
+        "size": 15,
+        "inventory": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "equipment_pvp": {
+      "amulet": null,
+      "rune": null,
+      "sigils": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "specializations": {
+      "pve": [
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "pvp": [
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "wvw": [
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": null,
+          "traits": [
+            null,
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    "skills": {
+      "pve": {
+        "heal": 31914,
+        "utilities": [
+          null,
+          null,
+          null
+        ],
+        "elite": null,
+        "pets": {
+          "terrestrial": [
+            9
+          ],
+          "aquatic": [
+            9
+          ]
+        }
+      },
+      "pvp": {
+        "heal": 31914,
+        "utilities": [
+          null,
+          null,
+          null
+        ],
+        "elite": null,
+        "pets": {
+          "terrestrial": [
+            9
+          ],
+          "aquatic": [
+            9
+          ]
+        }
+      },
+      "wvw": {
+        "heal": 31914,
+        "utilities": [
+          null,
+          null,
+          null
+        ],
+        "elite": null,
+        "pets": {
+          "terrestrial": [
+            9
+          ],
+          "aquatic": [
+            9
+          ]
+        }
+      }
+    }
+  }
+]

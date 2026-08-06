@@ -50,7 +50,7 @@ func (s *GuestSessionInventoryAccessTestSuite) TearDownSuite() {
 
 func (s *GuestSessionInventoryAccessTestSuite) TestNoCookieNoInventoryAccess() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	req, _ := http.NewRequest("GET", "/account/characters/Grix%20Bristlefang/inventory", nil)
 	s.Router.ServeHTTP(w, req)
 
 	assert.Equal(s.T(), http.StatusForbidden, w.Code)
@@ -58,7 +58,7 @@ func (s *GuestSessionInventoryAccessTestSuite) TestNoCookieNoInventoryAccess() {
 
 func (s *GuestSessionInventoryAccessTestSuite) TestInvalidSessionCookieAccess() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	req, _ := http.NewRequest("GET", "/account/characters/Grix%20Bristlefang/inventory", nil)
 	req.AddCookie(&http.Cookie{Name: "sessionID", Value: "not-a-real-session-id"})
 	s.Router.ServeHTTP(w, req)
 
@@ -77,7 +77,7 @@ func (s *GuestSessionInventoryAccessTestSuite) TestGuestInventoryAccess() {
 	s.Require().NotEmpty(cookies, "Expected sessionID cookie from POST /apikeys")
 
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest("GET", "/account/characters/Roman%20Meows/inventory", nil)
+	req2, _ := http.NewRequest("GET", "/account/characters/Grix%20Bristlefang/inventory", nil)
 	req2.AddCookie(cookies[0])
 	s.Router.ServeHTTP(w2, req2)
 
@@ -85,5 +85,5 @@ func (s *GuestSessionInventoryAccessTestSuite) TestGuestInventoryAccess() {
 
 	inventory, err := testutils.UnmarshalToType[[]models.BagItem](w2)
 	s.Require().NoError(err, "Failed to unmarshal inventory response")
-	assert.NotEmpty(s.T(), *inventory, "Expected non-empty inventory for Roman Meows")
+	assert.NotEmpty(s.T(), *inventory, "Expected non-empty inventory for Grix Bristlefang")
 }
