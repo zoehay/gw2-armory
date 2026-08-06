@@ -81,7 +81,7 @@ func migrateArraysToJoinTables(db *gorm.DB) error {
 	return nil
 }
 
-func SeedItems(itemRepository repositories.ItemRepository, itemService services.ItemService) error {
+func SeedItems(itemRepository repositories.ItemRepository, itemService *services.ItemService) error {
 	_, err := itemRepository.GetFirst()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Print("Seeding database")

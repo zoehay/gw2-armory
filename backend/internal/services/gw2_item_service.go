@@ -21,13 +21,30 @@ type ItemServiceInterface interface {
 type ItemService struct {
 	ItemRepository *repositories.ItemRepository
 	ItemProvider   providers.ItemDataProvider
+
+	categoryMap map[uint]string
 }
 
-func NewItemService(itemRepository *repositories.ItemRepository, itemProvider providers.ItemDataProvider) *ItemService {
+// NewItemService fetches the material category list once at construction time,
+// any changes are picked up on the next boot rather than re-fetched on every request.
+func NewItemService(itemRepository *repositories.ItemRepository, itemProvider providers.ItemDataProvider) (*ItemService, error) {
+	categories, err := itemProvider.GetMaterialCategories()
+	if err != nil {
+		return nil, fmt.Errorf("service error getting material categories: %s", err)
+	}
+
+	categoryMap := make(map[uint]string)
+	for _, category := range categories {
+		for _, itemID := range category.Items {
+			categoryMap[uint(itemID)] = category.Name
+		}
+	}
+
 	return &ItemService{
 		ItemRepository: itemRepository,
 		ItemProvider:   itemProvider,
-	}
+		categoryMap:    categoryMap,
+	}, nil
 }
 
 func (service *ItemService) FetchAndStoreItemsByID(ids []int) error {
@@ -39,6 +56,9 @@ func (service *ItemService) FetchAndStoreItemsByID(ids []int) error {
 	var errs []error
 	for _, item := range apiItems {
 		dbItem := item.ToDBItem()
+		if category, ok := service.categoryMap[dbItem.ID]; ok {
+			dbItem.Category = &category
+		}
 		_, err := service.ItemRepository.Create(&dbItem)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("FetchAndStoreItemsByID: %s", err))

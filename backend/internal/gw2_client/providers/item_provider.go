@@ -14,6 +14,7 @@ import (
 type ItemDataProvider interface {
 	GetItemsByIDs(intArrIds []int) ([]gw2models.GW2Item, error)
 	GetAllItemIDs() ([]int, error)
+	GetMaterialCategories() ([]gw2models.GW2MaterialCategory, error)
 }
 
 type ItemProvider struct{}
@@ -68,6 +69,30 @@ func (itemProvider *ItemProvider) GetAllItemIDs() ([]int, error) {
 	return result, nil
 
 	// return mockAllItemIds, nil
+}
+
+func (itemProvider *ItemProvider) GetMaterialCategories() ([]gw2models.GW2MaterialCategory, error) {
+	res, err := gw2client.GetMaterialCategories()
+
+	if err != nil {
+		return nil, fmt.Errorf("provider get error: %s", err)
+	}
+
+	defer func() {
+		_ = res.Body.Close()
+	}()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("provider io.ReadAll error: %s", err)
+	}
+
+	var result []gw2models.GW2MaterialCategory
+	if err = json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("provider json.Unmarshal error: %s", err)
+	}
+
+	return result, nil
 }
 
 func IntArrToStringArr(intArr []int) []string {

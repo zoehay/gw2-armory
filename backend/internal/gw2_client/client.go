@@ -7,76 +7,44 @@ import (
 
 const baseUrl = "https://api.guildwars2.com/v2/"
 
+func get(path string) (*http.Response, error) {
+	return http.Get(baseUrl + path)
+}
+
 func GetItemsById(ids string) (*http.Response, error) {
-	url := baseUrl + "items?ids=" + ids
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("items?ids=" + ids)
 }
 
 func GetItemIds() (*http.Response, error) {
-	url := baseUrl + "items"
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("items")
 }
 
 func GetAllCharacters(apiKey string) (*http.Response, error) {
-	url := baseUrl + "characters?ids=all&access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("characters?ids=all&access_token=" + apiKey)
 }
 
 func GetTokenInfo(apiKey string) (*http.Response, error) {
-	url := baseUrl + "tokeninfo?access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("tokeninfo?access_token=" + apiKey)
 }
 
 func GetAccount(apiKey string) (*http.Response, error) {
-	url := baseUrl + "account?access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("account?access_token=" + apiKey)
 }
 
 func GetAccountInventory(apiKey string) (*http.Response, error) {
-	url := baseUrl + "account/inventory?v=latest&access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("account/inventory?v=latest&access_token=" + apiKey)
 }
 
 func GetBankInventory(apiKey string) (*http.Response, error) {
-	url := baseUrl + "account/bank?v=latest&access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("account/bank?v=latest&access_token=" + apiKey)
 }
 
 func GetMaterialsInventory(apiKey string) (*http.Response, error) {
-	url := baseUrl + "account/materials?v=latest&access_token=" + apiKey
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return get("account/materials?v=latest&access_token=" + apiKey)
+}
+
+func GetMaterialCategories() (*http.Response, error) {
+	return get("materials?ids=all")
 }
 
 func Get(baseUrl string, params map[string]string, headers http.Header) (*http.Response, error) {

@@ -110,6 +110,7 @@ func (b DBBagItem) ToBagItem() models.BagItem {
 		bagItem.Description = b.Item.Description
 		bagItem.Type = &b.Item.Type
 		bagItem.Rarity = &b.Item.Rarity
+		bagItem.Category = b.Item.Category
 		bagItem.VendorValue = &b.Item.VendorValue
 		bagItem.Details = (*map[string]interface{})(b.Item.Details)
 	}

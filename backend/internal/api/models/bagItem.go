@@ -31,6 +31,7 @@ type BagItem struct {
 	Description *string                 `json:"description,omitempty"`
 	Type        *string                 `json:"type,omitempty"`
 	Rarity      *string                 `json:"rarity,omitempty"`
+	Category    *string                 `json:"category,omitempty"`
 	VendorValue *uint                   `json:"vendor_value,omitempty"`
 	Details     *map[string]interface{} `json:"details,omitempty" gorm:"type:json"`
 }

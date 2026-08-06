@@ -8,6 +8,7 @@ type Item struct {
 	Description  *string                   `json:"description,omitempty"`
 	Type         *string                   `json:"type,omitempty"`
 	Rarity       *string                   `json:"rarity,omitempty"`
+	Category     *string                   `json:"category,omitempty"`
 	Level        *uint                     `json:"level,omitempty"`
 	VendorValue  *uint                     `json:"vendor_value,omitempty"`
 	DefaultSkin  *uint                     `json:"default_skin,omitempty"`

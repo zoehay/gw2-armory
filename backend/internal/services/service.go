@@ -11,7 +11,7 @@ type Service struct {
 	ItemService    *ItemService
 }
 
-func NewService(repository *repositories.Repository, mocks bool) *Service {
+func NewService(repository *repositories.Repository, mocks bool) (*Service, error) {
 	var accountProvider providers.AccountDataProvider
 	var characterProvider providers.CharacterDataProvider
 	var itemProvider providers.ItemDataProvider
@@ -28,12 +28,15 @@ func NewService(repository *repositories.Repository, mocks bool) *Service {
 	}
 
 	accountService := NewAccountService(&repository.AccountRepository, accountProvider, &repository.SessionRepository)
-	itemService := NewItemService(&repository.ItemRepository, itemProvider)
+	itemService, err := NewItemService(&repository.ItemRepository, itemProvider)
+	if err != nil {
+		return nil, err
+	}
 	bagItemService := NewBagItemService(&repository.BagItemRepository, characterProvider, accountProvider, itemService)
 
 	return &Service{
 		AccountService: accountService,
 		BagItemService: bagItemService,
 		ItemService:    itemService,
-	}
+	}, nil
 }

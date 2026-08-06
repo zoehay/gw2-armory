@@ -22,13 +22,16 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 	}
 
 	repository := repositories.NewRepository(database)
-	service := services.NewService(repository, mocks)
+	service, err := services.NewService(repository, mocks)
+	if err != nil {
+		log.Fatal("Error setting up services", err)
+	}
 
 	itemHandler := handlers.NewItemHandler(service.ItemService)
 	bagItemHandler := handlers.NewBagItemHandler(service.BagItemService)
 	accountHandler := handlers.NewAccountHandler(domain, service.AccountService, service.BagItemService)
 
-	err = db.SeedItems(repository.ItemRepository, *service.ItemService)
+	err = db.SeedItems(repository.ItemRepository, service.ItemService)
 	if err != nil {
 		log.Fatal("Error seeding database", err)
 	}

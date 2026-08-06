@@ -13,6 +13,7 @@ type DBItem struct {
 	Description  *string
 	Type         string
 	Rarity       string
+	Category     *string
 	Level        uint
 	VendorValue  uint
 	DefaultSkin  *uint
@@ -45,8 +46,9 @@ func (dbItem DBItem) ToItem() models.Item {
 		Name:         &dbItem.Name,
 		Icon:         dbItem.Icon,
 		Description:  dbItem.Description,
-		Type:         &dbItem.Name,
+		Type:         &dbItem.Type,
 		Rarity:       &dbItem.Rarity,
+		Category:     dbItem.Category,
 		Level:        &dbItem.Level,
 		VendorValue:  &dbItem.VendorValue,
 		DefaultSkin:  dbItem.DefaultSkin,

@@ -22,6 +22,20 @@ func (itemProvider *ItemProviderMock) GetAllItemIDs() ([]int, error) {
 	return mockAllItemIds, nil
 }
 
+func (itemProvider *ItemProviderMock) GetMaterialCategories() ([]gw2models.GW2MaterialCategory, error) {
+	content, err := os.ReadFile(testDataPath("material_category_test_data.txt"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading from test data file: %s", err)
+	}
+
+	var categories []gw2models.GW2MaterialCategory
+	if err = json.Unmarshal(content, &categories); err != nil {
+		return nil, err
+	}
+
+	return categories, nil
+}
+
 func (service *ItemProviderMock) readItemFromFile(filepath string) ([]gw2models.GW2Item, error) {
 	content, err := os.ReadFile(filepath)
 	if err != nil {

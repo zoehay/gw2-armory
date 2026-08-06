@@ -47,4 +47,10 @@ func (s *ItemServiceTestSuite) TestGetAndStoreAllItems() {
 	item, err := s.Service.ItemService.ItemRepository.GetById(27952)
 	assert.NoError(s.T(), err, "Failed to get item by id")
 	assert.Equal(s.T(), "Axiquiotl", item.Name, "Correct item name")
+
+	materialItem, err := s.Service.ItemService.ItemRepository.GetById(89140)
+	assert.NoError(s.T(), err, "Failed to get item by id")
+	if assert.NotNil(s.T(), materialItem.Category, "Category populated from material list") {
+		assert.Equal(s.T(), "Basic Crafting Materials", *materialItem.Category, "Correct category name")
+	}
 }
