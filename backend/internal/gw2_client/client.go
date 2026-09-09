@@ -3,12 +3,15 @@ package gw2client
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 const baseUrl = "https://api.guildwars2.com/v2/"
 
+var httpClient = &http.Client{Timeout: 20 * time.Second}
+
 func get(path string) (*http.Response, error) {
-	return http.Get(baseUrl + path)
+	return httpClient.Get(baseUrl + path)
 }
 
 func GetItemsById(ids string) (*http.Response, error) {
