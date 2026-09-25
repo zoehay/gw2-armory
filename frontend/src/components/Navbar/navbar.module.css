@@ -1,10 +1,51 @@
 .nav {
-  height: 3rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 3.5rem;
   background-color: var(--accent-bold-1);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: center;
   width: 100%;
   margin-bottom: 1rem;
+}
+
+.brand {
+  color: var(--text);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand:hover {
+  color: var(--text);
+}
+
+.link {
+  color: var(--text-muted);
+  font-weight: 500;
+  border-radius: var(--radius);
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.link:hover {
+  color: var(--text);
+  background-color: var(--surface-raised);
+}
+
+.link:focus-visible,
+.menuButton:focus-visible {
+  outline: 2px solid var(--accent-light-1);
+  outline-offset: 2px;
+}
+
+.active,
+.active:hover {
+  color: var(--text);
+  background-color: var(--accent-bold-2);
 }
 
 .desktop {
@@ -12,6 +53,8 @@
   @media (min-width: 46rem) {
     width: 100%;
     max-width: 75rem;
+    box-sizing: border-box;
+    padding: 0 1rem;
     display: flex;
     align-items: center;
   }
@@ -27,39 +70,85 @@
 
 .desktopLinks {
   display: flex;
-  justify-content: space-between;
+  gap: 0.25rem;
 }
 
-.link {
-  margin: 1rem;
+.desktopLinks > .link {
+  padding: 0.4rem 0.8rem;
 }
 
 .mobile {
-  display: grid;
-  justify-content: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
+  padding: 0 0.5rem;
   @media (min-width: 46rem) {
     display: none;
   }
 }
 
-.mobileDropdownWrapper {
-  position: absolute;
-  z-index: 3;
-  top: 3rem;
+.menuButton {
   display: flex;
-  align-items: flex-start;
-  width: 100%;
-  height: 100%;
-  transition: left 0.5s ease;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: var(--text);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background-color: var(--surface-raised);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 3.5rem 0 0 0;
+  z-index: 3;
+  background-color: rgb(0 0 0 / 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s;
 }
 
 .mobileDropdown {
-  position: absolute;
-  background-color: var(--accent-bold-1);
+  position: fixed;
+  top: 3.5rem;
+  bottom: 0;
+  left: 0;
   z-index: 4;
+  box-sizing: border-box;
+  width: min(16rem, 75vw);
+  padding: 0.75rem;
+  background-color: var(--accent-bold-1);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  width: 50%;
-  height: 100%;
+  gap: 0.25rem;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform 0.25s ease,
+    visibility 0.25s;
+}
+
+.mobileDropdown > .link {
+  padding: 0.6rem 0.75rem;
+}
+
+.open .backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+.open .mobileDropdown {
+  transform: translateX(0);
+  visibility: visible;
 }
