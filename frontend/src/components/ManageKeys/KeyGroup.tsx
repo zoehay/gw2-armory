@@ -19,9 +19,5 @@ export const KeyGroup: React.FC<KeyGroupProps> = ({
     ));
   }
 
-  return (
-    <div className={managekeys.keytiles}>
-      <div>{keyTiles}</div>
-    </div>
-  );
+  return <div className={managekeys.group}>{keyTiles}</div>;
 };

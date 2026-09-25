@@ -3,6 +3,7 @@ import { ClientContext } from "../../util/ClientContext";
 import content from "../content.module.css";
 import { Account } from "../../models/Account";
 import { KeyGroup } from "./KeyGroup";
+import managekeys from "./managekeys.module.css";
 
 export const ManageKeys = () => {
   // if user show UserKeys else only one account AccountKey
@@ -17,28 +18,41 @@ const AccountKey = () => {
   const client = useContext(ClientContext);
 
   const [account, setAccount] = useState<Account | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchAccount = await client.getAccount();
-      setAccount(fetchAccount);
+      try {
+        const fetchAccount = await client.getAccount();
+        setAccount(fetchAccount);
+      } finally {
+        setLoading(false);
+      }
     };
     void fetchData();
   }, [client]);
 
+  let body;
+  if (loading) {
+    body = <p className={managekeys.status}>Loading…</p>;
+  } else if (account) {
+    body = <KeyGroup accounts={[account]} handleUpdate={setAccount}></KeyGroup>;
+  } else {
+    body = <KeyInput handleUpdate={setAccount}></KeyInput>;
+  }
+
   return (
     <div className={content.page}>
-      {account ? (
-        <>
-          <p>Keys</p>
-          <KeyGroup accounts={[account]} handleUpdate={setAccount}></KeyGroup>
-        </>
-      ) : (
-        <>
-          <p>No keys</p>
-          <KeyInput handleUpdate={setAccount}></KeyInput>
-        </>
-      )}
+      <div className={managekeys.container}>
+        <header className={managekeys.header}>
+          <h1 className={managekeys.title}>API Keys</h1>
+          <p className={managekeys.subtitle}>
+            Your Guild Wars 2 API key lets armory read your account and
+            inventory.
+          </p>
+        </header>
+        {body}
+      </div>
     </div>
   );
 };
@@ -48,41 +62,81 @@ interface KeyInputProps {
 }
 
 const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
-  const fieldName = "API Key";
   const [formState, setFormState] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const client = useContext(ClientContext);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
     setFormState(input);
+    setError(null);
   };
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const account = await client.postAPIKey(formState);
+    setSubmitting(true);
+    let account = null;
+    try {
+      account = await client.postAPIKey(formState.trim());
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
     if (!account) {
-      console.log("Could not post key");
+      setError("Couldn't add that key. Check that it's valid and try again.");
     } else {
       handleUpdate(account);
     }
   };
 
   return (
-    <div>
-      <form onSubmit={(e) => void handleSubmit(e)}>
-        <label htmlFor="apikey-input">{`Add ${fieldName}`}</label>
-        <div>
-          <input
-            type="apikey"
-            name="apikey-input"
-            id="input"
-            value={formState}
-            onChange={handleChange}
-          />
-        </div>
-        <input type="submit" value="Submit" />
-      </form>
-    </div>
+    <form
+      className={`${managekeys.card} ${managekeys.form}`}
+      onSubmit={(e) => void handleSubmit(e)}
+    >
+      <label htmlFor="apikey-input" className={managekeys.label}>
+        Add an API key
+      </label>
+      <p className={managekeys.hint}>
+        Create a key at{" "}
+        <a
+          href="https://account.arena.net/applications"
+          target="_blank"
+          rel="noreferrer"
+        >
+          account.arena.net/applications
+        </a>{" "}
+        with the account, inventories, and characters permissions.
+      </p>
+      <div className={managekeys.inputRow}>
+        <input
+          type="text"
+          name="apikey-input"
+          id="apikey-input"
+          className={`${managekeys.input} ${managekeys.mono}`}
+          placeholder="Paste your API key"
+          autoComplete="off"
+          spellCheck={false}
+          value={formState}
+          onChange={handleChange}
+          aria-invalid={error !== null}
+          aria-describedby={error ? "apikey-error" : undefined}
+        />
+        <button
+          type="submit"
+          className={`${managekeys.button} ${managekeys.primary}`}
+          disabled={submitting || formState.trim() === ""}
+        >
+          {submitting ? "Adding…" : "Add key"}
+        </button>
+      </div>
+      {error && (
+        <p id="apikey-error" className={managekeys.error} role="alert">
+          {error}
+        </p>
+      )}
+    </form>
   );
 };
 
