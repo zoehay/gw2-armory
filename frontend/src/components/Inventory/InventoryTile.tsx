@@ -15,7 +15,7 @@ export const InventoryTile: React.FC<InventoryTileProps> = ({ bagItem }) => {
   const tileRef = useRef<HTMLDivElement>(null);
 
   const style = {
-    borderColor: `var(--outline-${bagItem.rarity})`,
+    borderColor: `var(--outline-${bagItem.rarity}, var(--border))`,
   } as React.CSSProperties;
 
   const handleMouseEnter = () => setActiveId(myId);
@@ -71,7 +71,15 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
     4,
     Math.min(rect.left, viewportWidth - tooltipMaxWidth - 4),
   );
-  const position = { top: rect.bottom, left };
+  // Open upward when the tile is in the lower part of the viewport
+  const gap = 4;
+  const openUp = rect.bottom > window.innerHeight * 0.6;
+  const position = openUp
+    ? { bottom: window.innerHeight - rect.top + gap, left }
+    : { top: rect.bottom + gap, left };
+  const nameStyle = {
+    color: `var(--outline-${bagItem.rarity}, var(--text))`,
+  } as React.CSSProperties;
 
   // Stats
   const details = bagItem.details;
@@ -106,29 +114,36 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
       : null;
 
   const attributes = infixAttributes ?? topLevelAttributes ?? [];
+  const hasStats = defense !== null || (minPower !== null && maxPower !== null);
 
   return createPortal(
     <div className={inventory.tooltip} style={position}>
-      <div className={inventory.name}>{bagItem.name}</div>
-      <div className={inventory.stats}>
-        <ul>
-          {defense !== null && <li>Defense {defense}</li>}
-          {minPower !== null && maxPower !== null && (
-            <li>
-              Weapon Strength {minPower} - {maxPower}{" "}
-            </li>
-          )}
-        </ul>
+      <div className={inventory.name} style={nameStyle}>
+        {bagItem.name}
       </div>
-      <div className={inventory.attributes}>
-        <ul>
-          {attributes.map(({ attribute, modifier }) => (
-            <li key={attribute}>
-              +{modifier} {AttributeLabels[attribute] ?? attribute}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {hasStats && (
+        <div className={inventory.stats}>
+          <ul>
+            {defense !== null && <li>Defense {defense}</li>}
+            {minPower !== null && maxPower !== null && (
+              <li>
+                Weapon Strength {minPower} - {maxPower}{" "}
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+      {attributes.length > 0 && (
+        <div className={inventory.attributes}>
+          <ul>
+            {attributes.map(({ attribute, modifier }) => (
+              <li key={attribute}>
+                +{modifier} {AttributeLabels[attribute] ?? attribute}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {bagItem.upgradeDetails?.map((upgrade) => {
         const bonuses = Array.isArray(upgrade.details?.bonuses)
           ? (upgrade.details.bonuses as string[])
@@ -144,19 +159,21 @@ const ToolTip: React.FC<ToolTipProps> = ({ bagItem, rect }) => {
           </div>
         );
       })}
-      <div className={inventory.description}>
-        {bagItem.description ? parseDescription(bagItem.description) : null}
-      </div>
-      <div>
-        <ul>{bagItem.type && <li>{bagItem.type}</li>}</ul>
-      </div>
+      {bagItem.description && (
+        <div className={inventory.description}>
+          {parseDescription(bagItem.description)}
+        </div>
+      )}
+      {bagItem.type && <div className={inventory.type}>{bagItem.type}</div>}
     </div>,
     document.body,
   );
 };
 
 function parseDescription(description: string): React.ReactNode {
-  const parts = description.split(/(<c=@\w+>.*?<\/c>)/g);
+  const parts = description
+    .replace(/<br\s*\/?>/gi, "\n")
+    .split(/(<c=@\w+>.*?<\/c>)/g);
   return parts.map((part, i) => {
     const match = part.match(/^<c=@(\w+)>(.*?)<\/c>$/s);
     if (match) {

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { ClientContext } from "../../util/ClientContext";
 import { Account } from "../../models/Account";
+import content from "../content.module.css";
 import managekeys from "./managekeys.module.css";
 
 interface KeyTileProps {
@@ -28,20 +29,20 @@ export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
   };
 
   return (
-    <div className={`${managekeys.card} ${managekeys.keytile}`}>
+    <div className={`${content.card} ${managekeys.keytile}`}>
       <dl className={managekeys.fields}>
         <dt>Key name</dt>
         <dd>{account.gw2TokenName || "—"}</dd>
         <dt>Account</dt>
         <dd>{account.gw2AccountName || "—"}</dd>
         <dt>Account ID</dt>
-        <dd className={managekeys.mono} title={account.accountID}>
+        <dd className={content.mono} title={account.accountID}>
           {account.accountID}
         </dd>
       </dl>
       <button
         type="button"
-        className={`${managekeys.button} ${managekeys.danger}`}
+        className={`${content.button} ${content.danger}`}
         onClick={handleClick}
         disabled={deleting}
       >

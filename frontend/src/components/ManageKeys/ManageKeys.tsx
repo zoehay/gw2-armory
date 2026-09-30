@@ -34,7 +34,7 @@ const AccountKey = () => {
 
   let body;
   if (loading) {
-    body = <p className={managekeys.status}>Loading…</p>;
+    body = <p className={content.status}>Loading…</p>;
   } else if (account) {
     body = <KeyGroup accounts={[account]} handleUpdate={setAccount}></KeyGroup>;
   } else {
@@ -44,9 +44,9 @@ const AccountKey = () => {
   return (
     <div className={content.page}>
       <div className={managekeys.container}>
-        <header className={managekeys.header}>
-          <h1 className={managekeys.title}>API Keys</h1>
-          <p className={managekeys.subtitle}>
+        <header className={content.header}>
+          <h1 className={content.title}>API Keys</h1>
+          <p className={content.subtitle}>
             Your Guild Wars 2 API key lets armory read your account and
             inventory.
           </p>
@@ -92,7 +92,7 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
 
   return (
     <form
-      className={`${managekeys.card} ${managekeys.form}`}
+      className={`${content.card} ${managekeys.form}`}
       onSubmit={(e) => void handleSubmit(e)}
     >
       <label htmlFor="apikey-input" className={managekeys.label}>
@@ -114,7 +114,7 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
           type="text"
           name="apikey-input"
           id="apikey-input"
-          className={`${managekeys.input} ${managekeys.mono}`}
+          className={`${content.input} ${content.mono}`}
           placeholder="Paste your API key"
           autoComplete="off"
           spellCheck={false}
@@ -125,14 +125,14 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
         />
         <button
           type="submit"
-          className={`${managekeys.button} ${managekeys.primary}`}
+          className={`${content.button} ${content.primary}`}
           disabled={submitting || formState.trim() === ""}
         >
           {submitting ? "Adding…" : "Add key"}
         </button>
       </div>
       {error && (
-        <p id="apikey-error" className={managekeys.error} role="alert">
+        <p id="apikey-error" className={content.error} role="alert">
           {error}
         </p>
       )}
