@@ -16,7 +16,7 @@ export const Inventory = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const inventory: AccountInventory = await client.getAccountInventory();
+        const inventory = await client.getAccountInventory();
         setAccountInventory(inventory);
       } finally {
         setLoading(false);
