@@ -75,23 +75,22 @@ export class Client {
     const endpoint: string = `${this.baseURL}/account/inventory`;
 
     const response: unknown = await this.clientGet(endpoint);
-    const apiBagItems = response as APIBagItem[];
-    const bagItems: BagItem[] = apiBagItems.map(APIBagItemToBagItem);
-    if (bagItems) {
-      return bagItems;
-    } else {
+    if (!response) {
       return [];
     }
+    const apiBagItems = response as APIBagItem[];
+    return apiBagItems.map(APIBagItemToBagItem);
   }
 
-  async getAccountInventory(): Promise<AccountInventory> {
+  async getAccountInventory(): Promise<AccountInventory | null> {
     const endpoint: string = `${this.baseURL}/account/accountinventory`;
 
     const response: unknown = await this.clientGet(endpoint);
+    if (!response) {
+      return null;
+    }
     const apiAccountInventory = response as APIAccountInventory;
-    const accountInventory: Account =
-      APIAccountInventoryToAccountInventory(apiAccountInventory);
-    return accountInventory;
+    return APIAccountInventoryToAccountInventory(apiAccountInventory);
   }
 
   async postAPIKey(key: string): Promise<Account | null> {
@@ -101,26 +100,22 @@ export class Client {
     const endpoint: string = `${this.baseURL}/apikeys`;
 
     const response: unknown = await this.clientPost(endpoint, body);
-    const apiAccount = response as APIAccount;
-    const account: Account = APIAccountToAccount(apiAccount);
-    if (account) {
-      return account;
-    } else {
+    if (!response) {
       return null;
     }
+    const apiAccount = response as APIAccount;
+    return APIAccountToAccount(apiAccount);
   }
 
   async getAccount(): Promise<Account | null> {
     const endpoint: string = `${this.baseURL}/account/info`;
 
     const response: unknown = await this.clientGet(endpoint);
-    const apiAccount = response as APIAccount;
-    const account: Account = APIAccountToAccount(apiAccount);
-    if (account) {
-      return account;
-    } else {
+    if (!response) {
       return null;
     }
+    const apiAccount = response as APIAccount;
+    return APIAccountToAccount(apiAccount);
   }
 
   async deleteAPIKey(key: string): Promise<string | null> {
@@ -147,13 +142,10 @@ export class Client {
     const endpoint: string = `${this.baseURL}/account/searchinventory`;
 
     const response: unknown = await this.clientPost(endpoint, body);
-    const apiAccountInventory = response as APIAccountInventory;
-    const accountInventory: Account =
-      APIAccountInventoryToAccountInventory(apiAccountInventory);
-    if (accountInventory) {
-      return accountInventory;
-    } else {
+    if (!response) {
       return null;
     }
+    const apiAccountInventory = response as APIAccountInventory;
+    return APIAccountInventoryToAccountInventory(apiAccountInventory);
   }
 }
