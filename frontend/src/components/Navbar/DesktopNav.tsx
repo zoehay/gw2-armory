@@ -1,17 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import navbar from "./navbar.module.css";
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive ? `${navbar.link} ${navbar.active}` : navbar.link;
 
 export const DesktopNav = () => {
   return (
     <div className={navbar.desktopContent}>
-      <p>armory</p>
+      <Link to="/" className={navbar.brand}>
+        armory
+      </Link>
       <div className={navbar.desktopLinks}>
-        <Link to={`manageKeys`} className={navbar.link}>
+        <NavLink to={`manageKeys`} className={linkClass}>
           Manage Keys
-        </Link>
-        <Link to={`inventory`} className={navbar.link}>
+        </NavLink>
+        <NavLink to={`inventory`} className={linkClass}>
           Inventory
-        </Link>
+        </NavLink>
       </div>
     </div>
   );

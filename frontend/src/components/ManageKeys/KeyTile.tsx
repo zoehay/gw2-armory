@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { ClientContext } from "../../util/ClientContext";
 import { Account } from "../../models/Account";
+import content from "../content.module.css";
 import managekeys from "./managekeys.module.css";
 
 interface KeyTileProps {
@@ -10,8 +11,10 @@ interface KeyTileProps {
 
 export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
   const client = useContext(ClientContext);
+  const [deleting, setDeleting] = useState(false);
 
   const handleClick = () => {
+    setDeleting(true);
     setTimeout(async () => {
       let deletedAccount;
       if (account.apiKey) {
@@ -19,16 +22,32 @@ export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
       }
       if (deletedAccount) {
         handleUpdate(null);
+      } else {
+        setDeleting(false);
       }
     }, 2000);
   };
 
   return (
-    <div className={managekeys.keytile}>
-      <div className={managekeys.field}>{account.gw2TokenName}</div>
-      <div className={managekeys.field}>{account.gw2AccountName}</div>
-      <div className={managekeys.field}>{account.accountID}</div>
-      <input type="button" onClick={handleClick} value="Delete Account"></input>
+    <div className={`${content.card} ${managekeys.keytile}`}>
+      <dl className={managekeys.fields}>
+        <dt>Key name</dt>
+        <dd>{account.gw2TokenName || "—"}</dd>
+        <dt>Account</dt>
+        <dd>{account.gw2AccountName || "—"}</dd>
+        <dt>Account ID</dt>
+        <dd className={content.mono} title={account.accountID}>
+          {account.accountID}
+        </dd>
+      </dl>
+      <button
+        type="button"
+        className={`${content.button} ${content.danger}`}
+        onClick={handleClick}
+        disabled={deleting}
+      >
+        {deleting ? "Removing…" : "Remove key"}
+      </button>
     </div>
   );
 };

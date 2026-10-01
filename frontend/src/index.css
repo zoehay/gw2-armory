@@ -14,6 +14,15 @@
   --accent-light-1: #d7d1d1;
   --link: #ffffff;
   --link-hover: #ebebeb;
+
+  --surface: #06282b;
+  --surface-raised: #0b3438;
+  --border: #1f4a4e;
+  --text: #ffffff;
+  --text-muted: #9fb3b4;
+  --danger: #e5484d;
+  --danger-surface: #3b1215;
+  --radius: 0.5rem;
 }
 
 a {
