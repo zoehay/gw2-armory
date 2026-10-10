@@ -73,7 +73,12 @@ Players sign in with a [Guild Wars 2 API key](https://account.arena.net/applicat
 
 ### Configuration
 
-Environment files are gitignored, so create them locally.
+Environment files are gitignored. Copy the examples and fill in your own values:
+
+```sh
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
 
 **`backend/.env`**
 
@@ -81,7 +86,6 @@ Environment files are gitignored, so create them locally.
 | -------------------- | --------------------------------------------------------------------------------- |
 | `DEV_NO_MOCK_DB_DSN` | PostgreSQL DSN for local development                                              |
 | `TEST_DB_DSN`        | PostgreSQL DSN for the test database                                              |
-| `TEST_API_KEY`       | GW2 API key used by tests                                                         |
 | `CORS_ALLOW_ORIGIN`  | Space-separated allowed origins. Defaults to `https://localhost:5173 http://localhost:5173` |
 | `DOMAIN`             | Domain for session cookies. Defaults to `localhost`                               |
 | `APP_ENV`            | Set to `test` to use mocked GW2 API providers and the test database               |
