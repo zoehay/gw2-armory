@@ -118,7 +118,13 @@ Set `APP_ENV=test` when starting the backend to replace calls to the GW2 API wit
 The development stack runs PostgreSQL, the backend, and nginx with local TLS.
 
 1. Create the database password secret at `secrets/armory_db_password.txt`.
-2. Generate a localhost certificate with mkcert. From the `local-certs` directory, run `mkdir certs`, then run `local-certs.sh`.
+2. Generate a localhost certificate with mkcert:
+
+   ```sh
+   cd nginx/local-certs
+   mkdir -p certs
+   sh local-certs.sh
+   ```
 3. Build the frontend and place the output in `www/armory/`. The nginx image copies `www/` into `/var/www` at build time.
 4. Start the stack:
 

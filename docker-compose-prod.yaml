@@ -65,5 +65,5 @@ networks:
     driver: bridge
 
 secrets:
-  db_password:
+  armory_db_password:
     file: ./secrets/armory_db_password.txt

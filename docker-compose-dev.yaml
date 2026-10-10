@@ -53,7 +53,7 @@ services:
       - 443:443
     volumes:
       # - ./frontend/dist:/var/www/frontend-dist-dev:ro
-      - ./local-certs/certs:/etc/nginx/certs:ro
+      - ./nginx/local-certs/certs:/etc/nginx/certs:ro
     networks:
       - armory-network
     depends_on:
