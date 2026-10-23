@@ -38,6 +38,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	router.Use(gin.Recovery())
 
 	err = router.SetTrustedProxies([]string{"127.0.0.1"})
 	if err != nil {
