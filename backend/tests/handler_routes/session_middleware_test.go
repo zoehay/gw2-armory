@@ -101,3 +101,30 @@ func (s *SessionMiddlewareTestSuite) TestExpiredSession() {
 	w := s.getAccountInfo(s.Cookie)
 	s.assertForbidden(w, "session is expired")
 }
+
+func (s *SessionMiddlewareTestSuite) TestSessionLookupDBError() {
+	// Separate router so closing its connection does not affect the rest of the suite
+	router, repository, _, err := testutils.DBRouterSetup()
+	s.Require().NoError(err, "Error setting up router")
+	db, err := repository.SessionRepository.DB.DB()
+	s.Require().NoError(err)
+	s.Require().NoError(db.Close())
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/account/info", nil)
+	req.AddCookie(s.Cookie)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(s.T(), http.StatusInternalServerError, w.Code)
+	response, err := testutils.UnmarshalResponse(w)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.Equal(s.T(), "error looking up session", response["error"])
+}
+
+func (s *SessionMiddlewareTestSuite) TestSessionWithoutAccount() {
+	err := s.Repository.AccountRepository.DB.Exec("UPDATE db_accounts SET session_id = NULL").Error
+	s.Require().NoError(err, "Error detaching session from account")
+
+	w := s.getAccountInfo(s.Cookie)
+	s.assertForbidden(w, "no account associated with session")
+}
