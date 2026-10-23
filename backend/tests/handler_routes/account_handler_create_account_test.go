@@ -81,6 +81,23 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
 		assert.Equal(s.T(), firstSessionID, account.SessionID, "Existing session is renewed, not replaced")
 	})
+
+	s.Run("returning account with new api key stores the new key", func() {
+		userJson := `{"AccountName":"Name forAccount", "APIKey":"rotatedapikey"}`
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
+		req.Header.Set("Content-Type", "application/json")
+		s.Router.ServeHTTP(w, req)
+
+		assert.Equal(s.T(), http.StatusOK, w.Code)
+
+		dbAccount, err := s.Repository.AccountRepository.GetByID("gw2apiaccountidstring")
+		s.Require().NoError(err, "Failed to get account from db")
+		s.Require().NotNil(dbAccount.APIKey)
+		assert.Equal(s.T(), "rotatedapikey", *dbAccount.APIKey)
+		assert.Equal(s.T(), firstSessionID, dbAccount.SessionID, "Updating the key keeps the session")
+	})
 }
 
 func (s *CreateAccountTestSuite) TestCreateAccountWithMalformedBody() {

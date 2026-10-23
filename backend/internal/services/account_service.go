@@ -103,8 +103,14 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 			return nil, nil, fmt.Errorf("account repository create error: %s", err)
 		}
 	} else {
-		// returning account
+		// returning account, store the request key in case it was rotated
 		account = existingAccount
+		if requestAccount.APIKey != nil && (account.APIKey == nil || *account.APIKey != *requestAccount.APIKey) {
+			account, err = service.AccountRepository.UpdateAPIKey(gw2AccountID, *requestAccount.APIKey)
+			if err != nil {
+				return nil, nil, fmt.Errorf("account repository update api key error: %s", err)
+			}
+		}
 	}
 
 	apiAccount, apiSession, err := service.RenewOrGenerateSession(account)
