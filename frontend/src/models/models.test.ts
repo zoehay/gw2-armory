@@ -125,7 +125,6 @@ describe("APIAccountToAccount", () => {
         gw2_name: "Tester.1234",
         gw2_token_name: "my key",
         api_key: "KEY",
-        password: "pw",
         session_id: "sess",
       }),
     ).toEqual({
@@ -134,7 +133,6 @@ describe("APIAccountToAccount", () => {
       gw2AccountName: "Tester.1234",
       gw2TokenName: "my key",
       apiKey: "KEY",
-      password: "pw",
       sessionID: "sess",
     });
   });

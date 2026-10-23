@@ -31,7 +31,7 @@ func (s *InventoryHandlerTestSuite) SetupSuite() {
 	s.Router = router
 	s.Repository = repository
 
-	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
+	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey"}`
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
 	req.Header.Set("Content-Type", "application/json")

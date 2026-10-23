@@ -66,7 +66,6 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		GW2AccountName: gw2Account.GW2AccountName,
 		GW2TokenName:   &gw2TokenName,
 		APIKey:         &accountRequest.APIKey,
-		Password:       accountRequest.Password,
 	}
 
 	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
@@ -130,7 +129,6 @@ func (h AccountHandler) Logout(c *gin.Context) {
 type AccountRequest struct {
 	AccountName *string
 	APIKey      string
-	Password    *string
 }
 
 type APIKeyRequest struct {

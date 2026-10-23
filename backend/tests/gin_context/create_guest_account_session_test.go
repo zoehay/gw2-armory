@@ -40,7 +40,7 @@ func (s *CreateGuestAccountSessionTestSuite) TearDownSuite() {
 }
 
 func (s *CreateGuestAccountSessionTestSuite) TestCreateGuestWithNewAPIKey() {
-	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
+	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey"}`
 	req, _ := http.NewRequest("POST", "/addkey", strings.NewReader(userJson))
 	req.Header.Set("Content-Type", "application/json")
 

@@ -88,45 +88,23 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 		GW2AccountName: requestAccount.GW2AccountName,
 		GW2TokenName:   requestAccount.GW2TokenName,
 		APIKey:         requestAccount.APIKey,
-		Password:       requestAccount.Password,
 	}
 
 	var account *dbmodels.DBAccount
 
 	existingAccount, err := service.AccountRepository.GetByID(gw2AccountID)
 	if err != nil {
-		// new user
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			account, err = service.AccountRepository.Create(dbRequestAccount)
-			if err != nil {
-				return nil, nil, fmt.Errorf("account repository create error: %s", err)
-			}
-		} else {
-			// db error
-			if err != nil {
-				return nil, nil, fmt.Errorf("error accessing account db: %s", err)
-			}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, fmt.Errorf("error accessing account db: %s", err)
+		}
+		// new account
+		account, err = service.AccountRepository.Create(dbRequestAccount)
+		if err != nil {
+			return nil, nil, fmt.Errorf("account repository create error: %s", err)
 		}
 	} else {
-		// returning user
-		// TODO replace password with user
-		if existingAccount.Password != nil {
-			// existing full account
-			return nil, nil, fmt.Errorf("error existing account for account id: %s", gw2AccountID)
-		} else {
-			// returning user has not previously set a password
-			if dbRequestAccount.Password != nil {
-				// existing guest account, accountRequest has password so upgrade to full account
-				account, err = service.AccountRepository.Update(existingAccount, dbRequestAccount)
-				// TODO add password encryption
-				if err != nil {
-					return nil, nil, fmt.Errorf("account repository update account error: %s", err)
-				}
-			} else {
-				// existing guest account, no password in request so update api key
-				account = existingAccount
-			}
-		}
+		// returning account
+		account = existingAccount
 	}
 
 	apiAccount, apiSession, err := service.RenewOrGenerateSession(account)
