@@ -21,7 +21,7 @@ func UseSession(accountRepository *repositories.AccountRepository, sessionReposi
 		}
 
 		if sessionID == "" {
-			c.IndentedJSON(http.StatusForbidden, gin.H{"session error": err.Error()})
+			c.IndentedJSON(http.StatusForbidden, gin.H{"error": "empty session cookie"})
 			c.Abort()
 			return
 		}
