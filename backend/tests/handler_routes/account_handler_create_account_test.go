@@ -42,7 +42,7 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
 
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/signup", strings.NewReader(userJson))
+		req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
 		req.Header.Set("Content-Type", "application/json")
 		s.Router.ServeHTTP(w, req)
 
@@ -62,11 +62,11 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		assert.Equal(s.T(), dbAccount.SessionID, &cookieSessionID, "SessionID in db matches returned cookie")
 	})
 
-	s.Run("rejects signup for existing full account", func() {
+	s.Run("rejects api key request for existing full account", func() {
 		userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey"}`
 
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/signup", strings.NewReader(userJson))
+		req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
 		req.Header.Set("Content-Type", "application/json")
 		s.Router.ServeHTTP(w, req)
 
@@ -76,7 +76,7 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 
 func (s *CreateAccountTestSuite) TestCreateAccountWithMalformedBody() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/signup", strings.NewReader("not valid json"))
+	req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader("not valid json"))
 	req.Header.Set("Content-Type", "application/json")
 	s.Router.ServeHTTP(w, req)
 

@@ -20,7 +20,6 @@ type AccountServiceInterface interface {
 	FetchToken(apiKey string) (*apimodels.Token, error)
 	GetAccountByID(accountID string) (*apimodels.Account, error)
 	GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error)
-	Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error)
 	RenewOrGenerateSession(account *dbmodels.DBAccount) (*apimodels.Account, *apimodels.Session, error)
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
@@ -80,17 +79,6 @@ func (service *AccountService) GetAccountByID(accountID string) (*apimodels.Acco
 	}
 	result := account.DBAccountToAccount()
 	return &result, nil
-}
-
-func (service *AccountService) Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error) {
-	account, err := service.AccountRepository.GetByName(accountName)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error finding account: %w", err)
-	}
-
-	// TODO: add password verification
-
-	return service.RenewOrGenerateSession(account)
 }
 
 func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error) {

@@ -62,39 +62,15 @@ func (s *AccountAuthTestSuite) TestGetAccountInfo() {
 	assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
 }
 
-func (s *AccountAuthTestSuite) TestLoginAndAccessProtectedRoute() {
-	// Login returns session_id in body — the handler does not set a cookie
-	loginJson := `{"AccountName":"Name forAccount", "Password":"anypassword"}`
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/login", strings.NewReader(loginJson))
-	req.Header.Set("Content-Type", "application/json")
-	s.Router.ServeHTTP(w, req)
+func (s *AccountAuthTestSuite) TestNameLoginRoutesAreNotRegistered() {
+	// Accounts are not password protected, so there must be no way to get a session by account name
+	for _, path := range []string{"/login", "/signup"} {
+		loginJson := `{"AccountName":"Name forAccount", "Password":"anypassword"}`
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", path, strings.NewReader(loginJson))
+		req.Header.Set("Content-Type", "application/json")
+		s.Router.ServeHTTP(w, req)
 
-	assert.Equal(s.T(), http.StatusOK, w.Code)
-
-	account, err := testutils.UnmarshalToType[models.Account](w)
-	s.Require().NoError(err, "Failed to unmarshal login response")
-	s.Require().NotNil(account.SessionID, "Login must return a session_id in the response body")
-
-	// Use the session_id from the body to access a protected route
-	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest("GET", "/account/info", nil)
-	req2.AddCookie(&http.Cookie{Name: "sessionID", Value: *account.SessionID})
-	s.Router.ServeHTTP(w2, req2)
-
-	assert.Equal(s.T(), http.StatusOK, w2.Code)
-
-	info, err := testutils.UnmarshalToType[models.Account](w2)
-	s.Require().NoError(err, "Failed to unmarshal account info response")
-	assert.Equal(s.T(), "gw2apiaccountidstring", info.AccountID)
-}
-
-func (s *AccountAuthTestSuite) TestLoginNonExistentAccount() {
-	loginJson := `{"AccountName":"doesnotexist", "Password":"anypassword"}`
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/login", strings.NewReader(loginJson))
-	req.Header.Set("Content-Type", "application/json")
-	s.Router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusInternalServerError, w.Code)
+		assert.Equal(s.T(), http.StatusNotFound, w.Code, path)
+	}
 }
