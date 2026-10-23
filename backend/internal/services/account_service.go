@@ -15,12 +15,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// SessionDuration is how long a new or renewed session, and its cookie, stays valid
+const SessionDuration = time.Hour
+
 type AccountServiceInterface interface {
 	FetchAccount(apiKey string) (*apimodels.Account, error)
 	FetchToken(apiKey string) (*apimodels.Token, error)
 	GetAccountByID(accountID string) (*apimodels.Account, error)
 	GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error)
-	Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error)
 	RenewOrGenerateSession(account *dbmodels.DBAccount) (*apimodels.Account, *apimodels.Session, error)
 	generateNewSession(account *dbmodels.DBAccount) (updatedAccount *dbmodels.DBAccount, newSession *dbmodels.DBSession, err error)
 	generateSessionID() (sessionID string, err error)
@@ -82,17 +84,6 @@ func (service *AccountService) GetAccountByID(accountID string) (*apimodels.Acco
 	return &result, nil
 }
 
-func (service *AccountService) Login(accountName string, password string) (*apimodels.Account, *apimodels.Session, error) {
-	account, err := service.AccountRepository.GetByName(accountName)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error finding account: %w", err)
-	}
-
-	// TODO: add password verification
-
-	return service.RenewOrGenerateSession(account)
-}
-
 func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels.Account, gw2AccountID string) (*apimodels.Account, *apimodels.Session, error) {
 	dbRequestAccount := &dbmodels.DBAccount{
 		AccountID:      requestAccount.AccountID,
@@ -100,43 +91,27 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 		GW2AccountName: requestAccount.GW2AccountName,
 		GW2TokenName:   requestAccount.GW2TokenName,
 		APIKey:         requestAccount.APIKey,
-		Password:       requestAccount.Password,
 	}
 
 	var account *dbmodels.DBAccount
 
 	existingAccount, err := service.AccountRepository.GetByID(gw2AccountID)
 	if err != nil {
-		// new user
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			account, err = service.AccountRepository.Create(dbRequestAccount)
-			if err != nil {
-				return nil, nil, fmt.Errorf("account repository create error: %s", err)
-			}
-		} else {
-			// db error
-			if err != nil {
-				return nil, nil, fmt.Errorf("error accessing account db: %s", err)
-			}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, fmt.Errorf("error accessing account db: %s", err)
+		}
+		// new account
+		account, err = service.AccountRepository.Create(dbRequestAccount)
+		if err != nil {
+			return nil, nil, fmt.Errorf("account repository create error: %s", err)
 		}
 	} else {
-		// returning user
-		// TODO replace password with user
-		if existingAccount.Password != nil {
-			// existing full account
-			return nil, nil, fmt.Errorf("error existing account for account id: %s", gw2AccountID)
-		} else {
-			// returning user has not previously set a password
-			if dbRequestAccount.Password != nil {
-				// existing guest account, accountRequest has password so upgrade to full account
-				account, err = service.AccountRepository.Update(existingAccount, dbRequestAccount)
-				// TODO add password encryption
-				if err != nil {
-					return nil, nil, fmt.Errorf("account repository update account error: %s", err)
-				}
-			} else {
-				// existing guest account, no password in request so update api key
-				account = existingAccount
+		// returning account, store the request key in case it was rotated
+		account = existingAccount
+		if requestAccount.APIKey != nil && (account.APIKey == nil || *account.APIKey != *requestAccount.APIKey) {
+			account, err = service.AccountRepository.UpdateAPIKey(gw2AccountID, *requestAccount.APIKey)
+			if err != nil {
+				return nil, nil, fmt.Errorf("account repository update api key error: %s", err)
 			}
 		}
 	}
@@ -154,7 +129,7 @@ func (service *AccountService) RenewOrGenerateSession(account *dbmodels.DBAccoun
 	var err error
 
 	if account.SessionID != nil {
-		session, err = service.SessionRepository.Renew(*account.SessionID)
+		session, err = service.SessionRepository.Renew(*account.SessionID, time.Now().Add(SessionDuration))
 		if err != nil {
 			return nil, nil, fmt.Errorf("error renewing session for existing account: %w", err)
 		}
@@ -177,7 +152,7 @@ func (service *AccountService) generateNewSession(account *dbmodels.DBAccount) (
 
 	var session = &dbmodels.DBSession{
 		SessionID: newSessionID,
-		Expires:   time.Now().Add(3600 * time.Second),
+		Expires:   time.Now().Add(SessionDuration),
 	}
 
 	newSession, err = service.SessionRepository.Create(session)

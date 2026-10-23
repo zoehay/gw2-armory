@@ -15,8 +15,8 @@ const (
 	sharedInventoryCount    = 4   // account_inventory_test_data.txt
 	bankInventoryCount      = 150 // account_bank_test_data.txt
 	materialsInventoryCount = 680 // materials_test_data.txt
-	grixCount         = 32  // character_test_data.txt: 15 bag + 17 equipment
-	freyaCount     = 35  // character_test_data.txt: 30 bag + 5 equipment
+	grixCount               = 32  // character_test_data.txt: 15 bag + 17 equipment
+	freyaCount              = 35  // character_test_data.txt: 30 bag + 5 equipment
 	allCharactersCount      = grixCount + freyaCount
 	totalInventoryCount     = sharedInventoryCount + bankInventoryCount + materialsInventoryCount + allCharactersCount
 )

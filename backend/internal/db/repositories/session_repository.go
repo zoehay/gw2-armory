@@ -9,7 +9,7 @@ import (
 
 type SessionRepositoryInterface interface {
 	Create(session *dbmodels.DBSession) (*dbmodels.DBSession, error)
-	Renew(sessionID string) (*dbmodels.DBSession, error)
+	Renew(sessionID string, expires time.Time) (*dbmodels.DBSession, error)
 	Delete(sessionID string) error
 	Get(sessionID string) (*dbmodels.DBSession, error)
 	// Reset(session *repositorymodels.Session) (*repositorymodels.Session, error)
@@ -34,10 +34,10 @@ func (repository *SessionRepository) Create(session *dbmodels.DBSession) (*dbmod
 	return session, nil
 }
 
-func (repository *SessionRepository) Renew(sessionID string) (updatedSession *dbmodels.DBSession, err error) {
+func (repository *SessionRepository) Renew(sessionID string, expires time.Time) (updatedSession *dbmodels.DBSession, err error) {
 	var session *dbmodels.DBSession
 
-	err = repository.DB.Model(&session).Where("session_id = ?", sessionID).Update("expires", time.Now().Add(10*time.Minute)).Error
+	err = repository.DB.Model(&session).Where("session_id = ?", sessionID).Update("expires", expires).Error
 	if err != nil {
 		return nil, err
 	}

@@ -66,7 +66,7 @@ func (s *GuestSessionInventoryAccessTestSuite) TestInvalidSessionCookieAccess() 
 }
 
 func (s *GuestSessionInventoryAccessTestSuite) TestGuestInventoryAccess() {
-	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey", "Password":"stringthatispassword"}`
+	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey"}`
 	w1 := httptest.NewRecorder()
 	req1, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(userJson))
 	req1.Header.Set("Content-Type", "application/json")

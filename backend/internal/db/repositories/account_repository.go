@@ -11,7 +11,6 @@ type AccountRepositoryInterface interface {
 	GetBySession(sessionID string) (*dbmodels.DBAccount, error)
 	GetByID(id string) (*dbmodels.DBAccount, error)
 	// GetByUserID(userID string) ([]*dbmodels.DBAccount, error)
-	GetByName(name string) (*dbmodels.DBAccount, error)
 	Create(account *dbmodels.DBAccount) (*dbmodels.DBAccount, error)
 	UpdateSession(accountID string, session *dbmodels.DBSession) (*dbmodels.DBAccount, error)
 	UpdateLastCrawl(accountID string) error
@@ -66,18 +65,6 @@ func (repository *AccountRepository) GetByID(id string) (*dbmodels.DBAccount, er
 // 	return accounts, nil
 
 // }
-
-func (repository *AccountRepository) GetByName(name string) (*dbmodels.DBAccount, error) {
-	var account dbmodels.DBAccount
-
-	err := repository.DB.Where("account_name = ?", name).First(&account).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &account, nil
-
-}
 
 func (repository *AccountRepository) Create(account *dbmodels.DBAccount) (*dbmodels.DBAccount, error) {
 

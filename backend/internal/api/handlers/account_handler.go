@@ -66,7 +66,6 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		GW2AccountName: gw2Account.GW2AccountName,
 		GW2TokenName:   &gw2TokenName,
 		APIKey:         &accountRequest.APIKey,
-		Password:       accountRequest.Password,
 	}
 
 	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
@@ -75,7 +74,7 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("sessionID", session.SessionID, 3600, "/", h.Domain, false, true)
+	c.SetCookie("sessionID", session.SessionID, int(services.SessionDuration.Seconds()), "/", h.Domain, false, true)
 
 	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
 		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
@@ -114,23 +113,6 @@ func (h AccountHandler) Delete(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"API key deleted": deleteKeyRequest.APIKey})
 }
 
-func (h AccountHandler) Login(c *gin.Context) {
-	var accountLogin AccountLogin
-
-	if err := c.BindJSON(&accountLogin); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	account, _, err := h.AccountService.Login(accountLogin.AccountName, accountLogin.Password)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, account)
-}
-
 func (h AccountHandler) Logout(c *gin.Context) {
 	sessionID, err := c.Cookie("sessionID")
 	if err == nil {
@@ -144,21 +126,9 @@ func (h AccountHandler) Logout(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-type AccountLogin struct {
-	AccountName string
-	Password    string
-}
-
 type AccountRequest struct {
 	AccountName *string
 	APIKey      string
-	Password    *string
-}
-
-type CreateRequest struct {
-	AccountName string
-	APIKey      string
-	Password    string
 }
 
 type APIKeyRequest struct {

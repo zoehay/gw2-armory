@@ -38,6 +38,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	router.Use(gin.Recovery())
 
 	err = router.SetTrustedProxies([]string{"127.0.0.1"})
 	if err != nil {
@@ -49,8 +50,6 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 	router.GET("/items", itemHandler.GetAllItems)
 	router.GET("/items/:id", itemHandler.GetItemByID)
 
-	router.POST("/login", accountHandler.Login)
-	router.POST("/signup", accountHandler.HandlePostAPIKeyRequest) //change signup handler with password verification
 	router.POST("/apikeys", accountHandler.HandlePostAPIKeyRequest)
 
 	account := router.Group("/account")
