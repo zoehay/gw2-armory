@@ -74,7 +74,7 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("sessionID", session.SessionID, 3600, "/", h.Domain, false, true)
+	c.SetCookie("sessionID", session.SessionID, int(services.SessionDuration.Seconds()), "/", h.Domain, false, true)
 
 	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
 		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)

@@ -15,6 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// SessionDuration is how long a new or renewed session, and its cookie, stays valid
+const SessionDuration = time.Hour
+
 type AccountServiceInterface interface {
 	FetchAccount(apiKey string) (*apimodels.Account, error)
 	FetchToken(apiKey string) (*apimodels.Token, error)
@@ -126,7 +129,7 @@ func (service *AccountService) RenewOrGenerateSession(account *dbmodels.DBAccoun
 	var err error
 
 	if account.SessionID != nil {
-		session, err = service.SessionRepository.Renew(*account.SessionID)
+		session, err = service.SessionRepository.Renew(*account.SessionID, time.Now().Add(SessionDuration))
 		if err != nil {
 			return nil, nil, fmt.Errorf("error renewing session for existing account: %w", err)
 		}
@@ -149,7 +152,7 @@ func (service *AccountService) generateNewSession(account *dbmodels.DBAccount) (
 
 	var session = &dbmodels.DBSession{
 		SessionID: newSessionID,
-		Expires:   time.Now().Add(3600 * time.Second),
+		Expires:   time.Now().Add(SessionDuration),
 	}
 
 	newSession, err = service.SessionRepository.Create(session)

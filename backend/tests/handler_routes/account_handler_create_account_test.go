@@ -5,12 +5,14 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 	"github.com/zoehay/gw2-armory/backend/tests/testutils"
 )
 
@@ -80,6 +82,10 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		s.Require().NoError(err, "Failed to unmarshal response")
 		assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
 		assert.Equal(s.T(), firstSessionID, account.SessionID, "Existing session is renewed, not replaced")
+
+		session, err := s.Repository.SessionRepository.Get(*firstSessionID)
+		s.Require().NoError(err, "Failed to get session from db")
+		assert.WithinDuration(s.T(), time.Now().Add(services.SessionDuration), session.Expires, time.Minute, "Renewed session lasts as long as the cookie")
 	})
 
 	s.Run("returning account with new api key stores the new key", func() {
