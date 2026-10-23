@@ -15,7 +15,7 @@ func UseSession(accountRepository *repositories.AccountRepository, sessionReposi
 		// fmt.Printf("Cookie value: %s \n", sessionID)
 
 		if err != nil {
-			c.IndentedJSON(http.StatusForbidden, gin.H{"error getting session cookie": err.Error()})
+			c.IndentedJSON(http.StatusForbidden, gin.H{"error": "missing session cookie"})
 			c.Abort()
 			return
 		}
@@ -28,7 +28,7 @@ func UseSession(accountRepository *repositories.AccountRepository, sessionReposi
 
 		dbSession, err := sessionRepository.Get(sessionID)
 		if err != nil {
-			c.IndentedJSON(http.StatusForbidden, gin.H{"sessionID not in database": err.Error()})
+			c.IndentedJSON(http.StatusForbidden, gin.H{"error": "session not found"})
 			c.Abort()
 			return
 		}

@@ -65,6 +65,13 @@ func (s *SessionMiddlewareTestSuite) getAccountInfo(cookie *http.Cookie) *httpte
 	return w
 }
 
+func (s *SessionMiddlewareTestSuite) assertForbidden(w *httptest.ResponseRecorder, message string) {
+	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	response, err := testutils.UnmarshalResponse(w)
+	s.Require().NoError(err, "Failed to unmarshal response")
+	assert.Equal(s.T(), message, response["error"])
+}
+
 func (s *SessionMiddlewareTestSuite) TestValidSession() {
 	w := s.getAccountInfo(s.Cookie)
 	assert.Equal(s.T(), http.StatusOK, w.Code)
@@ -72,17 +79,17 @@ func (s *SessionMiddlewareTestSuite) TestValidSession() {
 
 func (s *SessionMiddlewareTestSuite) TestMissingCookie() {
 	w := s.getAccountInfo(nil)
-	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	s.assertForbidden(w, "missing session cookie")
 }
 
 func (s *SessionMiddlewareTestSuite) TestEmptyCookie() {
 	w := s.getAccountInfo(&http.Cookie{Name: "sessionID", Value: ""})
-	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	s.assertForbidden(w, "empty session cookie")
 }
 
 func (s *SessionMiddlewareTestSuite) TestUnknownSession() {
 	w := s.getAccountInfo(&http.Cookie{Name: "sessionID", Value: "notarealsession"})
-	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	s.assertForbidden(w, "session not found")
 }
 
 func (s *SessionMiddlewareTestSuite) TestExpiredSession() {
@@ -92,5 +99,5 @@ func (s *SessionMiddlewareTestSuite) TestExpiredSession() {
 	s.Require().NoError(err, "Error expiring session")
 
 	w := s.getAccountInfo(s.Cookie)
-	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	s.assertForbidden(w, "session is expired")
 }
