@@ -39,13 +39,16 @@ func UnmarshalToType[T any](w *httptest.ResponseRecorder) (*T, error) {
 }
 
 func DBRouterSetup() (*gin.Engine, *repositories.Repository, *services.Service, error) {
-	envPath := filepath.Join("../..", ".env")
-	err := godotenv.Load(envPath)
-	if err != nil {
-		return nil, nil, nil, err
+	// CI sets TEST_DB_DSN directly, local runs read it from backend/.env
+	dsn, ok := os.LookupEnv("TEST_DB_DSN")
+	if !ok {
+		envPath := filepath.Join("../..", ".env")
+		err := godotenv.Load(envPath)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("TEST_DB_DSN not set and could not load %s: %w", envPath, err)
+		}
+		dsn = os.Getenv("TEST_DB_DSN")
 	}
-
-	dsn := os.Getenv("TEST_DB_DSN")
 	allowedOrigin := []string{"http://localhost"}
 	router, repository, service, err := routes.SetupRouter(allowedOrigin, "localhost", dsn, true)
 	if err != nil {
