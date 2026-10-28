@@ -5,7 +5,7 @@ volumes:
 services:
   armory-db:
     container_name: armory-db
-    image: postgres
+    image: postgres:16
     restart: unless-stopped
     tty: true
     volumes:
