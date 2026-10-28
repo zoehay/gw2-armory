@@ -38,9 +38,9 @@ jobs:
       TEST_DB_DSN: host=localhost user=postgres password=postgres dbname=armory_test port=5432 sslmode=disable
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
