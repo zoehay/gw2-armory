@@ -21,7 +21,7 @@ func NewItemHandler(itemService services.ItemServiceInterface) *ItemHandler {
 func (h ItemHandler) GetAllItems(c *gin.Context) {
 	items, err := h.ItemService.GetAllItems()
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get items", err)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, items)
@@ -30,13 +30,13 @@ func (h ItemHandler) GetAllItems(c *gin.Context) {
 func (h ItemHandler) GetItemByID(c *gin.Context) {
 	itemID, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "invalid item id", err)
 		return
 	}
 
 	item, err := h.ItemService.GetItemByID(itemID)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get item", err)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, item)

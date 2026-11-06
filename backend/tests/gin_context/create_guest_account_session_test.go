@@ -59,7 +59,8 @@ func (s *CreateGuestAccountSessionTestSuite) TestCreateGuestWithNewAPIKey() {
 	s.Require().NoError(err, "Failed to unmarshal response")
 
 	assert.Equal(s.T(), "sessionID", cookie.Name, "Correct cookie name")
-	assert.Equal(s.T(), *account.SessionID, cookie.Value)
+	assert.NotContains(s.T(), w.Body.String(), "stringthatisapikey", "API key is not in the response")
+	assert.NotContains(s.T(), w.Body.String(), cookie.Value, "SessionID is not in the response")
 	assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
 	assert.Equal(s.T(), "gw2name", *account.GW2AccountName)
 	assert.Equal(s.T(), "armourytest", *account.GW2TokenName)

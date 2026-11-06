@@ -58,7 +58,6 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 
 		dbAccount, err := s.Repository.AccountRepository.GetByID("gw2apiaccountidstring")
 		s.Require().NoError(err, "Failed to get account from db")
-		assert.Equal(s.T(), dbAccount.SessionID, account.SessionID, "SessionID in db matches returned account")
 		assert.Nil(s.T(), dbAccount.Password, "Password is not stored")
 
 		cookies := w.Result().Cookies()
@@ -66,6 +65,9 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		cookieSessionID := cookies[0].Value
 		assert.Equal(s.T(), dbAccount.SessionID, &cookieSessionID, "SessionID in db matches returned cookie")
 		firstSessionID = dbAccount.SessionID
+
+		assert.NotContains(s.T(), w.Body.String(), "stringthatisapikey", "API key is not in the response")
+		assert.NotContains(s.T(), w.Body.String(), cookieSessionID, "SessionID is not in the response")
 	})
 
 	s.Run("returning account with same api key keeps its session", func() {
@@ -81,7 +83,10 @@ func (s *CreateAccountTestSuite) TestCreateAccount() {
 		account, err := testutils.UnmarshalToType[models.Account](w)
 		s.Require().NoError(err, "Failed to unmarshal response")
 		assert.Equal(s.T(), "gw2apiaccountidstring", account.AccountID)
-		assert.Equal(s.T(), firstSessionID, account.SessionID, "Existing session is renewed, not replaced")
+
+		cookies := w.Result().Cookies()
+		s.Require().NotEmpty(cookies, "Expected sessionID cookie to be set")
+		assert.Equal(s.T(), *firstSessionID, cookies[0].Value, "Existing session is renewed, not replaced")
 
 		session, err := s.Repository.SessionRepository.Get(*firstSessionID)
 		s.Require().NoError(err, "Failed to get session from db")

@@ -8,7 +8,7 @@ type Account struct {
 	AccountName    *string    `json:"name,omitempty"`
 	GW2AccountName *string    `json:"gw2_name,omitempty"`
 	GW2TokenName   *string    `json:"gw2_token_name,omitempty"`
-	APIKey         *string    `json:"api_key,omitempty"`
-	SessionID      *string    `json:"session_id,omitempty"`
-	Session        *Session   `json:"session,omitempty"`
+	APIKey         *string    `json:"-"`
+	SessionID      *string    `json:"-"`
+	Session        *Session   `json:"-"`
 }

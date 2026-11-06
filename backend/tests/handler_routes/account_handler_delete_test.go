@@ -55,23 +55,13 @@ func (s *DeleteAccountTestSuite) TearDownSuite() {
 
 func (s *DeleteAccountTestSuite) TestDeleteAccount() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/account/delete", strings.NewReader(`{"APIKey":"stringthatisapikey"}`))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("DELETE", "/account/delete", nil)
 	req.AddCookie(s.Cookie)
 	s.Router.ServeHTTP(w, req)
 
 	assert.Equal(s.T(), http.StatusOK, w.Code)
+	assert.NotContains(s.T(), w.Body.String(), "stringthatisapikey", "API key is not echoed in the response")
 
 	_, err := s.Repository.AccountRepository.GetByID("gw2apiaccountidstring")
 	assert.Error(s.T(), err, "Account should not exist after deletion")
-}
-
-func (s *DeleteAccountTestSuite) TestDeleteWithMalformedBody() {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/account/delete", strings.NewReader("not valid json"))
-	req.Header.Set("Content-Type", "application/json")
-	req.AddCookie(s.Cookie)
-	s.Router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
 }

@@ -26,7 +26,7 @@ func (h AccountHandler) GetAccount(c *gin.Context) {
 	accountID := c.MustGet("accountID").(string)
 	account, err := h.AccountService.GetAccountByID(accountID)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get account", err)
 		return
 	}
 
@@ -38,19 +38,19 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	var accountRequest AccountRequest
 
 	if err := c.BindJSON(&accountRequest); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"request body bind json error": err.Error()})
+		respondError(c, http.StatusBadRequest, "invalid request body", err)
 		return
 	}
 
 	gw2Token, err := h.AccountService.FetchToken(accountRequest.APIKey)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get token info from gw2 api": err.Error()})
+		respondError(c, http.StatusBadGateway, "could not verify API key with the GW2 API", err)
 		return
 	}
 
 	gw2Account, err := h.AccountService.FetchAccount(accountRequest.APIKey)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadGateway, gin.H{"error could not get account id from gw2 api": err.Error()})
+		respondError(c, http.StatusBadGateway, "could not get account from the GW2 API", err)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 
 	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error generating or updating account": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not create or update account", err)
 		return
 	}
 
@@ -79,12 +79,12 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
 		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
 		if err != nil {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting inventory after guest creation": err.Error()})
+			respondError(c, http.StatusInternalServerError, "could not get inventory", err)
 			return
 		}
 		err = h.AccountService.UpdateLastCrawl(account.AccountID)
 		if err != nil {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error updating account last crawl": err.Error()})
+			respondError(c, http.StatusInternalServerError, "could not update account", err)
 			return
 		}
 	}
@@ -93,24 +93,15 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 }
 
 func (h AccountHandler) Delete(c *gin.Context) {
-
-	// use request later for User with multiple Accounts
-	var deleteKeyRequest DeleteKeyRequest
-
-	if err := c.BindJSON(&deleteKeyRequest); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"request body bind json error": err.Error()})
-		return
-	}
-
 	accountID := c.MustGet("accountID").(string)
 	sessionID := c.MustGet("sessionID").(string)
 
 	if err := h.AccountService.DeleteAccount(accountID, sessionID); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error deleting account": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not delete account", err)
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"API key deleted": deleteKeyRequest.APIKey})
+	c.IndentedJSON(http.StatusOK, gin.H{"deleted": accountID})
 }
 
 func (h AccountHandler) Logout(c *gin.Context) {
@@ -132,9 +123,5 @@ type AccountRequest struct {
 }
 
 type APIKeyRequest struct {
-	APIKey string
-}
-
-type DeleteKeyRequest struct {
 	APIKey string
 }
