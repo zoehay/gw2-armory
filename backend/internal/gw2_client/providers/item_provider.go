@@ -68,7 +68,6 @@ func (itemProvider *ItemProvider) GetAllItemIDs() ([]int, error) {
 
 	return result, nil
 
-	// return mockAllItemIds, nil
 }
 
 func (itemProvider *ItemProvider) GetMaterialCategories() ([]gw2models.GW2MaterialCategory, error) {
@@ -102,20 +101,3 @@ func IntArrToStringArr(intArr []int) []string {
 	}
 	return stringArr
 }
-
-// var mockAllItemIds = []int{
-// 	24,
-// 	33,
-// 	46,
-// 	56,
-// 	57,
-// 	58,
-// 	59,
-// 	60,
-// 	61,
-// 	62,
-// 	63,
-// 	64,
-// 	65,
-// 	68,
-// }

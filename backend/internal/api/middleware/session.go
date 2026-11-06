@@ -14,7 +14,6 @@ func UseSession(accountRepository *repositories.AccountRepository, sessionReposi
 	return gin.HandlerFunc(func(c *gin.Context) {
 
 		sessionID, err := c.Cookie("sessionID")
-		// fmt.Printf("Cookie value: %s \n", sessionID)
 
 		if err != nil {
 			c.IndentedJSON(http.StatusForbidden, gin.H{"error": "missing session cookie"})
@@ -66,15 +65,6 @@ func UseSession(accountRepository *repositories.AccountRepository, sessionReposi
 			c.Set("sessionID", sessionID)
 			c.Next()
 		}
-
-		// TODO Add token
-		// token := context.GetHeader("Authorization")
-		// err := ValidateToken(token)
-		// if err != nil {
-		// 	context.JSON(401, gin.H{"error": err.Error()})
-		// 	context.Abort()
-		// 	return
-		// }
 
 	})
 }

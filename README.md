@@ -1,7 +1,5 @@
 # Guild Wars 2 Armory
 
-![Frontend CI](https://github.com/zoehay/gw2-armory/actions/workflows/frontend.yml/badge.svg)
-
 A web application that lets Guild Wars 2 players view the inventories of all their characters, their bank, and their material storage on a single searchable page.
 
 Players sign in with a [Guild Wars 2 API key](https://account.arena.net/applications). The backend fetches account and character data from the official GW2 API, stores it in PostgreSQL, and serves it to a React frontend for browsing and filtering.
@@ -22,54 +20,6 @@ Players sign in with a [Guild Wars 2 API key](https://account.arena.net/applicat
 | Frontend | React, TypeScript, Vite, React Router                             |
 | Testing  | Go `testing`, Vitest, React Testing Library                       |
 | Infra    | Docker Compose, nginx (TLS termination and reverse proxy), GitHub Actions |
-
-## Architecture
-
-```
-            ┌──────────────────────────────┐
- Browser ──►│ nginx (:80 / :443)           │
-            │  /       → static frontend   │
-            │  /api/*  → backend :8000     │
-            └──────────────┬───────────────┘
-                           │
-                 ┌─────────▼─────────┐        ┌──────────────────┐
-                 │ Go / Gin backend  │───────►│ GW2 public API   │
-                 └─────────┬─────────┘        └──────────────────┘
-                           │
-                 ┌─────────▼─────────┐
-                 │ PostgreSQL        │
-                 └───────────────────┘
-```
-
-## Project Structure
-
-```
-.
-├── backend/
-│   ├── cmd/main.go            # Entry point
-│   ├── internal/
-│   │   ├── api/               # Handlers, middleware (CORS, sessions), routes
-│   │   ├── db/                # Database setup, models, repositories
-│   │   ├── gw2_client/        # GW2 API client, providers, and mocks
-│   │   └── services/          # Business logic
-│   ├── test_data/             # Fixture responses from the GW2 API
-│   └── tests/                 # Integration and handler tests
-├── frontend/                  # React + TypeScript single-page app
-├── nginx/                     # nginx images, configs, and local cert script
-├── db/                        # Database container scripts
-├── docker-compose-dev.yaml
-└── docker-compose-prod.yaml
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Go 1.27+
-- Node.js 24+ and npm
-- PostgreSQL (or Docker)
-- [mkcert](https://github.com/FiloSottile/mkcert), for local HTTPS through nginx
-- A Guild Wars 2 API key with the **account**, **inventories**, and **characters** permissions
 
 ### Configuration
 
@@ -163,8 +113,6 @@ npm run lint
 npm run format:check
 ```
 
-GitHub Actions runs linting, formatting checks, tests, and a production build on every push and pull request that touches `frontend/`.
-
 ## API Overview
 
 | Method | Endpoint                                         | Description                         |
@@ -181,6 +129,3 @@ GitHub Actions runs linting, formatting checks, tests, and a production build on
 
 All `/account` routes require a valid session cookie.
 
-## Acknowledgements
-
-Guild Wars 2 is a trademark of ArenaNet, LLC. This project is not affiliated with or endorsed by ArenaNet. Game data comes from the [official Guild Wars 2 API](https://wiki.guildwars2.com/wiki/API:Main).
