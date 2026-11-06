@@ -55,12 +55,14 @@ func (s *CreateGuestAccountTestSuite) TestCreateGuestWithNewAPIKey() {
 
 	dbAccount, err := s.Repository.AccountRepository.GetByID(guestAccountID)
 	s.Require().NoError(err, "Failed to get account from db")
-	assert.Equal(s.T(), dbAccount.SessionID, account.SessionID, "SessionID in db matches returned account")
 
 	cookies := w.Result().Cookies()
 	s.Require().NotEmpty(cookies, "Expected sessionID cookie to be set")
 	cookieSessionID := cookies[0].Value
 	assert.Equal(s.T(), dbAccount.SessionID, &cookieSessionID, "SessionID in db matches returned cookie")
+
+	assert.NotContains(s.T(), w.Body.String(), "stringthatisapikey", "API key is not in the response")
+	assert.NotContains(s.T(), w.Body.String(), cookieSessionID, "SessionID is not in the response")
 }
 
 func (s *CreateGuestAccountTestSuite) TestReturningGuestSessionRenewal() {
@@ -83,7 +85,6 @@ func (s *CreateGuestAccountTestSuite) TestReturningGuestSessionRenewal() {
 	account, err := testutils.UnmarshalToType[models.Account](w2)
 	s.Require().NoError(err, "Failed to unmarshal response")
 	assert.Equal(s.T(), guestAccountID, account.AccountID)
-	assert.NotNil(s.T(), account.SessionID, "Renewed session should be present in response")
 
 	cookies := w2.Result().Cookies()
 	s.Require().NotEmpty(cookies, "Expected sessionID cookie on session renewal")
@@ -103,4 +104,5 @@ func (s *CreateGuestAccountTestSuite) TestCreateGuestWithMalformedBody() {
 	s.Router.ServeHTTP(w, req)
 
 	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
+	assert.JSONEq(s.T(), `{"error": "invalid request body"}`, w.Body.String(), "Error details stay server-side")
 }

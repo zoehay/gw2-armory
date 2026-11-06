@@ -26,7 +26,7 @@ func (h BagItemHandler) GetByCharacter(c *gin.Context) {
 
 	items, err := h.BagItemService.GetBagItemsByCharacter(accountID, characterName)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get inventory", err)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, items)
@@ -40,7 +40,7 @@ func (h BagItemHandler) GetByAccount(c *gin.Context) {
 
 	items, err := h.BagItemService.GetBagItemsByAccount(accountID)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get inventory", err)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, items)
@@ -54,7 +54,7 @@ func (h BagItemHandler) GetAccountInventory(c *gin.Context) {
 
 	inventory, missingIDs, err := h.BagItemService.GetAccountInventory(accountID)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting account inventory": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get inventory", err)
 		return
 	}
 
@@ -73,13 +73,13 @@ func (h BagItemHandler) GetFilteredAccountInventory(c *gin.Context) {
 
 	var searchRequest SearchRequest
 	if err := c.BindJSON(&searchRequest); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"request body bind json error": err.Error()})
+		respondError(c, http.StatusBadRequest, "invalid request body", err)
 		return
 	}
 
 	inventory, err := h.BagItemService.GetFilteredAccountInventory(accountID, searchRequest.SearchTerm)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error getting account inventory": err.Error()})
+		respondError(c, http.StatusInternalServerError, "could not get inventory", err)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, inventory)

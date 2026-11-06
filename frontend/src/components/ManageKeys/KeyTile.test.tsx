@@ -29,7 +29,7 @@ describe("KeyTile", () => {
   });
 
   it("deletes the key after a delay and clears the account", async () => {
-    const deleteAPIKey = vi.fn().mockResolvedValue("API-KEY");
+    const deleteAPIKey = vi.fn().mockResolvedValue(true);
     const handleUpdate = vi.fn();
     renderWithClient(
       <KeyTile account={makeAccount()} handleUpdate={handleUpdate} />,
@@ -42,7 +42,7 @@ describe("KeyTile", () => {
 
     await act(() => vi.advanceTimersByTimeAsync(2000));
 
-    expect(deleteAPIKey).toHaveBeenCalledWith("API-KEY");
+    expect(deleteAPIKey).toHaveBeenCalledOnce();
     expect(handleUpdate).toHaveBeenCalledWith(null);
   });
 
@@ -50,7 +50,7 @@ describe("KeyTile", () => {
     const handleUpdate = vi.fn();
     renderWithClient(
       <KeyTile account={makeAccount()} handleUpdate={handleUpdate} />,
-      { deleteAPIKey: vi.fn().mockResolvedValue(null) },
+      { deleteAPIKey: vi.fn().mockResolvedValue(false) },
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Remove key" }));

@@ -58,6 +58,7 @@ func (s *CreateGuestSessionTestSuite) TestCreateGuestWithNewAPIKeyCreatesSession
 	s.Require().NotEmpty(cookies, "Expected sessionID cookie to be set")
 	cookieSessionID := cookies[0].Value
 
-	assert.Equal(s.T(), dbAccount.SessionID, account.SessionID, "SessionID in db matches returned account")
 	assert.Equal(s.T(), dbAccount.SessionID, &cookieSessionID, "SessionID in db matches returned cookie")
+	assert.NotContains(s.T(), w.Body.String(), "stringapikey", "API key is not in the response")
+	assert.NotContains(s.T(), w.Body.String(), cookieSessionID, "SessionID is not in the response")
 }
