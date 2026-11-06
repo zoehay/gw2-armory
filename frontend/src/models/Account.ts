@@ -3,9 +3,6 @@ export interface Account {
   accountName?: string;
   gw2AccountName?: string;
   gw2TokenName?: string;
-  apiKey?: string;
-  sessionID?: string;
-  session?: Session;
 }
 
 export interface APIAccount {
@@ -14,8 +11,6 @@ export interface APIAccount {
   name?: string;
   gw2_name?: string;
   gw2_token_name?: string;
-  api_key?: string;
-  session_id?: string;
 }
 
 export function APIAccountToAccount(apiAccount: APIAccount): Account {
@@ -24,12 +19,5 @@ export function APIAccountToAccount(apiAccount: APIAccount): Account {
     accountName: apiAccount.account_name,
     gw2AccountName: apiAccount.gw2_name,
     gw2TokenName: apiAccount.gw2_token_name,
-    apiKey: apiAccount.api_key,
-    sessionID: apiAccount.session_id,
   };
-}
-
-interface Session {
-  sessionID: string;
-  expires: Date;
 }

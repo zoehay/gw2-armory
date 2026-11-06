@@ -36,7 +36,6 @@ export function makeAccount(overrides: Partial<Account> = {}): Account {
     accountID: "account-id",
     gw2AccountName: "Tester.1234",
     gw2TokenName: "my key",
-    apiKey: "API-KEY",
     ...overrides,
   };
 }

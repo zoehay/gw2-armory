@@ -124,16 +124,12 @@ describe("APIAccountToAccount", () => {
         account_name: "name",
         gw2_name: "Tester.1234",
         gw2_token_name: "my key",
-        api_key: "KEY",
-        session_id: "sess",
       }),
     ).toEqual({
       accountID: "acct",
       accountName: "name",
       gw2AccountName: "Tester.1234",
       gw2TokenName: "my key",
-      apiKey: "KEY",
-      sessionID: "sess",
     });
   });
 });

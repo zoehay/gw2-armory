@@ -16,11 +16,8 @@ export const KeyTile: React.FC<KeyTileProps> = ({ account, handleUpdate }) => {
   const handleClick = () => {
     setDeleting(true);
     setTimeout(async () => {
-      let deletedAccount;
-      if (account.apiKey) {
-        deletedAccount = await client.deleteAPIKey(account.apiKey);
-      }
-      if (deletedAccount) {
+      const deleted = await client.deleteAPIKey();
+      if (deleted) {
         handleUpdate(null);
       } else {
         setDeleting(false);

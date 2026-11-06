@@ -51,15 +51,11 @@ export class Client {
     }
   }
 
-  async clientDelete(endpoint: string, body: string): Promise<unknown> {
+  async clientDelete(endpoint: string): Promise<unknown> {
     try {
       const response = await fetch(endpoint, {
         credentials: "include",
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body,
       });
 
       if (response.ok) {
@@ -118,19 +114,12 @@ export class Client {
     return APIAccountToAccount(apiAccount);
   }
 
-  async deleteAPIKey(key: string): Promise<string | null> {
-    const body = JSON.stringify({
-      APIKey: key,
-    });
+  // the session cookie identifies the account, so no key is sent
+  async deleteAPIKey(): Promise<boolean> {
     const endpoint: string = `${this.baseURL}/account/delete`;
 
-    const response: unknown = await this.clientDelete(endpoint, body);
-    const deletedKey = response as string;
-    if (deletedKey) {
-      return deletedKey;
-    } else {
-      return null;
-    }
+    const response: unknown = await this.clientDelete(endpoint);
+    return Boolean(response);
   }
 
   async postInventorySearch(

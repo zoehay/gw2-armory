@@ -28,7 +28,7 @@ beforeEach(() => {
 describe("getAccount", () => {
   it("GETs account info and converts it", async () => {
     fetchMock.mockReturnValue(
-      okResponse({ id: "acct", gw2_name: "Tester.1234", api_key: "KEY" }),
+      okResponse({ id: "acct", gw2_name: "Tester.1234" }),
     );
 
     const account = await client.getAccount();
@@ -38,7 +38,6 @@ describe("getAccount", () => {
     expect(account).toMatchObject({
       accountID: "acct",
       gw2AccountName: "Tester.1234",
-      apiKey: "KEY",
     });
   });
 
@@ -106,7 +105,7 @@ describe("getBagItems", () => {
 
 describe("postAPIKey", () => {
   it("POSTs the key as JSON and converts the account", async () => {
-    fetchMock.mockReturnValue(okResponse({ id: "acct", api_key: "KEY" }));
+    fetchMock.mockReturnValue(okResponse({ id: "acct" }));
 
     const account = await client.postAPIKey("KEY");
 
@@ -118,7 +117,7 @@ describe("postAPIKey", () => {
       headers: { "Content-Type": "application/json" },
     });
     expect(JSON.parse(init.body as string)).toEqual({ APIKey: "KEY" });
-    expect(account).toMatchObject({ accountID: "acct", apiKey: "KEY" });
+    expect(account).toMatchObject({ accountID: "acct" });
   });
 
   it("returns null on an error response", async () => {
@@ -128,21 +127,21 @@ describe("postAPIKey", () => {
 });
 
 describe("deleteAPIKey", () => {
-  it("DELETEs the key and returns the response", async () => {
-    fetchMock.mockReturnValue(okResponse("KEY"));
+  it("DELETEs the session's account without sending the key", async () => {
+    fetchMock.mockReturnValue(okResponse({ deleted: "acct" }));
 
-    const deleted = await client.deleteAPIKey("KEY");
+    const deleted = await client.deleteAPIKey();
 
     const { url, init } = lastRequest();
     expect(url).toBe("http://api/account/delete");
     expect(init).toMatchObject({ credentials: "include", method: "DELETE" });
-    expect(JSON.parse(init.body as string)).toEqual({ APIKey: "KEY" });
-    expect(deleted).toBe("KEY");
+    expect(init.body).toBeUndefined();
+    expect(deleted).toBe(true);
   });
 
-  it("returns null on an error response", async () => {
+  it("returns false on an error response", async () => {
     fetchMock.mockReturnValue(errorResponse());
-    expect(await client.deleteAPIKey("KEY")).toBeNull();
+    expect(await client.deleteAPIKey()).toBe(false);
   });
 });
 
