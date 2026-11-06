@@ -10,7 +10,7 @@ type GW2Token struct {
 
 func (gw2Token GW2Token) ToToken() models.Token {
 	return models.Token{
-		ID:          *&gw2Token.ID,
+		ID:          gw2Token.ID,
 		Name:        gw2Token.Name,
 		Permissions: gw2Token.Permissions,
 	}

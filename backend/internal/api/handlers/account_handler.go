@@ -61,14 +61,14 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	}
 
 	var requestAccount = &apimodels.Account{
-		AccountID:      *&gw2Account.AccountID,
+		AccountID:      gw2Account.AccountID,
 		AccountName:    accountRequest.AccountName,
 		GW2AccountName: gw2Account.GW2AccountName,
 		GW2TokenName:   &gw2TokenName,
 		APIKey:         &accountRequest.APIKey,
 	}
 
-	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, *&gw2Account.AccountID)
+	account, session, err := h.AccountService.GenerateOrUpdateAccount(requestAccount, gw2Account.AccountID)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, "could not create or update account", err)
 		return
