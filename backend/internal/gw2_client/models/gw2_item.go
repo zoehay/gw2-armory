@@ -73,27 +73,6 @@ type Upgrade struct {
 	ItemID  uint   `json:"item_id"`
 }
 
-// func (gw2Item GW2Item) ToItem(gw2Item gw2Item) models.Item {
-// 	return models.Item{
-// 		ID:           gw2Item.ID,
-// 		ChatLink:     gw2Item.ChatLink,
-// 		Name:         gw2Item.Name,
-// 		Icon:         gw2Item.Icon,
-// 		Description:  gw2Item.Description,
-// 		Type:         gw2Item.Type,
-// 		Rarity:       gw2Item.Rarity,
-// 		Level:        gw2Item.Level,
-// 		VendorValue:  gw2Item.VendorValue,
-// 		DefaultSkin:  *gw2Item.DefaultSkin,
-// 		Flags:        gw2Item.Flags,
-// 		GameTypes:    gw2Item.GameTypes,
-// 		Restrictions: gw2Item.Restrictions,
-// 		UpgradesInto: *gw2Item.UpgradesInto,
-// 		UpgradesFrom: *gw2Item.UpgradesFrom,
-// 		Details:      gw2Item.Details,
-// 	}
-// }
-
 type ItemError struct {
 	Text string `json:"text"`
 }
