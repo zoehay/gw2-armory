@@ -65,7 +65,7 @@ func (service *AccountService) FetchAccount(apiKey string) (*apimodels.Account, 
 func (service *AccountService) FetchToken(apiKey string) (*apimodels.Token, error) {
 	token, err := service.AccountProvider.GetTokenInfo(apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("service error using provider could not get account id: %s", err)
+		return nil, fmt.Errorf("service error using provider could not get token info: %w", err)
 	}
 	if token.ID == nil || token.Name == nil {
 		return nil, fmt.Errorf("service error no token id or name: %s", err)
