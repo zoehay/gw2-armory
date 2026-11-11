@@ -110,8 +110,22 @@ func (accountProvider *AccountProviderMock) ReadMaterialsInventoryFromFile(filep
 	return materialsInventory, nil
 }
 
+// Mock API keys that make GetTokenInfo return something other than the full-permission token
+const (
+	MockLimitedPermissionsKey = "limitedpermissionskey"
+	MockInvalidKey            = "invalidkey"
+)
+
 func (accountProvider *AccountProviderMock) GetTokenInfo(apiKey string) (*gw2models.GW2Token, error) {
-	token, err := accountProvider.ReadTokenInfoFromFile(testDataPath("token_info_test_data.txt"))
+	tokenFile := "token_info_test_data.txt"
+	switch apiKey {
+	case MockInvalidKey:
+		return nil, ErrInvalidKey
+	case MockLimitedPermissionsKey:
+		tokenFile = "token_info_limited_test_data.txt"
+	}
+
+	token, err := accountProvider.ReadTokenInfoFromFile(testDataPath(tokenFile))
 	if err != nil {
 		return nil, fmt.Errorf("error reading from test data file: %s", err)
 	}

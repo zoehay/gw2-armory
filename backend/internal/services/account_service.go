@@ -15,6 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// ErrInvalidKey means the GW2 API rejected the API key as invalid or revoked
+var ErrInvalidKey = providers.ErrInvalidKey
+
 // SessionDuration is how long a new or renewed session, and its cookie, stays valid
 const SessionDuration = time.Hour
 

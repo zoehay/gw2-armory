@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,8 +45,22 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 	}
 
 	gw2Token, err := h.AccountService.FetchToken(accountRequest.APIKey)
+	if errors.Is(err, services.ErrInvalidKey) {
+		respondError(c, http.StatusBadRequest, "invalid API key", err)
+		return
+	}
 	if err != nil {
 		respondError(c, http.StatusBadGateway, "could not verify API key with the GW2 API", err)
+		return
+	}
+
+	// checked before fetching the account so a rejected key costs one GW2 call
+	if missing := services.MissingPermissions(gw2Token.Permissions); len(missing) > 0 {
+		log.Printf("%s %s: rejected API key missing permissions %v", c.Request.Method, c.FullPath(), missing)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error":               "API key is missing required permissions",
+			"missing_permissions": missing,
+		})
 		return
 	}
 
