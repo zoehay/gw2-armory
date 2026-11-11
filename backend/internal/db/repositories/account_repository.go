@@ -3,6 +3,7 @@ package repositories
 import (
 	"time"
 
+	"github.com/lib/pq"
 	dbmodels "github.com/zoehay/gw2-armory/backend/internal/db/models"
 	"gorm.io/gorm"
 )
@@ -16,7 +17,7 @@ type AccountRepositoryInterface interface {
 	UpdateLastCrawl(accountID string) error
 	Update(existingAccount *dbmodels.DBAccount, updateAccount *dbmodels.DBAccount) (*dbmodels.DBAccount, error)
 	DeleteAPIKey(accountID string) error
-	UpdateAPIKey(accountID string, apiKey string) (*dbmodels.DBAccount, error)
+	UpdateKey(accountID string, apiKey string, permissions []string) (*dbmodels.DBAccount, error)
 	DeleteAccount(accountID string) error
 }
 
@@ -126,9 +127,12 @@ func (repository *AccountRepository) DeleteAPIKey(accountID string) error {
 	return err
 }
 
-func (repository *AccountRepository) UpdateAPIKey(accountID string, apiKey string) (*dbmodels.DBAccount, error) {
+func (repository *AccountRepository) UpdateKey(accountID string, apiKey string, permissions []string) (*dbmodels.DBAccount, error) {
 	var account dbmodels.DBAccount
-	err := repository.DB.Model(&account).Where("account_id = ?", accountID).Update("api_key", apiKey).Error
+	err := repository.DB.Model(&account).Where("account_id = ?", accountID).Updates(map[string]interface{}{
+		"api_key":     apiKey,
+		"permissions": pq.StringArray(permissions),
+	}).Error
 	if err != nil {
 		return nil, err
 	}

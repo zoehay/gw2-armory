@@ -65,6 +65,7 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		AccountName:    accountRequest.AccountName,
 		GW2AccountName: gw2Account.GW2AccountName,
 		GW2TokenName:   &gw2TokenName,
+		Permissions:    gw2Token.Permissions,
 		APIKey:         &accountRequest.APIKey,
 	}
 

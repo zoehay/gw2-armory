@@ -91,6 +91,7 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 		GW2AccountName: requestAccount.GW2AccountName,
 		GW2TokenName:   requestAccount.GW2TokenName,
 		APIKey:         requestAccount.APIKey,
+		Permissions:    requestAccount.Permissions,
 	}
 
 	var account *dbmodels.DBAccount
@@ -106,12 +107,13 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 			return nil, nil, fmt.Errorf("account repository create error: %s", err)
 		}
 	} else {
-		// returning account, store the request key in case it was rotated
+		// returning account, store the request key in case it was rotated, and its permissions
+		// every time so accounts stored before permissions were tracked get them on next login
 		account = existingAccount
-		if requestAccount.APIKey != nil && (account.APIKey == nil || *account.APIKey != *requestAccount.APIKey) {
-			account, err = service.AccountRepository.UpdateAPIKey(gw2AccountID, *requestAccount.APIKey)
+		if requestAccount.APIKey != nil {
+			account, err = service.AccountRepository.UpdateKey(gw2AccountID, *requestAccount.APIKey, requestAccount.Permissions)
 			if err != nil {
-				return nil, nil, fmt.Errorf("account repository update api key error: %s", err)
+				return nil, nil, fmt.Errorf("account repository update key error: %s", err)
 			}
 		}
 	}

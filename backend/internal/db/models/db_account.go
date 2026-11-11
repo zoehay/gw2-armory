@@ -3,6 +3,7 @@ package dbmodels
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 )
 
@@ -13,9 +14,10 @@ type DBAccount struct {
 	GW2AccountName *string
 	GW2TokenName   *string
 	APIKey         *string
-	Password       *string    // unused, reserved for verified Users
-	SessionID      *string    `gorm:"index"`
-	Session        *DBSession `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Permissions    pq.StringArray `gorm:"type:text[]"` // GW2 permissions granted to APIKey
+	Password       *string        // unused, reserved for verified Users
+	SessionID      *string        `gorm:"index"`
+	Session        *DBSession     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func (dbAccount DBAccount) DBAccountToAccount() models.Account {
@@ -26,6 +28,7 @@ func (dbAccount DBAccount) DBAccountToAccount() models.Account {
 		GW2AccountName: dbAccount.GW2AccountName,
 		GW2TokenName:   dbAccount.GW2TokenName,
 		APIKey:         dbAccount.APIKey,
+		Permissions:    dbAccount.Permissions,
 		SessionID:      dbAccount.SessionID,
 		Session:        (*models.Session)(dbAccount.Session),
 	}
