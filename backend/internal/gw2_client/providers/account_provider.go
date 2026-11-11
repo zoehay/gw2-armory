@@ -2,8 +2,10 @@ package providers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net/http"
 
 	gw2client "github.com/zoehay/gw2-armory/backend/internal/gw2_client"
 	gw2models "github.com/zoehay/gw2-armory/backend/internal/gw2_client/models"
@@ -16,6 +18,9 @@ type AccountDataProvider interface {
 	GetMaterialsInventory(apiKey string) (*[]gw2models.GW2BagItem, error)
 	GetTokenInfo(apiKey string) (*gw2models.GW2Token, error)
 }
+
+// ErrInvalidKey means the GW2 API rejected the API key as invalid or revoked
+var ErrInvalidKey = errors.New("invalid API key")
 
 type AccountProvider struct{}
 
@@ -129,6 +134,13 @@ func (accountProvider *AccountProvider) GetTokenInfo(apiKey string) (*gw2models.
 	defer func() {
 		_ = res.Body.Close()
 	}()
+
+	switch {
+	case res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden:
+		return nil, ErrInvalidKey
+	case res.StatusCode != http.StatusOK:
+		return nil, fmt.Errorf("provider unexpected status: %s", res.Status)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

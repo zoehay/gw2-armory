@@ -1,9 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ClientContext } from "../../util/ClientContext";
+import { PostAPIKeyResult } from "../../util/Client";
 import content from "../content.module.css";
 import { Account } from "../../models/Account";
 import { KeyGroup } from "./KeyGroup";
 import managekeys from "./managekeys.module.css";
+
+type PostAPIKeyFailure = Exclude<PostAPIKeyResult, { account: unknown }>;
 
 export const ManageKeys = () => {
   // if user show UserKeys else only one account AccountKey
@@ -57,6 +60,24 @@ const AccountKey = () => {
   );
 };
 
+const GENERIC_KEY_ERROR =
+  "Couldn't add that key. Check that it's valid and try again.";
+
+function keyErrorMessage(result: PostAPIKeyFailure): string {
+  switch (result.error) {
+    case "missing_permissions":
+      return `This key is missing: ${(result.missingPermissions ?? []).join(", ")}. Create a new key with the required permissions.`;
+    case "invalid_key":
+      return "That key isn't valid. Check that you copied the whole key, or create a new one.";
+    case "rate_limited":
+      return "Too many attempts. Wait a minute and try again.";
+    case "unavailable":
+      return "Couldn't reach the Guild Wars 2 API. Try again in a few minutes.";
+    default:
+      return GENERIC_KEY_ERROR;
+  }
+}
+
 interface KeyInputProps {
   handleUpdate: React.Dispatch<React.SetStateAction<Account | null>>;
 }
@@ -76,17 +97,19 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    let account = null;
+    let result: PostAPIKeyResult | null = null;
     try {
-      account = await client.postAPIKey(formState.trim());
+      result = await client.postAPIKey(formState.trim());
     } catch (err) {
       console.error(err);
     }
     setSubmitting(false);
-    if (!account) {
-      setError("Couldn't add that key. Check that it's valid and try again.");
+    if (!result) {
+      setError(GENERIC_KEY_ERROR);
+    } else if ("account" in result) {
+      handleUpdate(result.account);
     } else {
-      handleUpdate(account);
+      setError(keyErrorMessage(result));
     }
   };
 
@@ -107,7 +130,9 @@ const KeyInput: React.FC<KeyInputProps> = ({ handleUpdate }) => {
         >
           account.arena.net/applications
         </a>{" "}
-        with the account, inventories, and characters permissions.
+        with the <strong>account, characters, inventories, and wallet</strong>{" "}
+        permissions. Other permissions are optional and unlock extra features.
+        Keys are read-only, and you can revoke them anytime at ArenaNet.
       </p>
       <div className={managekeys.inputRow}>
         <input

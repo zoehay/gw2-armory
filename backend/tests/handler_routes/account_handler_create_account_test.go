@@ -119,3 +119,49 @@ func (s *CreateAccountTestSuite) TestCreateAccountWithMalformedBody() {
 
 	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
 }
+
+func (s *CreateAccountTestSuite) TestCreateAccountStoresPermissions() {
+	allPermissions := []string{"tradingpost", "characters", "wvw", "pvp", "progression", "wallet", "guilds", "builds", "account", "inventories", "unlocks"}
+
+	postKey := func() *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/apikeys", strings.NewReader(`{"APIKey":"stringthatisapikey"}`))
+		req.Header.Set("Content-Type", "application/json")
+		s.Router.ServeHTTP(w, req)
+		s.Require().Equal(http.StatusOK, w.Code)
+		return w
+	}
+
+	s.Run("submit stores and returns the key's permissions", func() {
+		w := postKey()
+
+		account, err := testutils.UnmarshalToType[models.Account](w)
+		s.Require().NoError(err, "Failed to unmarshal response")
+		assert.ElementsMatch(s.T(), allPermissions, account.Permissions)
+
+		dbAccount, err := s.Repository.AccountRepository.GetByID("gw2apiaccountidstring")
+		s.Require().NoError(err, "Failed to get account from db")
+		assert.ElementsMatch(s.T(), allPermissions, []string(dbAccount.Permissions))
+
+		infoW := httptest.NewRecorder()
+		infoReq, _ := http.NewRequest("GET", "/account/info", nil)
+		infoReq.AddCookie(w.Result().Cookies()[0])
+		s.Router.ServeHTTP(infoW, infoReq)
+		s.Require().Equal(http.StatusOK, infoW.Code)
+
+		info, err := testutils.UnmarshalToType[models.Account](infoW)
+		s.Require().NoError(err, "Failed to unmarshal account info")
+		assert.ElementsMatch(s.T(), allPermissions, info.Permissions)
+	})
+
+	s.Run("returning account without stored permissions gets them on next submit", func() {
+		err := s.Repository.AccountRepository.DB.Exec("UPDATE db_accounts SET permissions = NULL WHERE account_id = ?", "gw2apiaccountidstring").Error
+		s.Require().NoError(err, "Failed to clear permissions")
+
+		postKey()
+
+		dbAccount, err := s.Repository.AccountRepository.GetByID("gw2apiaccountidstring")
+		s.Require().NoError(err, "Failed to get account from db")
+		assert.ElementsMatch(s.T(), allPermissions, []string(dbAccount.Permissions))
+	})
+}

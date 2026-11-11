@@ -15,6 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// ErrInvalidKey means the GW2 API rejected the API key as invalid or revoked
+var ErrInvalidKey = providers.ErrInvalidKey
+
 // SessionDuration is how long a new or renewed session, and its cookie, stays valid
 const SessionDuration = time.Hour
 
@@ -65,7 +68,7 @@ func (service *AccountService) FetchAccount(apiKey string) (*apimodels.Account, 
 func (service *AccountService) FetchToken(apiKey string) (*apimodels.Token, error) {
 	token, err := service.AccountProvider.GetTokenInfo(apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("service error using provider could not get account id: %s", err)
+		return nil, fmt.Errorf("service error using provider could not get token info: %w", err)
 	}
 	if token.ID == nil || token.Name == nil {
 		return nil, fmt.Errorf("service error no token id or name: %s", err)
@@ -91,6 +94,7 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 		GW2AccountName: requestAccount.GW2AccountName,
 		GW2TokenName:   requestAccount.GW2TokenName,
 		APIKey:         requestAccount.APIKey,
+		Permissions:    requestAccount.Permissions,
 	}
 
 	var account *dbmodels.DBAccount
@@ -106,12 +110,13 @@ func (service *AccountService) GenerateOrUpdateAccount(requestAccount *apimodels
 			return nil, nil, fmt.Errorf("account repository create error: %s", err)
 		}
 	} else {
-		// returning account, store the request key in case it was rotated
+		// returning account, store the request key in case it was rotated, and its permissions
+		// every time so accounts stored before permissions were tracked get them on next login
 		account = existingAccount
-		if requestAccount.APIKey != nil && (account.APIKey == nil || *account.APIKey != *requestAccount.APIKey) {
-			account, err = service.AccountRepository.UpdateAPIKey(gw2AccountID, *requestAccount.APIKey)
+		if requestAccount.APIKey != nil {
+			account, err = service.AccountRepository.UpdateKey(gw2AccountID, *requestAccount.APIKey, requestAccount.Permissions)
 			if err != nil {
-				return nil, nil, fmt.Errorf("account repository update api key error: %s", err)
+				return nil, nil, fmt.Errorf("account repository update key error: %s", err)
 			}
 		}
 	}

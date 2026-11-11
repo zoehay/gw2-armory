@@ -124,12 +124,21 @@ describe("APIAccountToAccount", () => {
         account_name: "name",
         gw2_name: "Tester.1234",
         gw2_token_name: "my key",
+        permissions: ["account", "wallet"],
       }),
     ).toEqual({
       accountID: "acct",
       accountName: "name",
       gw2AccountName: "Tester.1234",
       gw2TokenName: "my key",
+      permissions: ["account", "wallet"],
     });
+  });
+
+  it("defaults missing or null permissions to an empty list", () => {
+    expect(APIAccountToAccount({ id: "acct" }).permissions).toEqual([]);
+    expect(
+      APIAccountToAccount({ id: "acct", permissions: null }).permissions,
+    ).toEqual([]);
   });
 });

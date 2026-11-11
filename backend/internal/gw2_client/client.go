@@ -9,6 +9,14 @@ var baseUrl = "https://api.guildwars2.com/v2/"
 
 var httpClient = &http.Client{Timeout: 20 * time.Second}
 
+// SetBaseURL points the client at another server and returns a func that restores the original.
+// For tests in other packages
+func SetBaseURL(url string) (restore func()) {
+	original := baseUrl
+	baseUrl = url
+	return func() { baseUrl = original }
+}
+
 func get(path string) (*http.Response, error) {
 	return httpClient.Get(baseUrl + path)
 }
