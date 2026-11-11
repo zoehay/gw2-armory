@@ -37,7 +37,7 @@ describe("ManageKeys", () => {
 
   it("adds a trimmed key and shows the new account", async () => {
     const user = userEvent.setup();
-    const postAPIKey = vi.fn().mockResolvedValue(makeAccount());
+    const postAPIKey = vi.fn().mockResolvedValue({ account: makeAccount() });
     renderWithClient(<ManageKeys />, {
       getAccount: vi.fn().mockResolvedValue(null),
       postAPIKey,
@@ -54,7 +54,7 @@ describe("ManageKeys", () => {
     const user = userEvent.setup();
     renderWithClient(<ManageKeys />, {
       getAccount: vi.fn().mockResolvedValue(null),
-      postAPIKey: vi.fn().mockResolvedValue(null),
+      postAPIKey: vi.fn().mockResolvedValue({ error: "invalid_key" }),
     });
 
     const input = await screen.findByLabelText("Add an API key");
@@ -62,14 +62,48 @@ describe("ManageKeys", () => {
     await user.click(screen.getByRole("button", { name: "Add key" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Couldn't add that key.",
+      "That key isn't valid.",
     );
     expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAccessibleDescription(/Couldn't add that key/);
+    expect(input).toHaveAccessibleDescription(/That key isn't valid/);
 
     await user.type(input, "X");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(input).toHaveAttribute("aria-invalid", "false");
+  });
+
+  it.each([
+    [
+      {
+        error: "missing_permissions",
+        missingPermissions: ["characters", "wallet"],
+      },
+      "This key is missing: characters, wallet.",
+    ],
+    [{ error: "rate_limited" }, "Too many attempts."],
+    [{ error: "unavailable" }, "Couldn't reach the Guild Wars 2 API."],
+    [{ error: "unknown" }, "Couldn't add that key."],
+  ])("shows the message for %o", async (result, message) => {
+    const user = userEvent.setup();
+    renderWithClient(<ManageKeys />, {
+      getAccount: vi.fn().mockResolvedValue(null),
+      postAPIKey: vi.fn().mockResolvedValue(result),
+    });
+
+    await user.type(await screen.findByLabelText("Add an API key"), "KEY");
+    await user.click(screen.getByRole("button", { name: "Add key" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+  });
+
+  it("lists the required permissions in the hint", async () => {
+    renderWithClient(<ManageKeys />, {
+      getAccount: vi.fn().mockResolvedValue(null),
+    });
+
+    expect(
+      await screen.findByText("account, characters, inventories, and wallet"),
+    ).toBeInTheDocument();
   });
 
   it("shows an error when posting the key throws", async () => {

@@ -6,6 +6,21 @@ import {
 } from "../models/AccountInventory";
 import { BagItem, APIBagItem, APIBagItemToBagItem } from "../models/BagItem";
 
+export type APIKeyError =
+  | "invalid_key"
+  | "missing_permissions"
+  | "rate_limited"
+  | "unavailable"
+  | "unknown";
+
+export type PostAPIKeyResult =
+  { account: Account } | { error: APIKeyError; missingPermissions?: string[] };
+
+interface ClientResponse {
+  status: number;
+  body: unknown;
+}
+
 export interface ClientInterface {
   getBagItems(): BagItem[];
 }
@@ -51,6 +66,35 @@ export class Client {
     }
   }
 
+  // like clientPost, but keeps the status and body of error responses so callers can
+  // tell failures apart. Returns null when the request itself fails
+  async clientPostResult(
+    endpoint: string,
+    body: string,
+  ): Promise<ClientResponse | null> {
+    try {
+      const response = await fetch(endpoint, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      });
+
+      let responseBody: unknown = null;
+      try {
+        responseBody = await response.json();
+      } catch {
+        // non-JSON bodies, like nginx's rate limit page
+      }
+      return { status: response.status, body: responseBody };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
   async clientDelete(endpoint: string): Promise<unknown> {
     try {
       const response = await fetch(endpoint, {
@@ -89,18 +133,39 @@ export class Client {
     return APIAccountInventoryToAccountInventory(apiAccountInventory);
   }
 
-  async postAPIKey(key: string): Promise<Account | null> {
+  async postAPIKey(key: string): Promise<PostAPIKeyResult> {
     const body = JSON.stringify({
       APIKey: key,
     });
     const endpoint: string = `${this.baseURL}/apikeys`;
 
-    const response: unknown = await this.clientPost(endpoint, body);
+    const response = await this.clientPostResult(endpoint, body);
     if (!response) {
-      return null;
+      return { error: "unavailable" };
     }
-    const apiAccount = response as APIAccount;
-    return APIAccountToAccount(apiAccount);
+
+    switch (response.status) {
+      case 200:
+        return { account: APIAccountToAccount(response.body as APIAccount) };
+      case 400: {
+        // the client always sends valid JSON, so a 400 is about the key itself
+        const missing = (response.body as { missing_permissions?: unknown })
+          ?.missing_permissions;
+        if (Array.isArray(missing)) {
+          return {
+            error: "missing_permissions",
+            missingPermissions: missing as string[],
+          };
+        }
+        return { error: "invalid_key" };
+      }
+      case 429:
+        return { error: "rate_limited" };
+      case 502:
+        return { error: "unavailable" };
+      default:
+        return { error: "unknown" };
+    }
   }
 
   async getAccount(): Promise<Account | null> {

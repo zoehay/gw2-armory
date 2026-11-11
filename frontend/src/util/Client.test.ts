@@ -117,12 +117,55 @@ describe("postAPIKey", () => {
       headers: { "Content-Type": "application/json" },
     });
     expect(JSON.parse(init.body as string)).toEqual({ APIKey: "KEY" });
-    expect(account).toMatchObject({ accountID: "acct" });
+    expect(account).toMatchObject({ account: { accountID: "acct" } });
   });
 
-  it("returns null on an error response", async () => {
-    fetchMock.mockReturnValue(errorResponse());
-    expect(await client.postAPIKey("bad")).toBeNull();
+  it.each([
+    [
+      "missing permissions",
+      400,
+      {
+        error: "API key is missing required permissions",
+        missing_permissions: ["wallet"],
+      },
+      { error: "missing_permissions", missingPermissions: ["wallet"] },
+    ],
+    [
+      "an invalid key",
+      400,
+      { error: "invalid API key" },
+      { error: "invalid_key" },
+    ],
+    [
+      "rate limiting",
+      429,
+      "<html>429 Too Many Requests</html>",
+      { error: "rate_limited" },
+    ],
+    [
+      "a GW2 API failure",
+      502,
+      { error: "could not verify API key with the GW2 API" },
+      { error: "unavailable" },
+    ],
+    [
+      "an unexpected status",
+      500,
+      { error: "could not create or update account" },
+      { error: "unknown" },
+    ],
+  ])("maps %s to an error result", async (_, status, body, expected) => {
+    const text = typeof body === "string" ? body : JSON.stringify(body);
+    fetchMock.mockReturnValue(Promise.resolve(new Response(text, { status })));
+
+    expect(await client.postAPIKey("KEY")).toEqual(expected);
+  });
+
+  it("reports the GW2 API as unavailable when the request fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    expect(await client.postAPIKey("KEY")).toEqual({ error: "unavailable" });
   });
 });
 
