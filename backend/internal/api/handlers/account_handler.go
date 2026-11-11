@@ -123,15 +123,17 @@ func (h AccountHandler) Delete(c *gin.Context) {
 }
 
 func (h AccountHandler) Logout(c *gin.Context) {
+	// clear the cookie even if ending the session fails, the user still asked to log out
+	h.setSessionCookie(c, "", -1)
+
 	sessionID, err := c.Cookie(sessionCookieName)
 	if err == nil {
 		if err = h.AccountService.Logout(sessionID); err != nil {
-			c.Status(http.StatusInternalServerError)
+			respondError(c, http.StatusInternalServerError, "could not log out", err)
 			return
 		}
 	}
 
-	h.setSessionCookie(c, "", -1)
 	c.Status(http.StatusNoContent)
 }
 
