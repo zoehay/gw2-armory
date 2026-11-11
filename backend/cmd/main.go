@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	allowedOrigins, domain := routes.LoadEnv()
+	allowedOrigins, secureCookies := routes.LoadEnv()
 
 	dsn, err := routes.LoadEnvDSN()
 	if err != nil {
@@ -21,7 +21,7 @@ func main() {
 		mocks = true
 	}
 
-	router, _, _, err := routes.SetupRouter(allowedOrigins, domain, dsn, mocks)
+	router, _, _, err := routes.SetupRouter(allowedOrigins, secureCookies, dsn, mocks)
 	if err != nil {
 		log.Fatal("Error setting up router", err)
 	}

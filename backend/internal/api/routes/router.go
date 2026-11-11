@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ import (
 	"github.com/zoehay/gw2-armory/backend/internal/services"
 )
 
-func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool) (*gin.Engine, *repositories.Repository, *services.Service, error) {
+func SetupRouter(allowedOrigins []string, secureCookies bool, dsn string, mocks bool) (*gin.Engine, *repositories.Repository, *services.Service, error) {
 	database, err := db.PostgresInit(dsn)
 	if err != nil {
 		log.Fatal("Error initializing database connection", err)
@@ -29,7 +30,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 
 	itemHandler := handlers.NewItemHandler(service.ItemService)
 	bagItemHandler := handlers.NewBagItemHandler(service.BagItemService)
-	accountHandler := handlers.NewAccountHandler(domain, service.AccountService, service.BagItemService)
+	accountHandler := handlers.NewAccountHandler(secureCookies, service.AccountService, service.BagItemService)
 
 	err = db.SeedItems(repository.ItemRepository, service.ItemService)
 	if err != nil {
@@ -67,7 +68,7 @@ func SetupRouter(allowedOrigins []string, domain string, dsn string, mocks bool)
 
 }
 
-func LoadEnv() (allowedOrigins []string, domain string) {
+func LoadEnv() (allowedOrigins []string, secureCookies bool) {
 	allowedOriginsString, ok := os.LookupEnv("CORS_ALLOW_ORIGIN")
 	if !ok {
 		allowedOriginsString = "https://localhost:5173 http://localhost:5173"
@@ -76,14 +77,26 @@ func LoadEnv() (allowedOrigins []string, domain string) {
 	}
 	allowedOrigins = strings.Split(allowedOriginsString, " ")
 
-	domain, ok = os.LookupEnv("DOMAIN")
-	if !ok {
-		domain = "localhost"
-		fmt.Printf("DOMAIN not set, default to %s", domain)
-		os.Setenv("DOMAIN", domain)
+	secureCookies = cookieSecureFromEnv()
+	if !secureCookies {
+		fmt.Println("COOKIE_SECURE=false, session cookies will be sent over plain HTTP")
 	}
 
-	return allowedOrigins, domain
+	return allowedOrigins, secureCookies
+}
+
+// cookieSecureFromEnv defaults to secure cookies, so prod doesn't need to set COOKIE_SECURE.
+// Only an explicit false value, for local plain-HTTP dev, turns it off
+func cookieSecureFromEnv() bool {
+	value, ok := os.LookupEnv("COOKIE_SECURE")
+	if !ok {
+		return true
+	}
+	secure, err := strconv.ParseBool(value)
+	if err != nil {
+		return true
+	}
+	return secure
 }
 
 func LoadEnvDSN() (string, error) {

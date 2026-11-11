@@ -37,7 +37,7 @@ cp frontend/.env.example frontend/.env
 | `DEV_NO_MOCK_DB_DSN` | PostgreSQL DSN for local development                                              |
 | `TEST_DB_DSN`        | PostgreSQL DSN for the test database                                              |
 | `CORS_ALLOW_ORIGIN`  | Space-separated allowed origins. Defaults to `https://localhost:5173 http://localhost:5173` |
-| `DOMAIN`             | Domain for session cookies. Defaults to `localhost`                               |
+| `COOKIE_SECURE`      | Set to `false` to send session cookies over plain HTTP in local dev. Defaults to `true` |
 | `APP_ENV`            | Set to `test` to use mocked GW2 API providers and the test database               |
 
 When `ARMORY_DB_PASSWORD_FILE` is set, as it is in Docker, the backend reads the database password from that file and ignores `.env`.
