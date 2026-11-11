@@ -118,6 +118,7 @@ func (h AccountHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	h.setSessionCookie(c, "", -1)
 	c.IndentedJSON(http.StatusOK, gin.H{"deleted": accountID})
 }
 

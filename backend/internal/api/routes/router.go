@@ -52,6 +52,8 @@ func SetupRouter(allowedOrigins []string, secureCookies bool, dsn string, mocks 
 	router.GET("/items/:id", itemHandler.GetItemByID)
 
 	router.POST("/apikeys", accountHandler.HandlePostAPIKeyRequest)
+	// outside the session middleware so an expired or unknown session can still clear its cookie
+	router.POST("/account/logout", accountHandler.Logout)
 
 	account := router.Group("/account")
 	account.Use(middleware.UseSession(&repository.AccountRepository, &repository.SessionRepository))
