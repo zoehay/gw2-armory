@@ -28,7 +28,7 @@ func (s *LogoutTestSuite) SetupSuite() {
 	_, repository, service, err := testutils.DBRouterSetup()
 	s.Require().NoError(err, "Error setting up router")
 	s.Repository = repository
-	s.AccountHandler = handlers.NewAccountHandler("localhost", service.AccountService, service.BagItemService)
+	s.AccountHandler = handlers.NewAccountHandler(true, service.AccountService, service.BagItemService)
 }
 
 func (s *LogoutTestSuite) SetupTest() {

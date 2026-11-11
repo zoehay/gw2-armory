@@ -11,14 +11,14 @@ import (
 )
 
 type AccountHandler struct {
-	Domain         string
+	SecureCookies  bool
 	AccountService services.AccountServiceInterface
 	BagItemService services.BagItemServiceInterface
 }
 
-func NewAccountHandler(domain string, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(secureCookies bool, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
 	return &AccountHandler{
-		Domain:         domain,
+		SecureCookies:  secureCookies,
 		AccountService: accountService,
 		BagItemService: bagItemService,
 	}
@@ -91,7 +91,7 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("sessionID", session.SessionID, int(services.SessionDuration.Seconds()), "/", h.Domain, false, true)
+	h.setSessionCookie(c, session.SessionID, int(services.SessionDuration.Seconds()))
 
 	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
 		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
@@ -118,19 +118,22 @@ func (h AccountHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	h.setSessionCookie(c, "", -1)
 	c.IndentedJSON(http.StatusOK, gin.H{"deleted": accountID})
 }
 
 func (h AccountHandler) Logout(c *gin.Context) {
-	sessionID, err := c.Cookie("sessionID")
+	// clear the cookie even if ending the session fails, the user still asked to log out
+	h.setSessionCookie(c, "", -1)
+
+	sessionID, err := c.Cookie(sessionCookieName)
 	if err == nil {
 		if err = h.AccountService.Logout(sessionID); err != nil {
-			c.Status(http.StatusInternalServerError)
+			respondError(c, http.StatusInternalServerError, "could not log out", err)
 			return
 		}
 	}
 
-	c.SetCookie("sessionID", "", -1, "/", h.Domain, false, true)
 	c.Status(http.StatusNoContent)
 }
 
