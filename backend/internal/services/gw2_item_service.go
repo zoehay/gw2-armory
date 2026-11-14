@@ -11,6 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// maxItemIDsPerRequest is the most IDs GW2's /v2/items accepts in one request
+const maxItemIDsPerRequest = 200
+
 type ItemServiceInterface interface {
 	FetchAndStoreItemsByID(ids []int) error
 	FetchAndStoreAllItems() error
@@ -76,7 +79,7 @@ func (service *ItemService) FetchAndStoreAllItems() error {
 	// }
 	allItemIDs := []int{4, 5, 6} // not pre filling db during development
 
-	itemIDChunks := splitArray(allItemIDs, 50)
+	itemIDChunks := splitArray(allItemIDs, maxItemIDsPerRequest)
 
 	var errs []error
 

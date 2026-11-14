@@ -199,7 +199,7 @@ func (service *BagItemService) GetFilteredAccountInventory(accountID string, sea
 
 func (service *BagItemService) FetchMissingItems(itemIDs []int64) {
 	noDuplicates := removeDuplicates(itemIDs)
-	chunks := splitArray(noDuplicates, 10)
+	chunks := splitArray(noDuplicates, maxItemIDsPerRequest)
 	for _, chunk := range chunks {
 		if err := service.ItemService.FetchAndStoreItemsByID(chunk); err != nil {
 			fmt.Printf("error fetching missing items %v: %v\n", chunk, err)
