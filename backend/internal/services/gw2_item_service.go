@@ -15,7 +15,7 @@ import (
 const maxItemIDsPerRequest = 200
 
 type ItemServiceInterface interface {
-	FetchAndStoreItemsByID(ids []int) error
+	FetchAndStoreItemsByID(ids []int) (storedIDs []int, err error)
 	FetchAndStoreAllItems() error
 	GetAllItems() ([]apimodels.Item, error)
 	GetItemByID(id int) (*apimodels.Item, error)
@@ -50,12 +50,15 @@ func NewItemService(itemRepository *repositories.ItemRepository, itemProvider pr
 	}, nil
 }
 
-func (service *ItemService) FetchAndStoreItemsByID(ids []int) error {
+// FetchAndStoreItemsByID returns the IDs it stored, requested IDs missing from
+// the result with a nil error are ones GW2 doesn't know
+func (service *ItemService) FetchAndStoreItemsByID(ids []int) ([]int, error) {
 	apiItems, err := service.ItemProvider.GetItemsByIDs(ids)
 	if err != nil {
-		return fmt.Errorf("service error using provider: %s", err)
+		return nil, fmt.Errorf("service error using provider: %s", err)
 	}
 
+	var storedIDs []int
 	var errs []error
 	for _, item := range apiItems {
 		dbItem := item.ToDBItem()
@@ -65,10 +68,12 @@ func (service *ItemService) FetchAndStoreItemsByID(ids []int) error {
 		_, err := service.ItemRepository.Create(&dbItem)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("FetchAndStoreItemsByID: %s", err))
+			continue
 		}
+		storedIDs = append(storedIDs, int(dbItem.ID))
 	}
 
-	return errors.Join(errs...)
+	return storedIDs, errors.Join(errs...)
 }
 
 func (service *ItemService) FetchAndStoreAllItems() error {
@@ -84,7 +89,7 @@ func (service *ItemService) FetchAndStoreAllItems() error {
 	var errs []error
 
 	for _, idChunk := range itemIDChunks {
-		err := service.FetchAndStoreItemsByID(idChunk)
+		_, err := service.FetchAndStoreItemsByID(idChunk)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("service error getting and storing items in chunk %d: %s", idChunk, err))
 		}

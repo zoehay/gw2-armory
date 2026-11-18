@@ -13,9 +13,9 @@ type recordingItemService struct {
 	err   error
 }
 
-func (r *recordingItemService) FetchAndStoreItemsByID(ids []int) error {
+func (r *recordingItemService) FetchAndStoreItemsByID(ids []int) ([]int, error) {
 	r.calls = append(r.calls, slices.Clone(ids))
-	return r.err
+	return ids, r.err
 }
 func (r *recordingItemService) FetchAndStoreAllItems() error             { return nil }
 func (r *recordingItemService) GetAllItems() ([]apimodels.Item, error)   { return nil, nil }
