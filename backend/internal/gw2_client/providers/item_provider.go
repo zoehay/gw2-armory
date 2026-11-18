@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -30,6 +31,16 @@ func (itemProvider *ItemProvider) GetItemsByIDs(intArrIds []int) ([]gw2models.GW
 	defer func() {
 		_ = res.Body.Close()
 	}()
+
+	switch res.StatusCode {
+	case http.StatusOK, http.StatusPartialContent:
+		// 206 means GW2 left out the IDs it doesn't know
+	case http.StatusNotFound:
+		// GW2 knows none of the requested IDs
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("provider unexpected status getting items: %d", res.StatusCode)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

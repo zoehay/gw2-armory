@@ -9,7 +9,7 @@ import (
 	gw2client "github.com/zoehay/gw2-armory/backend/internal/gw2_client"
 )
 
-func serveTokenInfo(t *testing.T, status int, body string) {
+func serveGW2Response(t *testing.T, status int, body string) {
 	t.Helper()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
@@ -20,7 +20,7 @@ func serveTokenInfo(t *testing.T, status int, body string) {
 }
 
 func TestGetTokenInfoReturnsToken(t *testing.T) {
-	serveTokenInfo(t, http.StatusOK, `{"id": "key-id", "name": "my key", "permissions": ["account", "wallet"]}`)
+	serveGW2Response(t, http.StatusOK, `{"id": "key-id", "name": "my key", "permissions": ["account", "wallet"]}`)
 
 	token, err := (&AccountProvider{}).GetTokenInfo("key")
 	if err != nil {
@@ -36,7 +36,7 @@ func TestGetTokenInfoReturnsToken(t *testing.T) {
 
 func TestGetTokenInfoInvalidKey(t *testing.T) {
 	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden} {
-		serveTokenInfo(t, status, `{"text": "Invalid access token"}`)
+		serveGW2Response(t, status, `{"text": "Invalid access token"}`)
 
 		_, err := (&AccountProvider{}).GetTokenInfo("bad-key")
 		if !errors.Is(err, ErrInvalidKey) {
@@ -46,7 +46,7 @@ func TestGetTokenInfoInvalidKey(t *testing.T) {
 }
 
 func TestGetTokenInfoServerError(t *testing.T) {
-	serveTokenInfo(t, http.StatusInternalServerError, `{"text": "ErrInternal"}`)
+	serveGW2Response(t, http.StatusInternalServerError, `{"text": "ErrInternal"}`)
 
 	_, err := (&AccountProvider{}).GetTokenInfo("key")
 	if err == nil {
