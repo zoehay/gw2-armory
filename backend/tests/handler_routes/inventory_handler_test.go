@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/zoehay/gw2-armory/backend/internal/api/models"
 	"github.com/zoehay/gw2-armory/backend/internal/db/repositories"
+	"github.com/zoehay/gw2-armory/backend/internal/services"
 	"github.com/zoehay/gw2-armory/backend/tests/testutils"
 )
 
@@ -18,6 +19,7 @@ type InventoryHandlerTestSuite struct {
 	suite.Suite
 	Router     *gin.Engine
 	Repository *repositories.Repository
+	Service    *services.Service
 	Cookie     *http.Cookie
 }
 
@@ -26,10 +28,11 @@ func TestInventoryHandlerTestSuite(t *testing.T) {
 }
 
 func (s *InventoryHandlerTestSuite) SetupSuite() {
-	router, repository, _, err := testutils.DBRouterSetup()
+	router, repository, service, err := testutils.DBRouterSetup()
 	s.Require().NoError(err, "Error setting up router")
 	s.Router = router
 	s.Repository = repository
+	s.Service = service
 
 	userJson := `{"AccountName":"Name forAccount", "APIKey":"stringthatisapikey"}`
 	w := httptest.NewRecorder()
@@ -44,6 +47,9 @@ func (s *InventoryHandlerTestSuite) SetupSuite() {
 }
 
 func (s *InventoryHandlerTestSuite) TearDownSuite() {
+	// background item fetches must not write into the next suite's tables
+	s.Service.BagItemService.MissingItems.Wait()
+
 	dropTables := []string{"db_accounts", "db_sessions", "db_bag_items", "db_items"}
 	err := testutils.TearDownTruncateTables(s.Repository, dropTables)
 	s.Require().NoError(err, "Error tearing down suite")

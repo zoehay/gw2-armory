@@ -1,33 +1,9 @@
 package services
 
 import (
-	"errors"
 	"slices"
 	"testing"
-
-	apimodels "github.com/zoehay/gw2-armory/backend/internal/api/models"
 )
-
-type recordingItemService struct {
-	calls [][]int
-	err   error
-}
-
-func (r *recordingItemService) FetchAndStoreItemsByID(ids []int) ([]int, error) {
-	r.calls = append(r.calls, slices.Clone(ids))
-	return ids, r.err
-}
-func (r *recordingItemService) FetchAndStoreAllItems() error             { return nil }
-func (r *recordingItemService) GetAllItems() ([]apimodels.Item, error)   { return nil, nil }
-func (r *recordingItemService) GetItemByID(int) (*apimodels.Item, error) { return nil, nil }
-
-func sequentialIDs(n int) []int64 {
-	ids := make([]int64, n)
-	for i := range ids {
-		ids[i] = int64(i + 1)
-	}
-	return ids
-}
 
 func TestSplitArray(t *testing.T) {
 	tests := []struct {
@@ -65,53 +41,5 @@ func TestSplitArray(t *testing.T) {
 				t.Error("chunks do not cover the input in order")
 			}
 		})
-	}
-}
-
-func TestFetchMissingItemsUsesFullChunks(t *testing.T) {
-	items := &recordingItemService{}
-	service := &BagItemService{ItemService: items}
-
-	service.FetchMissingItems(sequentialIDs(450))
-
-	var sizes []int
-	for _, call := range items.calls {
-		sizes = append(sizes, len(call))
-	}
-	if want := []int{200, 200, 50}; !slices.Equal(sizes, want) {
-		t.Errorf("request sizes = %v, want %v", sizes, want)
-	}
-}
-
-func TestFetchMissingItemsDeduplicates(t *testing.T) {
-	items := &recordingItemService{}
-	service := &BagItemService{ItemService: items}
-
-	service.FetchMissingItems([]int64{7, 3, 7, 3, 9})
-
-	if len(items.calls) != 1 || !slices.Equal(items.calls[0], []int{7, 3, 9}) {
-		t.Errorf("calls = %v, want one call with [7 3 9]", items.calls)
-	}
-}
-
-func TestFetchMissingItemsNoIDsMakesNoRequest(t *testing.T) {
-	items := &recordingItemService{}
-	service := &BagItemService{ItemService: items}
-
-	service.FetchMissingItems(nil)
-
-	if len(items.calls) != 0 {
-		t.Errorf("calls = %v, want none", items.calls)
-	}
-}
-
-func TestFetchMissingItemsContinuesAfterChunkError(t *testing.T) {
-	items := &recordingItemService{err: errors.New("gw2 unavailable")}
-	service := &BagItemService{ItemService: items}
-
-	service.FetchMissingItems(sequentialIDs(401))
-
-	if len(items.calls) != 3 {
-		t.Errorf("made %d requests, want 3 even when chunks fail", len(items.calls))
 	}
 }

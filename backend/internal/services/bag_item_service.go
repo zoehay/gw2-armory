@@ -33,6 +33,7 @@ type BagItemService struct {
 	CharacterProvider providers.CharacterDataProvider
 	AccountProvider   providers.AccountDataProvider
 	ItemService       ItemServiceInterface
+	MissingItems      *MissingItemFetcher
 }
 
 func NewBagItemService(bagItemRepository *repositories.BagItemRepository, characterProvider providers.CharacterDataProvider, accountProvider providers.AccountDataProvider, itemService ItemServiceInterface) *BagItemService {
@@ -41,6 +42,7 @@ func NewBagItemService(bagItemRepository *repositories.BagItemRepository, charac
 		CharacterProvider: characterProvider,
 		AccountProvider:   accountProvider,
 		ItemService:       itemService,
+		MissingItems:      NewMissingItemFetcher(itemService),
 	}
 }
 
@@ -197,26 +199,9 @@ func (service *BagItemService) GetFilteredAccountInventory(accountID string, sea
 	return inventory, nil
 }
 
+// FetchMissingItems queues the items for a background fetch and returns immediately
 func (service *BagItemService) FetchMissingItems(itemIDs []int64) {
-	noDuplicates := removeDuplicates(itemIDs)
-	chunks := splitArray(noDuplicates, maxItemIDsPerRequest)
-	for _, chunk := range chunks {
-		if _, err := service.ItemService.FetchAndStoreItemsByID(chunk); err != nil {
-			fmt.Printf("error fetching missing items %v: %v\n", chunk, err)
-		}
-	}
-}
-
-func removeDuplicates(inputIDs []int64) []int {
-	intMap := make(map[int64]bool)
-	var noDuplicates []int
-	for _, id := range inputIDs {
-		if _, value := intMap[id]; !value {
-			intMap[id] = true
-			noDuplicates = append(noDuplicates, int(id))
-		}
-	}
-	return noDuplicates
+	service.MissingItems.Enqueue(itemIDs)
 }
 
 func splitArray(arr []int, chunkSize int) [][]int {
