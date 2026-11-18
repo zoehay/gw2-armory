@@ -9,6 +9,7 @@ type Service struct {
 	AccountService *AccountService
 	BagItemService *BagItemService
 	ItemService    *ItemService
+	CrawlService   *CrawlService
 }
 
 func NewService(repository *repositories.Repository, mocks bool) (*Service, error) {
@@ -38,5 +39,6 @@ func NewService(repository *repositories.Repository, mocks bool) (*Service, erro
 		AccountService: accountService,
 		BagItemService: bagItemService,
 		ItemService:    itemService,
+		CrawlService:   NewCrawlService(accountService, bagItemService),
 	}, nil
 }

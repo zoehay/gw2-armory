@@ -13,14 +13,14 @@ import (
 type AccountHandler struct {
 	SecureCookies  bool
 	AccountService services.AccountServiceInterface
-	BagItemService services.BagItemServiceInterface
+	CrawlService   services.CrawlServiceInterface
 }
 
-func NewAccountHandler(secureCookies bool, accountService services.AccountServiceInterface, bagItemService services.BagItemServiceInterface) *AccountHandler {
+func NewAccountHandler(secureCookies bool, accountService services.AccountServiceInterface, crawlService services.CrawlServiceInterface) *AccountHandler {
 	return &AccountHandler{
 		SecureCookies:  secureCookies,
 		AccountService: accountService,
-		BagItemService: bagItemService,
+		CrawlService:   crawlService,
 	}
 }
 
@@ -93,17 +93,9 @@ func (h AccountHandler) HandlePostAPIKeyRequest(c *gin.Context) {
 
 	h.setSessionCookie(c, session.SessionID, int(services.SessionDuration.Seconds()))
 
-	if h.AccountService.IsRecrawlDue(account.LastCrawl) {
-		err = h.BagItemService.FetchAndStoreAllBagItems(account.AccountID, accountRequest.APIKey)
-		if err != nil {
-			respondError(c, http.StatusInternalServerError, "could not get inventory", err)
-			return
-		}
-		err = h.AccountService.UpdateLastCrawl(account.AccountID)
-		if err != nil {
-			respondError(c, http.StatusInternalServerError, "could not update account", err)
-			return
-		}
+	if err = h.CrawlService.CrawlIfDue(account.AccountID, accountRequest.APIKey); err != nil {
+		respondError(c, http.StatusInternalServerError, "could not get inventory", err)
+		return
 	}
 
 	c.IndentedJSON(http.StatusOK, account)
